@@ -1,0 +1,64 @@
+# Stage 1: Base Image with PHP and Required Extensions
+FROM php:8.4-apache as base
+
+ARG PHP_EXTS="bcmath ctype fileinfo mbstring pdo pdo_mysql intl dom pcntl zip gd sodium"
+
+RUN apt update \
+    && apt install -y libonig-dev libicu-dev libsodium-dev libxml2-dev libzip-dev zip libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev cron curl supervisor \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && docker-php-ext-install -j$(nproc) ${PHP_EXTS} \
+    && a2enmod rewrite \
+    && apt purge -y --auto-remove libonig-dev libxml2-dev
+
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Copy Composer from official Composer image
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+RUN apt update \
+    && apt install -y zip unzip git \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Stage 2: Build Stage with Node.js
+FROM node:slim as builder
+
+WORKDIR /app
+
+COPY --chown=node:node . /app
+
+# Install frontend dependencies and build assets
+RUN npm install \
+    && npm run build
+
+# Stage 3: Build PHP Application
+FROM base as app-builder
+
+WORKDIR /var/www/html/
+
+COPY --chown=www-data:www-data . /var/www/html/
+COPY --from=builder /app/public /var/www/html/public
+
+# Install backend dependencies and optimize Laravel
+RUN /usr/local/bin/composer install --no-interaction --optimize-autoloader --no-dev
+
+RUN touch laravel.cron && \
+    echo "* * * * * cd /var/www/html/ && /usr/local/bin/php artisan schedule:run" >> laravel.cron && \
+    crontab laravel.cron
+
+# Stage 4: Production Image
+FROM base as production
+
+WORKDIR /var/www/html/
+
+COPY --from=app-builder /var/www/html/ /var/www/html/
+
+COPY docker/production/supervisor.conf /etc/supervisor/conf.d/worker.conf
+
+RUN chown -R www-data:www-data /var/www/html/
+
+USER www-data
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/worker.conf"]

@@ -1,0 +1,98 @@
+@font-face {
+  font-family: 'CibatusRecipes';
+  src:  url('#{$icomoon-font-path}/CibatusRecipes.eot?mq6l3a');
+  src:  url('#{$icomoon-font-path}/CibatusRecipes.eot?mq6l3a#iefix') format('embedded-opentype'),
+    url('#{$icomoon-font-path}/CibatusRecipes.ttf?mq6l3a') format('truetype'),
+    url('#{$icomoon-font-path}/CibatusRecipes.woff?mq6l3a') format('woff'),
+    url('#{$icomoon-font-path}/CibatusRecipes.svg?mq6l3a#CibatusRecipes') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'CibatusRecipes' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: bold;
+  // font-weight: normal;
+  color: #001204;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  font-size: 1.8rem;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@function unicode($str) {
+    @return unquote("\"") + $str + unquote("\"");
+}
+
+.icon-drumstick {
+    &:before {
+        content: unicode($icon-drumstick);
+    }
+}
+.icon-bread {
+    &:before {
+        content: unicode($icon-bread);
+    }
+}
+.icon-cake {
+    &:before {
+        content: unicode($icon-cake);
+    }
+}
+.icon-coffee {
+    &:before {
+        content: unicode($icon-coffee);
+    }
+}
+.icon-cookie {
+    &:before {
+        content: unicode($icon-cookie);
+    }
+}
+.icon-cupcake {
+    &:before {
+        content: unicode($icon-cupcake);
+    }
+}
+.icon-fish {
+    &:before {
+        content: unicode($icon-fish);
+    }
+}
+.icon-honey-stick {
+    &:before {
+        content: unicode($icon-honey_stick);
+    }
+}
+.icon-icecream {
+    &:before {
+        content: unicode($icon-icecream);
+    }
+}
+.icon-leaf {
+    &:before {
+        content: unicode($icon-leaf);
+    }
+}
+.icon-loop {
+    &:before {
+        content: unicode($icon-loop);
+    }
+}
+.icon-milk {
+    &:before {
+        content: unicode($icon-milk);
+    }
+}
+.icon-steak {
+    &:before {
+        content: unicode($icon-steak);
+    }
+}

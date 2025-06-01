@@ -1,0 +1,107 @@
+.logo{
+    margin-top:45px;
+    display: inline-block;
+    img{
+        width:350px;
+    }
+    @media screen and (max-width: $bp-table-portrait) {
+        margin-top:20px;
+        img{
+            width:300px;
+        }
+    }
+}
+
+#main {
+    min-width: 320px;
+    transition: margin-left .5s;
+    .header {
+        height:245px;
+        @media screen and (max-width: $bp-table-portrait) {
+            height:155px;
+        }
+        text-align: center;
+        box-sizing: border-box;
+        background: url('../../public/images/thumb_cover.jpg') no-repeat;
+        box-shadow: inset 0 0 0 125px rgba(0, 0, 0, 0.74);
+        background-position: bottom;
+        background-size: cover;
+        background-color: $menu-background;
+        position: relative;
+        a{
+            font-size: 1rem;
+            // display: inline-block;
+        }
+        h1{
+            margin:0;
+        }
+        .menu{
+            position: absolute;
+            float:left;
+            margin-left: 10px;
+            margin-right: 5px;
+            height:100%;
+            color: #fff;
+        }
+        .menu a{
+            font-size: 1.8rem;
+            color: #fff;
+        }
+    }
+
+    .content{
+        padding-left:10px;
+        padding-right:10px;
+        padding-top:10px;
+    }
+}
+
+
+.copy{
+    pointer-events: none;
+    position: absolute;
+    right:1000vh;
+    width:100%;
+    outline: none;
+    border:0;
+    font-size: 0.9rem;
+    &::selection {
+      background: none;
+    }
+}
+
+.linkList{
+    list-style-type: none;
+    margin: 0;
+    padding:0;
+    & a{
+        font-size:0.8rem;
+        &:hover{
+            text-decoration: underline;
+        }
+    }
+}
+
+.addRecipeMobile{
+    display:none;
+}
+@media all and (max-width: 740px) {
+    .addRecipeMobile{
+        display: block;
+        position: fixed;
+        bottom:10px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        background:#53875F;
+        color:#fff;
+        border-radius: 50%;
+        width:60px;
+        height:60px;
+        text-align:center;
+        box-shadow: 2px 2px 3px #999;
+        font-size: 2rem;
+        & i{
+            padding-top:14px;
+        }
+    }
+}

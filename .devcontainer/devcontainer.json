@@ -1,0 +1,33 @@
+// https://aka.ms/devcontainer.json
+{
+	"name": "Dyhrene",
+	"dockerComposeFile": [
+		"../docker-compose.yml"
+	],
+	"service": "laravel.test",
+	"workspaceFolder": "/var/www/html",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"DEVSENSE.phptools-vscode",
+				"eamodio.gitlens",
+				"open-southeners.laravel-pint",
+				"dbaeumer.vscode-eslint",
+				"bradlc.vscode-tailwindcss",
+				"onecentlin.laravel-blade",
+				"amiralizadeh9480.laravel-extra-intellisense"
+				// "mikestead.dotenv",
+				// "amiralizadeh9480.laravel-extra-intellisense",
+				// "ryannaddy.laravel-artisan",
+				// "onecentlin.laravel5-snippets",
+				// "onecentlin.laravel-blade"
+			],
+			"settings": {}
+		}
+	},
+	"remoteUser": "sail",
+	"postCreateCommand": "chown -R 1000:1000 /var/www/html"
+	// "forwardPorts": [],
+	// "runServices": [],
+	// "shutdownAction": "none",
+}

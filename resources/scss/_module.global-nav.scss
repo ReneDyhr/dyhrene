@@ -1,0 +1,218 @@
+.sidenav {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: -1px;
+    background-color: $menu-background;
+    border-right: 1px solid $menu-border-color;
+    overflow-x: hidden;
+    transition: 0.5s;
+    box-sizing: border-box;
+
+    .divider {
+        border-bottom: 1px solid $menu-border-color;
+        margin-top: 15px;
+    }
+
+    .header {
+        width: 100%;
+        text-align: center;
+        height: 135px;
+        background-image: url("../../public/images/artichoke.png");
+        background-position: center 2px;
+        background-size: 60%;
+        background-repeat: no-repeat;
+
+        .profile-picture {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin: 0 auto;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            z-index: 5;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin: 30px 0 0;
+            cursor: pointer;
+        }
+    }
+
+    .personal h1 {
+        margin-top: 0;
+    }
+
+    .groups,
+    .personal,
+    .shared {
+        h1 {
+            padding: 5px 5px 0 12px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: $menu-header-color;
+            margin: 10px 0 0;
+        }
+    }
+
+    .shared {
+        flex-grow: 1;
+    }
+
+    ul {
+        padding: 0;
+        margin: 0;
+        list-style-type: none;
+    }
+
+    li {
+        font-size: 0.9rem;
+
+        &:hover {
+            background: $menu-header-color;
+        }
+    }
+
+    li a {
+        padding: 2px 20px;
+        display: block;
+        font-size: 0.8rem;
+        color: #000;
+        font-weight: normal;
+
+        &:hover {
+            color: #fff;
+        }
+    }
+
+    .see-more {
+        font-size: 0.8rem;
+        float: right;
+        margin-top: 5px;
+
+        a {
+            color: $base-link-color!important;
+
+            &:hover {
+                color: #fff!important;
+            }
+        }
+    }
+
+    .list-item {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 1.5rem;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+    }
+
+    .list-item:hover,
+    .offcanvas a:focus {
+        color: #f1f1f1;
+    }
+
+    footer .link{
+        font-size: 0.8rem;
+        color: $base-link-color!important;
+    }
+    footer a, footer p{
+        margin:5px 0 0 0;
+        font-size: 0.6rem;
+    }
+}
+
+nav.navigation {
+    margin-top: 10px;
+}
+
+.categories {
+    box-sizing: border-box;
+    padding: 4px 5px 0 12px;
+    // border-top:1px solid $primary-border;
+    // border-bottom:1px solid $primary-border;
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    display: inline-block;
+    height: 34px;
+    // max-width:390px;
+    width: 100%;
+
+    .center {
+        margin: 0 auto;
+        float: none;
+        display: inline-block;
+    }
+
+    .is_checked .icon {
+        color: darken($menu-header-color, 20%);
+    }
+
+    label {
+        font-size: 0.8rem;
+        font-weight: normal;
+        display: inline-block;
+        margin-left: 5px;
+    }
+
+    div {
+        float: left;
+        margin-left: 5px;
+    }
+
+    i {
+        color: #fff;
+        cursor: pointer;
+    }
+
+    .btn i {
+        color: #000;
+    }
+
+    .edit {
+        position: absolute;
+        right: 5px;
+        bottom: 2px;
+        font-size: 18px;
+        color: $menu-header-color;
+        text-decoration: none;
+        font-style: italic;
+
+        i {
+            color: $menu-header-color;
+
+            &:hover {
+                color: darken($menu-header-color, 20%);
+            }
+        }
+    }
+}
+
+footer.header-footer {
+    position: absolute;
+    bottom: 0;
+    left: 5px;
+}
+@media all and (min-width: 740px) {
+    #mySidenav {
+        width: 230px;
+        padding: 20px;
+    }
+
+    #main {
+        margin-left: 230px;
+    }
+
+    #main .header .menu {
+        display: none;
+    }
+}
