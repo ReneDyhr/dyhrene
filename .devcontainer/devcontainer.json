@@ -4,6 +4,9 @@
 	"dockerComposeFile": [
 		"../docker-compose.yml"
 	],
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/home/sail/.ssh,type=bind,consistency=cached"
+	],
 	"service": "laravel.test",
 	"workspaceFolder": "/var/www/html",
 	"customizations": {
