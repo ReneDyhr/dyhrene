@@ -14,6 +14,9 @@ class Freezers extends Component
     public $itemName = [];
     public $itemQuantity = [];
     public $confirmingItemId = null;
+    public $editItemId;
+    public $editItemName;
+    public $editItemQuantity;
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -92,5 +95,31 @@ class Freezers extends Component
         }
         $this->freezers = Freezer::with('items')->orderBy('name')->get();
 
+    }
+
+    public function editItem($itemId)
+    {
+        $item = \App\Models\FreezerItem::findOrFail($itemId);
+        $this->editItemId = $item->id;
+        $this->editItemName = $item->name;
+        $this->editItemQuantity = $item->quantity;
+        $this->dispatch('show-edit-modal');
+    }
+
+    public function updateItem()
+    {
+        $this->validate([
+            'editItemName' => 'required|string|max:255',
+            'editItemQuantity' => 'required|integer|min:1',
+        ]);
+        $item = \App\Models\FreezerItem::findOrFail($this->editItemId);
+        $item->name = $this->editItemName;
+        $item->quantity = $this->editItemQuantity;
+        $item->save();
+        $this->dispatch('hide-edit-modal');
+        $this->editItemId = null;
+        $this->editItemName = null;
+        $this->editItemQuantity = null;
+        $this->freezers = Freezer::with('items')->orderBy('name')->get();
     }
 }

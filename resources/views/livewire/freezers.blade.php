@@ -30,10 +30,10 @@
                             <h1>{{ $freezer->name }}</h1>
                             <ul id="freezer-items-{{ $freezer->id }}" class="shopping-list ui-sortable">
                                 @foreach($freezer->items as $item)
-                                    <li id="freezer-item-{{ $item->id }}" data-id="{{ $item->id }}">
+                                    <li id="freezer-item-{{ $item->id }}" data-id="{{ $item->id }}" wire:click="editItem({{ $item->id }})" style="cursor:pointer;">
                                         {{ $item->quantity }} {{ $item->name }}
-                                        <span class="handle" style="cursor:move;"><i class="fa fa-arrows-v"></i></span>
-                                        <span wire:confirm="Are you sure?" wire:click="removeItem({{ $item->id }})" class="close" style="cursor:pointer;">×</span>
+                                        <span class="handle" style="cursor:move;" wire:click.stop><i class="fa fa-arrows-v"></i></span>
+                                        <span wire:confirm="Are you sure?" wire:click.stop="removeItem({{ $item->id }})" class="close" style="cursor:pointer;">×</span>
                                     </li>
                                 @endforeach
                             </ul>
@@ -78,6 +78,36 @@
         </div>
     </div>
 
+    <!-- Edit Item Modal -->
+    <div wire:ignore.self class="modal fade" id="editItemModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form wire:submit.prevent="updateItem">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Item</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" wire:model.defer="editItemName" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" wire:model.defer="editItemQuantity" class="form-control" min="1" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @script
     <script>
         console.log('HERE');
@@ -104,6 +134,15 @@
                 console.warn('Element not found for freezer: {{ $freezer->id }}');
             }
         @endforeach
+
+        // Register modal event listeners globally so Livewire can trigger them
+        window.addEventListener('show-edit-modal', function () {
+            $('#editItemModal').modal('show');
+        });
+        window.addEventListener('hide-edit-modal', function () {
+            $('#editItemModal').modal('hide');
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             document.addEventListener('livewire:load', function () {
                 window.addEventListener('show-confirm-modal', event => {
