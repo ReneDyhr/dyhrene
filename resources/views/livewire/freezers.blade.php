@@ -7,17 +7,20 @@
             <style>
                 .freezer-list {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-                    grid-auto-rows: 1fr;
+                    grid-template-columns: repeat(2, 1fr);
                     gap: 0.5rem;
-                    align-items: start;
+                    align-items: stretch;
                 }
                 .recipe {
                     display: flex;
                     flex-direction: column;
                     min-width: 0;
+                    height: auto;
                 }
-                @media (max-width: 600px) {
+                .freezer-list > .recipe {
+                    align-self: flex-start;
+                }
+                @media (max-width: 1000px) {
                     .freezer-list {
                         grid-template-columns: 1fr;
                     }
@@ -26,7 +29,7 @@
             <div class="col-12">
                 <div class="freezer-list">
                     @foreach($freezers as $freezer)
-                        <div class="recipe" style="min-width:260px;max-width:350px;">
+                        <div class="recipe">
                             <h1>{{ $freezer->name }}</h1>
                             <ul id="freezer-items-{{ $freezer->id }}" class="shopping-list ui-sortable">
                                 @foreach($freezer->items as $item)
@@ -37,15 +40,30 @@
                                     </li>
                                 @endforeach
                             </ul>
-                            <form wire:submit.prevent="addFreezerItem({{ $freezer->id }})" class="add-item mt-2">
+                            <form wire:submit.prevent="addFreezerItem({{ $freezer->id }})" class="add-item mt-3 px-2 py-2 bg-light rounded shadow-sm d-flex align-items-center gap-2 flex-row">
                                 <input type="hidden" wire:model.defer="freezerId" value="{{ $freezer->id }}" />
-                                <input type="text" wire:model.defer="itemName.{{ $freezer->id }}" placeholder="Item name" class="border rounded px-2 py-1 w-24" />
-                                <input type="number" wire:model.defer="itemQuantity.{{ $freezer->id }}" placeholder="Qty" min="1" class="border rounded px-2 py-1 w-16" />
-                                <button type="submit" class="btn btn-success">Add</button>
+                                <input 
+                                    type="number" 
+                                    wire:model.defer="itemQuantity.{{ $freezer->id }}" 
+                                    placeholder="Qty" 
+                                    min="1" 
+                                    class="form-control me-2"
+                                    style="max-width: 20%; width: 100%; float: left; display: inline-block;"
+                                />
+                                <input 
+                                    type="text" 
+                                    wire:model.defer="itemName.{{ $freezer->id }}" 
+                                    placeholder="Item name" 
+                                    class="form-control me-2"
+                                    style="max-width: 60%; float: left; display: inline-block;"
+                                />
+                                <button type="submit" class="btn btn-success" style="max-width: 20%; width: 100%; padding: 6px; float: left; display: inline-block;">
+                                    <i class="fa fa-plus"></i> Add
+                                </button>
                             </form>
                         </div>
                     @endforeach
-                    <div class="recipe" style="min-width:260px;max-width:350px;">
+                    <div class="recipe">
                         <form wire:submit.prevent="addFreezer">
                             <input type="text" wire:model.defer="name" placeholder="Add new freezer/shelf..." class="border rounded px-2 py-1" />
                             <button type="submit" class="btn btn-default">Add Freezer</button>
@@ -91,12 +109,12 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Name</label>
-                            <input type="text" wire:model.defer="editItemName" class="form-control" />
-                        </div>
-                        <div class="form-group">
                             <label>Quantity</label>
                             <input type="number" wire:model.defer="editItemQuantity" class="form-control" min="1" />
+                        </div>
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" wire:model.defer="editItemName" class="form-control" />
                         </div>
                     </div>
                     <div class="modal-footer">
