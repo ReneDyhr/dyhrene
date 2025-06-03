@@ -64,9 +64,21 @@
                         </div>
                     @endforeach
                     <div class="recipe">
-                        <form wire:submit.prevent="addStorage">
-                            <input type="text" wire:model.defer="name" placeholder="Add new storage/shelf..." class="border rounded px-2 py-1" />
-                            <button type="submit" class="btn btn-default">Add Storage</button>
+                        <form wire:submit.prevent="addStorage" class="add-item mt-3 px-2 py-2 bg-light rounded shadow-sm d-flex align-items-center gap-2 flex-row">
+                            <input 
+                                type="text" 
+                                wire:model.defer="name" 
+                                placeholder="Add new storage/shelf..." 
+                                class="form-control me-2"
+                                style="max-width: 80%; float: left; display: inline-block;"
+                            />
+                            <button 
+                                type="submit" 
+                                class="btn btn-success" 
+                                style="max-width: 20%; width: 100%; padding: 6px; float: left; display: inline-block;"
+                            >
+                                <i class="fa fa-plus"></i> Add Storage
+                            </button>
                         </form>
                     </div>
                 </div>
