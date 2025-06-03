@@ -1,7 +1,8 @@
 <?php
 
-return [
+declare(strict_types=1);
 
+return [
     /*
     |--------------------------------------------------------------------------
     | Default Hash Driver
@@ -13,7 +14,7 @@ return [
     |
     | Supported: "bcrypt", "argon", "argon2id"
     |
-    */
+     */
 
     'driver' => 'bcrypt',
 
@@ -26,10 +27,10 @@ return [
     | passwords are hashed using the Bcrypt algorithm. This will allow you
     | to control the amount of time it takes to hash the given password.
     |
-    */
+     */
 
     'bcrypt' => [
-        'rounds' => env('BCRYPT_ROUNDS', 10),
+        'rounds' => \env('BCRYPT_ROUNDS', 10),
     ],
 
     /*
@@ -41,12 +42,11 @@ return [
     | passwords are hashed using the Argon algorithm. These will allow you
     | to control the amount of time it takes to hash the given password.
     |
-    */
+     */
 
     'argon' => [
         'memory' => 65536,
         'threads' => 1,
         'time' => 4,
     ],
-
 ];

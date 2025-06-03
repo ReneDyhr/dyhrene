@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use App\Models\Category;
@@ -7,36 +9,41 @@ use App\Models\User;
 use Auth;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\CreatesApplication;
 use Tests\TestCase;
 
 class RecipeTest extends TestCase
 {
-    use CreatesApplication, DatabaseMigrations, DatabaseTransactions, WithFaker;
-    private User|null $user = null;
+    use CreatesApplication;
+    use DatabaseMigrations;
+    use DatabaseTransactions;
+    use WithFaker;
+
+    private null | User $user = null;
 
     /**
-     * Before each test, create user and login
+     * Before each test, create user and login.
      */
     protected function setUp(): void
     {
         parent::setUp();
         $user = User::factory()->create();
+
         /** @var User */
-        $loggedIn = Auth::loginUsingId($user->id);
+        $loggedIn = \Auth::loginUsingId($user->id);
         $this->user = $loggedIn;
     }
 
     /**
-     * Log out before next test
-    */
+     * Log out before next test.
+     */
     protected function tearDown(): void
     {
         parent::tearDown();
         // Auth::logout();
     }
+
     /**
      * A basic feature test example.
      * @test
@@ -48,13 +55,13 @@ class RecipeTest extends TestCase
             'user_id' => $this->user->id,
         ]);
         $recipe = [
-            "name" => $this->faker()->name(),
-            "description" => $this->faker()->realText(),
-            "note" => $this->faker()->realText(),
-            "public" => $this->faker()->boolean(),
-            "categories" => [1, 2, 3],
-            "ingredients" => ["Ingredient 1", "Ingredient 2", "Ingredient 3", "Ingredient 4"],
-            "tags" => ["tag 1", "tag 2"],
+            'name' => $this->faker()->name(),
+            'description' => $this->faker()->realText(),
+            'note' => $this->faker()->realText(),
+            'public' => $this->faker()->boolean(),
+            'categories' => [1, 2, 3],
+            'ingredients' => ['Ingredient 1', 'Ingredient 2', 'Ingredient 3', 'Ingredient 4'],
+            'tags' => ['tag 1', 'tag 2'],
         ];
         $response = $this->post('/api/recipe', $recipe);
         $response->assertStatus(201);
@@ -73,16 +80,16 @@ class RecipeTest extends TestCase
      */
     public function create_recipe_without_login(): void
     {
-        Auth::logout();
+        \Auth::logout();
         $recipe = [
-            "name" => $this->faker()->email(),
-            "description" => $this->faker()->realText(),
-            "note" => $this->faker()->realText(),
-            "date" => $this->faker()->date(),
-            "public" => $this->faker()->boolean(),
-            "categories" => [1, 2, 3],
-            "ingredients" => ["Ingredient 1", "Ingredient 2"],
-            "tags" => ["tag 1", "tag 2"],
+            'name' => $this->faker()->email(),
+            'description' => $this->faker()->realText(),
+            'note' => $this->faker()->realText(),
+            'date' => $this->faker()->date(),
+            'public' => $this->faker()->boolean(),
+            'categories' => [1, 2, 3],
+            'ingredients' => ['Ingredient 1', 'Ingredient 2'],
+            'tags' => ['tag 1', 'tag 2'],
         ];
         $response = $this->post('/api/recipe', $recipe);
 

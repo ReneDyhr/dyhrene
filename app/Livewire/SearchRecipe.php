@@ -1,22 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
-use Livewire\Attributes\Url;
-use App\Models\Category;
 use App\Models\Recipe;
+use Illuminate\View\View;
+use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\Attributes\Validate; 
 
 class SearchRecipe extends Component
 {
     #[Url(as: 'q')]
     public string $query;
 
-    public function mount()
-    {
-    }
-    public function render()
+    public function mount(): void {}
+
+    public function render(): View
     {
         $recipes = Recipe::with(['ingredients', 'tags', 'categories'])
             ->where('name', 'like', '%' . $this->query . '%')
@@ -24,6 +24,6 @@ class SearchRecipe extends Component
             ->orderBy('id', 'DESC')
             ->get();
 
-        return view('livewire.recipes.index', ['title' => 'Search: '.$this->query, 'recipes' => $recipes]);
+        return \view('livewire.recipes.index', ['title' => 'Search: ' . $this->query, 'recipes' => $recipes]);
     }
 }

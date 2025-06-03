@@ -1,55 +1,61 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
-use Livewire\Component;
-use App\Models\Storage;
 use App\Models\StorageItem;
+use Illuminate\View\View;
+use Livewire\Component;
 
 class StorageItems extends Component
 {
-    public $storageId;
-    public $items = [];
-    public $name;
-    public $quantity;
-    public $unit;
+    public int $storageId;
 
-    protected $rules = [
+    /** @var array<int, \App\Models\StorageItem> */
+    public array $items = [];
+
+    public string $name;
+
+    public int $quantity;
+
+    /** @var array<string, string> */
+    protected array $rules = [
         'name' => 'required|string|max:255',
         'quantity' => 'required|integer|min:1',
-        'unit' => 'nullable|string|max:50',
     ];
 
+    /**
+     * @var array<string, string>
+     */
     protected $listeners = ['storageSelected' => 'setStorage'];
 
-    public function setStorage($id)
+    public function setStorage(int $id): void
     {
         $this->storageId = $id;
         $this->loadItems();
     }
 
-    public function loadItems()
+    public function loadItems(): void
     {
-        $this->items = StorageItem::where('storage_id', $this->storageId)->orderBy('name')->get();
+        $this->items = StorageItem::where('storage_id', $this->storageId)->orderBy('name')->get()->all();
     }
 
-    public function addItem()
+    public function addItem(): void
     {
         $this->validate();
         StorageItem::create([
             'storage_id' => $this->storageId,
             'name' => $this->name,
             'quantity' => $this->quantity,
-            'unit' => $this->unit,
         ]);
         $this->name = '';
-        $this->quantity = '';
-        $this->unit = '';
+        $this->quantity = 1;
         $this->loadItems();
     }
 
-    public function render()
+    public function render(): View
     {
-        return view('livewire.storage-items');
+        return \view('livewire.storage-items');
     }
 }

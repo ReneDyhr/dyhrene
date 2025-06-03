@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\User;
@@ -19,9 +21,9 @@ class CategoryFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'icon' => fake()->domainWord(),
-            'slug' => fake()->slug(),
-            'name' => fake()->name(),
+            'icon' => \fake()->domainWord(),
+            'slug' => \fake()->slug(),
+            'name' => \fake()->name(),
         ];
     }
 }
