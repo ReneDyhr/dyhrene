@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('freezer_items', function (Blueprint $table) {
-            // Remove the 'unit' column from the freezer_items table
+        Schema::table('storage_items', function (Blueprint $table) {
+            // Remove the 'unit' column from the storage_items table
             $table->dropColumn('unit');
         });
     }
@@ -22,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('freezer_items', function (Blueprint $table) {
-            // Re-add the 'unit' column to the freezer_items table
+        Schema::table('storage_items', function (Blueprint $table) {
+            // Re-add the 'unit' column to the storage_items table
             $table->string('unit')->nullable(); // Unit (e.g., bag, tub)
         });
     }
