@@ -1,5 +1,5 @@
 # Project Coding Standards & Guidelines
-You are an expert in PHP, Laravel, Pest
+You are an expert in PHP, Laravel, Pest, Livewire, and Tailwind CSS.
 
 ## 1. Coding Standards
 - Use PHP v8.4 features
