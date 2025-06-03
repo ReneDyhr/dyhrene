@@ -20,7 +20,7 @@
 </div>
 <div class="mb-3">
     <label for="date" class="form-label">Date</label>
-    <input type="date" id="date" class="form-control" wire:model.defer="data.date" required>
+    <input type="datetime-local" id="date" class="form-control" wire:model.defer="data.date" required>
 </div>
 <div class="mb-3">
     <label for="file_path" class="form-label">File Path</label>
