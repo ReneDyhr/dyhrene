@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('freezer_items', function (Blueprint $table) {
+        Schema::table('storage_items', function (Blueprint $table) {
             $table->integer('sort_order')->default(0)->after('unit');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('freezer_items', function (Blueprint $table) {
+        Schema::table('storage_items', function (Blueprint $table) {
             $table->dropColumn('sort_order');
         });
     }

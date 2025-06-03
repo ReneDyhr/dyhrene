@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('freezer_items', function (Blueprint $table) {
+        Schema::create('storage_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('freezer_id')->constrained()->onDelete('cascade');
+            $table->foreignId('storage_id')->constrained()->onDelete('cascade');
             $table->string('name'); // Item name (e.g., fries, ice cream)
             $table->integer('quantity'); // Quantity of the item
             $table->string('unit')->nullable(); // Unit (e.g., bag, tub)
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('freezer_items');
+        Schema::dropIfExists('storage_items');
     }
 };

@@ -3,12 +3,12 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\Freezer;
-use App\Models\FreezerItem;
+use App\Models\Storage;
+use App\Models\StorageItem;
 
-class FreezerItems extends Component
+class StorageItems extends Component
 {
-    public $freezerId;
+    public $storageId;
     public $items = [];
     public $name;
     public $quantity;
@@ -20,24 +20,24 @@ class FreezerItems extends Component
         'unit' => 'nullable|string|max:50',
     ];
 
-    protected $listeners = ['freezerSelected' => 'setFreezer'];
+    protected $listeners = ['storageSelected' => 'setStorage'];
 
-    public function setFreezer($id)
+    public function setStorage($id)
     {
-        $this->freezerId = $id;
+        $this->storageId = $id;
         $this->loadItems();
     }
 
     public function loadItems()
     {
-        $this->items = FreezerItem::where('freezer_id', $this->freezerId)->orderBy('name')->get();
+        $this->items = StorageItem::where('storage_id', $this->storageId)->orderBy('name')->get();
     }
 
     public function addItem()
     {
         $this->validate();
-        FreezerItem::create([
-            'freezer_id' => $this->freezerId,
+        StorageItem::create([
+            'storage_id' => $this->storageId,
             'name' => $this->name,
             'quantity' => $this->quantity,
             'unit' => $this->unit,
@@ -50,6 +50,6 @@ class FreezerItems extends Component
 
     public function render()
     {
-        return view('livewire.freezer-items');
+        return view('livewire.storage-items');
     }
 }

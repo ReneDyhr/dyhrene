@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('freezers', function (Blueprint $table) {
+        Schema::create('storage', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Name of the freezer or shelf
             $table->timestamps();
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('freezers');
+        Schema::dropIfExists('storage');
     }
 };

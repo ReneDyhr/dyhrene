@@ -9,7 +9,7 @@ use App\Livewire\SearchRecipe;
 use App\Livewire\Shopping\ShoppingList;
 use App\Livewire\SingleRecipe;
 use App\Livewire\Tag\Tags;
-use App\Livewire\Freezers;
+use App\Livewire\Storage;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -51,4 +51,4 @@ Route::get('debug', function () {
     \broadcast(new \App\Events\ShoppingList(\App\Models\User::find(1), 'Test', ['Test']));
 })->middleware('auth')->name('profile');
 
-Route::get('/freezers', Freezers::class)->name('freezers');
+Route::get('/storage', Storage::class)->name('storage')->middleware('auth');

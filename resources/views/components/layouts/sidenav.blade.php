@@ -38,6 +38,9 @@
             <li>
                 <a href="/shopping/list">Shopping List</a>
             </li>
+            <li>
+                <a href="/storage">Storage</a>
+            </li>
             <!-- <li>
                 <a href="#">My Recipes</a>
             </li> -->

@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Freezer extends Model
+class Storage extends Model
 {
+    protected $table = 'storage';
     protected $fillable = ['name'];
 
     public function items()
     {
-        return $this->hasMany(FreezerItem::class)->orderBy('sort_order');
+        return $this->hasMany(StorageItem::class)->orderBy('sort_order');
     }
 }

@@ -1,11 +1,11 @@
 <div>
-    @section('title', 'Freezers')
+    @section('title', 'Storage')
     @include('components.layouts.sidenav')
     <div id="main">
         @include('components.layouts.header')
         <div class="content homepage">
             <style>
-                .freezer-list {
+                .storage-list {
                     display: grid;
                     grid-template-columns: repeat(2, 1fr);
                     gap: 0.5rem;
@@ -17,34 +17,34 @@
                     min-width: 0;
                     height: auto;
                 }
-                .freezer-list > .recipe {
+                .storage-list > .recipe {
                     align-self: flex-start;
                 }
                 @media (max-width: 1000px) {
-                    .freezer-list {
+                    .storage-list {
                         grid-template-columns: 1fr;
                     }
                 }
             </style>
             <div class="col-12">
-                <div class="freezer-list">
-                    @foreach($freezers as $freezer)
+                <div class="storage-list">
+                    @foreach($storage as $storageUnit)
                         <div class="recipe">
-                            <h1>{{ $freezer->name }}</h1>
-                            <ul id="freezer-items-{{ $freezer->id }}" class="shopping-list ui-sortable">
-                                @foreach($freezer->items as $item)
-                                    <li id="freezer-item-{{ $item->id }}" data-id="{{ $item->id }}" wire:click="editItem({{ $item->id }})" style="cursor:pointer;">
+                            <h1>{{ $storageUnit->name }}</h1>
+                            <ul id="storage-items-{{ $storageUnit->id }}" class="shopping-list ui-sortable">
+                                @foreach($storageUnit->items as $item)
+                                    <li id="storage-item-{{ $item->id }}" data-id="{{ $item->id }}" wire:click="editItem({{ $item->id }})" style="cursor:pointer;">
                                         {{ $item->quantity }} {{ $item->name }}
                                         <span class="handle" style="cursor:move;" wire:click.stop><i class="fa fa-arrows-v"></i></span>
                                         <span wire:confirm="Are you sure?" wire:click.stop="removeItem({{ $item->id }})" class="close" style="cursor:pointer;">×</span>
                                     </li>
                                 @endforeach
                             </ul>
-                            <form wire:submit.prevent="addFreezerItem({{ $freezer->id }})" class="add-item mt-3 px-2 py-2 bg-light rounded shadow-sm d-flex align-items-center gap-2 flex-row">
-                                <input type="hidden" wire:model.defer="freezerId" value="{{ $freezer->id }}" />
+                            <form wire:submit.prevent="addStorageItem({{ $storageUnit->id }})" class="add-item mt-3 px-2 py-2 bg-light rounded shadow-sm d-flex align-items-center gap-2 flex-row">
+                                <input type="hidden" wire:model.defer="storageId" value="{{ $storageUnit->id }}" />
                                 <input 
                                     type="number" 
-                                    wire:model.defer="itemQuantity.{{ $freezer->id }}" 
+                                    wire:model.defer="itemQuantity.{{ $storageUnit->id }}" 
                                     placeholder="Qty" 
                                     min="1" 
                                     class="form-control me-2"
@@ -52,7 +52,7 @@
                                 />
                                 <input 
                                     type="text" 
-                                    wire:model.defer="itemName.{{ $freezer->id }}" 
+                                    wire:model.defer="itemName.{{ $storageUnit->id }}" 
                                     placeholder="Item name" 
                                     class="form-control me-2"
                                     style="max-width: 60%; float: left; display: inline-block;"
@@ -64,9 +64,9 @@
                         </div>
                     @endforeach
                     <div class="recipe">
-                        <form wire:submit.prevent="addFreezer">
-                            <input type="text" wire:model.defer="name" placeholder="Add new freezer/shelf..." class="border rounded px-2 py-1" />
-                            <button type="submit" class="btn btn-default">Add Freezer</button>
+                        <form wire:submit.prevent="addStorage">
+                            <input type="text" wire:model.defer="name" placeholder="Add new storage/shelf..." class="border rounded px-2 py-1" />
+                            <button type="submit" class="btn btn-default">Add Storage</button>
                         </form>
                     </div>
                 </div>
@@ -129,11 +129,11 @@
     @script
     <script>
         console.log('HERE');
-        @foreach($freezers as $freezer)
-            console.log('Freezer ID: {{ $freezer->id }}');
-            var el = document.getElementById('freezer-items-{{ $freezer->id }}');
+        @foreach($storage as $storageUnit)
+            console.log('Storage ID: {{ $storageUnit->id }}');
+            var el = document.getElementById('storage-items-{{ $storageUnit->id }}');
             if (el) {
-                console.log('Initializing sortable for freezer: {{ $freezer->id }}', el);
+                console.log('Initializing sortable for storage: {{ $storageUnit->id }}', el);
                 if ($(el).data('ui-sortable')) {
                     $(el).sortable('destroy');
                 }
@@ -142,14 +142,14 @@
                     handle: '.handle',
                     update: function(event, ui) {
                         let items = [];
-                        $('#freezer-items-{{ $freezer->id }} li').each(function() {
+                        $('#storage-items-{{ $storageUnit->id }} li').each(function() {
                             items.push($(this).attr('data-id'));
                         });
-                        @this.call('updateOrder', {{ $freezer->id }}, items);
+                        @this.call('updateOrder', {{ $storageUnit->id }}, items);
                     }
                 });
             } else {
-                console.warn('Element not found for freezer: {{ $freezer->id }}');
+                console.warn('Element not found for storage: {{ $storageUnit->id }}');
             }
         @endforeach
 
