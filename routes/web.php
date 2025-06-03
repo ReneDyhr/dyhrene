@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ReceiptController;
 use App\Livewire\AddRecipe;
 use App\Livewire\Category\Categories;
 use App\Livewire\EditRecipe;
@@ -56,3 +57,9 @@ Route::get('settings/categories', App\Livewire\Settings\Categories::class)->midd
 // })->middleware('auth')->name('profile');
 
 Route::get('/storage', Storage::class)->name('storage')->middleware('auth');
+
+Route::get('receipts', App\Livewire\Receipts\Index::class)->middleware('auth')->name('receipts.index');
+Route::get('receipts/create', App\Livewire\Receipts\Create::class)->middleware('auth')->name('receipts.create');
+Route::get('receipts/{receipt}', App\Livewire\Receipts\Show::class)->middleware('auth')->name('receipts.show');
+Route::get('receipts/{receipt}/edit', App\Livewire\Receipts\Edit::class)->middleware('auth')->name('receipts.edit');
+// Route::resource('receipts', ReceiptController::class);
