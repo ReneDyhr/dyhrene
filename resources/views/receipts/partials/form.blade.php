@@ -26,3 +26,9 @@
     <label for="file_path" class="form-label">File Path</label>
     <input type="text" id="file_path" class="form-control" wire:model.defer="data.file_path">
 </div>
+<div class="mb-3">
+    <label for="receiptImage" class="form-label">Upload Receipt Image</label>
+    <input type="file" id="receiptImage" class="form-control" wire:model="receiptImage" accept="image/*">
+    <button type="button" class="btn btn-secondary mt-2" wire:click="extractFromImage">Extract from Image</button>
+    @error('receiptImage') <span class="text-danger">{{ $message }}</span> @enderror
+</div>
