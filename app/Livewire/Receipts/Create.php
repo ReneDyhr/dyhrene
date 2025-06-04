@@ -239,7 +239,7 @@ class Create extends Component
     /**
      * Extracts the JSON block from the assistant's response.
      *
-     * @return null|array<string, mixed>
+     * @return null|array<mixed, mixed>
      */
     private function extractJsonFromResponse(string $response): ?array
     {
@@ -255,6 +255,8 @@ class Create extends Component
 
     /**
      * Maps extracted data to Livewire properties.
+     *
+     * @param null|array<string, mixed> $data
      */
     private function mapExtractedDataToForm(?array $data): void
     {
