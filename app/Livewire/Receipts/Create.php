@@ -17,9 +17,9 @@ class Create extends Component
     use WithFileUploads;
 
     /**
-     * @var ?array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, total?: null|float, date?: null|string, file_path?: null|string}
+     * @var array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, total?: null|float, date?: null|string, file_path?: null|string}
      */
-    public ?array $data = null;
+    public array $data = [];
 
     /**
      * @var null|array<string, array{name: string, quantity: int, amount: float, category_id: int}>
@@ -139,7 +139,19 @@ class Create extends Component
             \abort(403, 'Unauthorized');
         }
 
-        if ($this->data === null) {
+        // Save uploaded image to Wasabi S3 and store path in db
+        if ($this->receiptImage instanceof UploadedFile) {
+            $path = $this->receiptImage->store('receipts', 'wasabi');
+
+            if ($path === false) {
+                \session()->flash('error', 'Failed to upload receipt image.');
+
+                return;
+            }
+            $this->data['file_path'] = $path;
+        }
+
+        if ($this->data === []) {
             throw new \RuntimeException('Receipt data is missing.');
         }
 
