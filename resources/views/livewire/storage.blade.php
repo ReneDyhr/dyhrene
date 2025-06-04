@@ -11,15 +11,18 @@
                     gap: 0.5rem;
                     align-items: stretch;
                 }
+
                 .recipe {
                     display: flex;
                     flex-direction: column;
                     min-width: 0;
                     height: auto;
                 }
-                .storage-list > .recipe {
+
+                .storage-list>.recipe {
                     align-self: flex-start;
                 }
+
                 @media (max-width: 1000px) {
                     .storage-list {
                         grid-template-columns: 1fr;
@@ -33,50 +36,43 @@
                             <h1>{{ $storageUnit->name }}</h1>
                             <ul id="storage-items-{{ $storageUnit->id }}" class="shopping-list ui-sortable">
                                 @foreach($storageUnit->items as $item)
-                                    <li id="storage-item-{{ $item->id }}" data-id="{{ $item->id }}" wire:click="editItem({{ $item->id }})" style="cursor:pointer;">
-                                        {{ $item->quantity }} {{ $item->name }}
-                                        <span class="handle" style="cursor:move;" wire:click.stop><i class="fa fa-arrows-v"></i></span>
-                                        <span wire:confirm="Are you sure?" wire:click.stop="removeItem({{ $item->id }})" class="close" style="cursor:pointer;">×</span>
+                                    <li id="storage-item-{{ $item->id }}" data-id="{{ $item->id }}"
+                                        wire:click="editItem({{ $item->id }})" style="cursor:pointer;">
+                                        @if (str_starts_with($item->name, '#'))
+                                            <b style="font-size: 18px;">{{substr($item->name, 1)}}</b>
+                                        @else
+                                            {{ $item->quantity }} {{ $item->name }}
+                                        @endif
+                                        <span class="handle" style="cursor:move;" wire:click.stop><i
+                                                class="fa fa-arrows-v"></i></span>
+                                        <span wire:confirm="Are you sure?" wire:click.stop="removeItem({{ $item->id }})"
+                                            class="close" style="cursor:pointer;">×</span>
                                     </li>
                                 @endforeach
                             </ul>
-                            <form wire:submit.prevent="addStorageItem({{ $storageUnit->id }})" class="add-item mt-3 px-2 py-2 bg-light rounded shadow-sm d-flex align-items-center gap-2 flex-row">
+                            <form wire:submit.prevent="addStorageItem({{ $storageUnit->id }})"
+                                class="add-item mt-3 px-2 py-2 bg-light rounded shadow-sm d-flex align-items-center gap-2 flex-row">
                                 <input type="hidden" wire:model.defer="storageId" value="{{ $storageUnit->id }}" />
-                                <input 
-                                    type="number" 
-                                    wire:model.defer="itemQuantity.{{ $storageUnit->id }}" 
-                                    placeholder="Qty" 
-                                    min="1" 
-                                    class="form-control me-2"
-                                    style="max-width: 20%; width: 100%; float: left; display: inline-block;"
-                                />
-                                <input 
-                                    type="text" 
-                                    wire:model.defer="itemName.{{ $storageUnit->id }}" 
-                                    placeholder="Item name" 
-                                    class="form-control me-2"
-                                    style="max-width: 60%; float: left; display: inline-block;"
-                                />
-                                <button type="submit" class="btn btn-success" style="max-width: 20%; width: 100%; padding: 6px; float: left; display: inline-block;">
+                                <input type="number" wire:model.defer="itemQuantity.{{ $storageUnit->id }}"
+                                    placeholder="Qty" min="1" class="form-control me-2"
+                                    style="max-width: 20%; width: 100%; float: left; display: inline-block;" />
+                                <input type="text" wire:model.defer="itemName.{{ $storageUnit->id }}"
+                                    placeholder="Item name" class="form-control me-2"
+                                    style="max-width: 60%; float: left; display: inline-block;" />
+                                <button type="submit" class="btn btn-success"
+                                    style="max-width: 20%; width: 100%; padding: 6px; float: left; display: inline-block;">
                                     <i class="fa fa-plus"></i> Add
                                 </button>
                             </form>
                         </div>
                     @endforeach
                     <div class="recipe">
-                        <form wire:submit.prevent="addStorage" class="add-item mt-3 px-2 py-2 bg-light rounded shadow-sm d-flex align-items-center gap-2 flex-row">
-                            <input 
-                                type="text" 
-                                wire:model.defer="name" 
-                                placeholder="Add new storage/shelf..." 
-                                class="form-control me-2"
-                                style="max-width: 80%; float: left; display: inline-block;"
-                            />
-                            <button 
-                                type="submit" 
-                                class="btn btn-success" 
-                                style="max-width: 20%; width: 100%; padding: 6px; float: left; display: inline-block;"
-                            >
+                        <form wire:submit.prevent="addStorage"
+                            class="add-item mt-3 px-2 py-2 bg-light rounded shadow-sm d-flex align-items-center gap-2 flex-row">
+                            <input type="text" wire:model.defer="name" placeholder="Add new storage/shelf..."
+                                class="form-control me-2" style="max-width: 80%; float: left; display: inline-block;" />
+                            <button type="submit" class="btn btn-success"
+                                style="max-width: 20%; width: 100%; padding: 6px; float: left; display: inline-block;">
                                 <i class="fa fa-plus"></i> Add Storage
                             </button>
                         </form>
@@ -152,9 +148,9 @@
                 $(el).sortable({
                     axis: 'y',
                     handle: '.handle',
-                    update: function(event, ui) {
+                    update: function (event, ui) {
                         let items = [];
-                        $('#storage-items-{{ $storageUnit->id }} li').each(function() {
+                        $('#storage-items-{{ $storageUnit->id }} li').each(function () {
                             items.push($(this).attr('data-id'));
                         });
                         @this.call('updateOrder', {{ $storageUnit->id }}, items);
