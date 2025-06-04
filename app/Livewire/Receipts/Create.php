@@ -17,7 +17,7 @@ class Create extends Component
     use WithFileUploads;
 
     /**
-     * @var ?array{name: string, vendor?: string, description?: string, currency: string, total: float, date: string, file_path?: string}
+     * @var ?array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, total?: null|float, date?: null|string, file_path?: null|string}
      */
     public ?array $data = null;
 
@@ -184,6 +184,31 @@ class Create extends Component
 
             return;
         }
+
+        // Optionally set the date and vendor if present
+        if (isset($data['date']) && \is_string($data['date'])) {
+            $date = $data['date'];
+        } else {
+            $date = null;
+        }
+
+        if (isset($data['time']) && \is_string($data['time'])) {
+            $time = $data['time'];
+        } else {
+            $time = null;
+        }
+
+        if ($date !== null && $time !== null) {
+            // Combine date and time into datetime-local format (Y-m-d\TH:i)
+            $this->data['date'] = $date . 'T' . $time;
+        } elseif ($date !== null) {
+            $this->data['date'] = $date;
+        }
+
+        if (isset($data['vendor']) && \is_string($data['vendor'])) {
+            $this->data['vendor'] = $data['vendor'];
+        }
+
         // Map categories to IDs
         $categoryMap = \collect($this->categories)->mapWithKeys(fn(array $cat): array => [\strtolower($cat['name']) => $cat['id']]);
         $itemEdits = [];

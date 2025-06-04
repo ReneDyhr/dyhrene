@@ -10,9 +10,9 @@ use App\Models\User;
 class CreateReceiptAction
 {
     /**
-     * @param array{name: string, vendor?: string, description?: string, currency: string, total: float, date: string, file_path?: string} $data
+     * @param ?array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, total?: null|float, date?: null|string, file_path?: null|string} $data
      */
-    public function handle(User $user, array $data): Receipt
+    public function handle(User $user, ?array $data): Receipt
     {
         $data['user_id'] = $user->id;
 
