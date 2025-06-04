@@ -25,28 +25,34 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($itemEdits as $id => $item)
+                                    @if ($itemEdits === null)
                                         <tr>
-                                            <td><input type="text" class="form-control form-control-sm"
-                                                    wire:model.defer="itemEdits.{{ $id }}.name"></td>
-                                            <td><input type="number" class="form-control form-control-sm"
-                                                    wire:model.defer="itemEdits.{{ $id }}.quantity"></td>
-                                            <td><input type="number" step="0.01" class="form-control form-control-sm"
-                                                    wire:model.defer="itemEdits.{{ $id }}.amount"></td>
-                                            <td>
-                                                <select class="form-control form-control-sm"
-                                                    wire:model.defer="itemEdits.{{ $id }}.category_id">
-                                                    @foreach($categories as $cat)
-                                                        <option value="{{ $cat['id'] }}">{{ $cat['name'] }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <button type="button" wire:click="deleteItem('{{ $id }}')"
-                                                    class="btn btn-danger btn-sm">Delete</button>
-                                            </td>
+                                            <td colspan="5" class="text-center">No items added yet.</td>
                                         </tr>
-                                    @endforeach
+                                    @else
+                                        @foreach($itemEdits as $id => $item)
+                                            <tr>
+                                                <td><input type="text" class="form-control form-control-sm"
+                                                        wire:model.defer="itemEdits.{{ $id }}.name"></td>
+                                                <td><input type="number" class="form-control form-control-sm"
+                                                        wire:model.defer="itemEdits.{{ $id }}.quantity"></td>
+                                                <td><input type="number" step="0.01" class="form-control form-control-sm"
+                                                        wire:model.defer="itemEdits.{{ $id }}.amount"></td>
+                                                <td>
+                                                    <select class="form-control form-control-sm"
+                                                        wire:model.defer="itemEdits.{{ $id }}.category_id">
+                                                        @foreach($categories as $cat)
+                                                            <option value="{{ $cat['id'] }}">{{ $cat['name'] }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <button type="button" wire:click="deleteItem('{{ $id }}')"
+                                                        class="btn btn-danger btn-sm">Delete</button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
                                 </tbody>
                             </table>
                             <button type="button" wire:click="addItem" class="btn btn-success btn-sm"><i

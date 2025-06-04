@@ -11,26 +11,44 @@ use Livewire\Component;
 
 class Create extends Component
 {
-    public array $data = [];
+    /**
+     * @var ?array{name: string, vendor?: string, description?: string, currency: string, total: float, date: string, file_path?: string}
+     */
+    public ?array $data = null;
 
-    public array $itemEdits = [];
+    /**
+     * @var null|array<string, array{name: string, quantity: int, amount: float, category_id: int}>
+     */
+    public ?array $itemEdits = null;
 
-    public array $categories = [];
+    /**
+     * @var null|array<int, array{id: int, name: string}>
+     */
+    public ?array $categories = null;
 
     public function mount(): void
     {
-        $this->categories = ReceiptCategory::query()
-            ->where('user_id', \Auth::id())
-            ->orderBy('name')
-            ->get(['id', 'name'])
-            ->toArray();
-        $this->itemEdits = [];
+        $this->categories = \array_map(
+            // @phpstan-ignore argument.type
+            static fn(array $cat): array => [
+                'id' => isset($cat['id']) ? (int) $cat['id'] : 0,
+                'name' => isset($cat['name']) ? (string) $cat['name'] : '',
+            ],
+            ReceiptCategory::query()
+                ->where('user_id', \Auth::id())
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->toArray(),
+        );
+        $this->itemEdits = null;
     }
 
     public function addItem(): void
     {
-        $defaultCategoryId = $this->categories[0]['id'] ?? null;
-        $id = \uniqid('new_', true);
+        $defaultCategoryId = isset($this->categories[0], $this->categories[0]['id'])
+            ? $this->categories[0]['id']
+            : 0;
+        $id = \uniqid('new_', false);
         $this->itemEdits[$id] = [
             'name' => '',
             'quantity' => 1,
@@ -39,7 +57,7 @@ class Create extends Component
         ];
     }
 
-    public function deleteItem($id): void
+    public function deleteItem(string $id): void
     {
         unset($this->itemEdits[$id]);
     }
@@ -52,22 +70,35 @@ class Create extends Component
             'data.description' => 'nullable|string',
             'data.currency' => 'required|string|max:10',
             'data.total' => 'required|numeric',
-            'data.date' => 'required|date',
+            'data.date' => 'required|date_format:Y-m-d\TH:i',
             'data.file_path' => 'nullable|string',
             'itemEdits.*.name' => 'required|string|max:255',
             'itemEdits.*.quantity' => 'required|integer|min:1',
             'itemEdits.*.amount' => 'required|numeric',
             'itemEdits.*.category_id' => 'required|integer|exists:receipt_categories,id',
         ]);
-        $receipt = $action->handle(\Auth::user(), $this->data);
 
-        foreach ($this->itemEdits as $item) {
-            $receipt->items()->create([
-                'name' => $item['name'],
-                'quantity' => $item['quantity'],
-                'amount' => $item['amount'],
-                'category_id' => $item['category_id'],
-            ]);
+        $user = \Auth::user();
+
+        if (!$user instanceof \App\Models\User) {
+            \abort(403, 'Unauthorized');
+        }
+
+        if ($this->data === null) {
+            throw new \RuntimeException('Receipt data is missing.');
+        }
+
+        $receipt = $action->handle($user, $this->data);
+
+        if ($this->itemEdits !== null) {
+            foreach ($this->itemEdits as $item) {
+                $receipt->items()->create([
+                    'name' => $item['name'],
+                    'quantity' => $item['quantity'],
+                    'amount' => $item['amount'],
+                    'category_id' => $item['category_id'],
+                ]);
+            }
         }
 
         \session()->flash('success', 'Receipt created!');

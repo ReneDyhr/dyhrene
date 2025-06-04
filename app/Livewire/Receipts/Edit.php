@@ -7,6 +7,7 @@ namespace App\Livewire\Receipts;
 use App\Actions\UpdateReceiptAction;
 use App\Models\Receipt;
 use App\Models\ReceiptCategory;
+use App\Models\ReceiptItem;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
@@ -14,24 +15,45 @@ class Edit extends Component
 {
     public Receipt $receipt;
 
-    public array $data = [];
+    /**
+     * @var ?array{name: string, vendor?: string, description?: string, currency: string, total: float, date: string, file_path?: string}
+     */
+    public ?array $data = null;
 
-    public array $items = [];
+    /**
+     * @var null|array<int, array{id: int, name: string, quantity: int, amount: float, category_id: int}>
+     */
+    public ?array $items = null;
 
-    public array $itemEdits = [];
+    /**
+     * @var null|array<int, array{name: string, quantity: int, amount: float, category_id: int}>
+     */
+    public ?array $itemEdits = null;
 
-    public array $categories = [];
+    /**
+     * @var null|array<int, array{id: int, name: string}>
+     */
+    public ?array $categories = null;
 
     public function mount(Receipt $receipt): void
     {
         $this->receipt = $receipt;
+        // @phpstan-ignore assign.propertyType
         $this->data = $receipt->toArray();
-        $this->categories = ReceiptCategory::query()
-            ->where('user_id', $receipt->user_id)
-            ->orderBy('name')
-            ->get(['id', 'name'])
-            ->toArray();
-        $this->items = $receipt->items()->with('category')->get()->map(function ($item) {
+        $this->categories = \array_map(
+            // @phpstan-ignore argument.type
+            static fn(array $cat): array => [
+                'id' => isset($cat['id']) ? (int) $cat['id'] : 0,
+                'name' => isset($cat['name']) ? (string) $cat['name'] : '',
+            ],
+            ReceiptCategory::query()
+                ->where('user_id', \Auth::id())
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->toArray(),
+        );
+        // @phpstan-ignore assign.propertyType
+        $this->items = $receipt->items()->with('category')->get()->map(function (ReceiptItem $item): array {
             return [
                 'id' => $item->id,
                 'name' => $item->name,
@@ -40,6 +62,7 @@ class Edit extends Component
                 'category_id' => $item->category_id,
             ];
         })->toArray();
+        // @phpstan-ignore assign.propertyType
         $this->itemEdits = \collect($this->items)->keyBy('id')->toArray();
     }
 
@@ -58,13 +81,21 @@ class Edit extends Component
             'itemEdits.*.amount' => 'required|numeric',
             'itemEdits.*.category_id' => 'required|integer|exists:receipt_categories,id',
         ]);
+
+        if ($this->data === null) {
+            throw new \LogicException('Receipt data must not be null.');
+        }
         $action->handle($this->receipt, $this->data);
 
         // Save items
+        if ($this->itemEdits === null) {
+            throw new \LogicException('Item edits must not be null.');
+        }
+
         foreach ($this->itemEdits as $id => $item) {
             $receiptItem = $this->receipt->items()->find($id);
 
-            if ($receiptItem) {
+            if ($receiptItem !== null) {
                 $receiptItem->update([
                     'name' => $item['name'],
                     'quantity' => $item['quantity'],
@@ -84,19 +115,18 @@ class Edit extends Component
             'name' => '',
             'quantity' => 1,
             'amount' => 0,
-            'category_id' => $defaultCategoryId,
+            'category_id' => $defaultCategoryId ?? 0,
         ]);
         $this->itemEdits[$new->id] = [
-            'id' => $new->id,
             'name' => '',
             'quantity' => 1,
-            'amount' => 0,
-            'category_id' => $defaultCategoryId,
+            'amount' => 0.0,
+            'category_id' => $defaultCategoryId ?? 0,
         ];
         $this->mount($this->receipt->refresh());
     }
 
-    public function deleteItem($itemId): void
+    public function deleteItem(int $itemId): void
     {
         $this->receipt->items()->where('id', $itemId)->delete();
         unset($this->itemEdits[$itemId]);
