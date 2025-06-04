@@ -7,10 +7,15 @@ namespace App\Livewire\Receipts;
 use App\Actions\CreateReceiptAction;
 use App\Models\ReceiptCategory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\UploadedFile;
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use OpenAI\Laravel\Facades\OpenAI;
 
 class Create extends Component
 {
+    use WithFileUploads;
+
     /**
      * @var ?array{name: string, vendor?: string, description?: string, currency: string, total: float, date: string, file_path?: string}
      */
@@ -25,6 +30,11 @@ class Create extends Component
      * @var null|array<int, array{id: int, name: string}>
      */
     public ?array $categories = null;
+
+    /**
+     * @var null|UploadedFile
+     */
+    public $receiptImage;
 
     public function mount(): void
     {
@@ -60,6 +70,142 @@ class Create extends Component
     public function deleteItem(string $id): void
     {
         unset($this->itemEdits[$id]);
+    }
+
+    /**
+     * Extract receipt data from uploaded image using your custom OpenAI Assistant.
+     */
+    public function extractFromImage(): void
+    {
+        if (!$this->receiptImage instanceof UploadedFile) {
+            \session()->flash('error', 'No image uploaded.');
+
+            return;
+        }
+
+        $imagePath = $this->receiptImage->store('temp', 'local');
+        $imageFile = \fopen(\storage_path('app/' . $imagePath), 'rb');
+
+        if ($imageFile === false) {
+            \session()->flash('error', 'Could not read image file.');
+
+            return;
+        }
+
+        // 1. Upload file to OpenAI
+        $file = OpenAI::files()->upload([
+            'purpose' => 'assistants',
+            'file' => $imageFile,
+        ]);
+
+        if (\is_resource($imageFile)) {
+            \fclose($imageFile);
+        }
+
+        if (!isset($file['id'])) {
+            \session()->flash('error', 'Failed to upload image to OpenAI.');
+
+            return;
+        }
+
+        // 2. Create a thread and send the image as a message
+        $thread = OpenAI::threads()->create([
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => [
+                        ['type' => 'image_file', 'image_file' => ['file_id' => $file['id']]],
+                    ],
+                ],
+            ],
+        ]);
+        $threadId = $thread['id'] ?? null;
+
+        if ($threadId === null || $threadId === '') {
+            \session()->flash('error', 'Failed to create thread.');
+
+            return;
+        }
+
+        // 3. Run the assistant on the thread
+        $assistantId = \config('openai.assistant_id');
+        $run = OpenAI::threads()->runs()->create($threadId, [
+            'assistant_id' => $assistantId,
+        ]);
+        $runId = $run['id'] ?? null;
+
+        if ($runId === null || $runId === '') {
+            \session()->flash('error', 'Failed to start assistant run.');
+
+            return;
+        }
+
+        // 4. Poll for run completion (simple blocking loop, consider queue/job for production)
+        $status = $run['status'] ?? '';
+        $maxTries = 20;
+        $tries = 0;
+
+        while ($status !== 'completed' && $tries < $maxTries) {
+            \sleep(2);
+            $run = OpenAI::threads()->runs()->retrieve($threadId, $runId);
+            $status = $run['status'] ?? '';
+            $tries++;
+        }
+
+        if ($status !== 'completed') {
+            \session()->flash('error', 'OpenAI assistant did not complete in time.');
+
+            return;
+        }
+
+        // 5. Get the latest message from the thread
+        $messages = OpenAI::threads()->messages()->list($threadId);
+        $last = $messages['data'][0]['content'][0]['text']['value'] ?? null;
+
+        if (!\is_string($last) || $last === '') {
+            \session()->flash('error', 'No response from OpenAI assistant.');
+
+            return;
+        }
+
+        // Extract JSON block from $last (even if surrounded by text)
+        if (\preg_match('/\{(?:[^{}]|(?R))*\}/s', $last, $matches) === 1) {
+            $json = $matches[0];
+        } else {
+            \session()->flash('error', 'No JSON found in OpenAI response.');
+
+            return;
+        }
+
+        $data = \json_decode($json, true);
+
+        if (!\is_array($data) || !isset($data['items']) || !\is_array($data['items'])) {
+            \session()->flash('error', 'Could not extract items from receipt.');
+
+            return;
+        }
+        // Map categories to IDs
+        $categoryMap = \collect($this->categories)->mapWithKeys(fn(array $cat): array => [\strtolower($cat['name']) => $cat['id']]);
+        $itemEdits = [];
+
+        foreach ($data['items'] as $itemRaw) {
+            if (!\is_array($itemRaw)) {
+                continue;
+            }
+            $name = isset($itemRaw['description']) && \is_string($itemRaw['description']) ? $itemRaw['description'] : '';
+            $quantity = isset($itemRaw['quantity']) && \is_int($itemRaw['quantity']) ? $itemRaw['quantity'] : 1;
+            $amount = isset($itemRaw['price']) && (\is_float($itemRaw['price']) || \is_int($itemRaw['price'])) ? (float) $itemRaw['price'] : 0.0;
+            $catName = isset($itemRaw['category']) && \is_string($itemRaw['category']) ? \strtolower($itemRaw['category']) : '';
+            $categoryId = $categoryMap[$catName] ?? ($this->categories[0]['id'] ?? 0);
+            $itemEdits[\uniqid('ai_', false)] = [
+                'name' => $name,
+                'quantity' => $quantity,
+                'amount' => $amount,
+                'category_id' => $categoryId,
+            ];
+        }
+        $this->itemEdits = $itemEdits;
+        \session()->flash('success', 'Receipt data extracted!');
     }
 
     public function save(CreateReceiptAction $action): void
