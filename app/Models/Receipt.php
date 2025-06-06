@@ -25,6 +25,11 @@ class Receipt extends Model
         'file_path',
     ];
 
+    protected $casts = [
+        'date' => 'datetime',
+        'total' => 'float',
+    ];
+
     /**
      * @return BelongsTo<User, $this>
      */
