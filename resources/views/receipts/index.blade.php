@@ -26,7 +26,7 @@
                                         <td>{{ $receipt->name }}</td>
                                         <td>{{ $receipt->vendor }}</td>
                                         <td>{{ $receipt->total }}</td>
-                                        <td>{{ $receipt->date }}</td>
+                                        <td>{{ $receipt->date->format('F j, Y H:i') }}</td>
                                         <td>
                                             <a href="{{ route('receipts.show', $receipt) }}"
                                                 class="btn btn-info btn-sm">View</a>
