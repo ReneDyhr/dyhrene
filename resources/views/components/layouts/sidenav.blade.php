@@ -41,6 +41,9 @@
             <li>
                 <a href="/storage">Storage</a>
             </li>
+            <li>
+                <a href="/receipts">Receipts</a>
+            </li>
             <!-- <li>
                 <a href="#">My Recipes</a>
             </li> -->
