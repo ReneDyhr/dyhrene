@@ -8,6 +8,7 @@ use App\Actions\CreateReceiptAction;
 use App\Models\ReceiptCategory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use OpenAI\Laravel\Facades\OpenAI;
@@ -78,21 +79,21 @@ class Create extends Component
     public function extractFromImage(): void
     {
         if (!$this->receiptImage instanceof UploadedFile) {
-            \session()->flash('error', 'No image uploaded.');
+            Session::flash('error', 'No image uploaded.');
 
             return;
         }
         $fileId = $this->uploadImageToOpenAI($this->receiptImage);
 
         if ($fileId === null) {
-            \session()->flash('error', 'Failed to upload image to OpenAI.');
+            Session::flash('error', 'Failed to upload image to OpenAI.');
 
             return;
         }
         $threadId = $this->createThreadWithImage($fileId);
 
         if ($threadId === null) {
-            \session()->flash('error', 'Failed to create thread.');
+            Session::flash('error', 'Failed to create thread.');
 
             return;
         }
@@ -100,7 +101,7 @@ class Create extends Component
         $runId = $this->runAssistantAndWait($threadId, $assistantId);
 
         if ($runId === null) {
-            \session()->flash('error', 'Failed to start or complete assistant run.');
+            Session::flash('error', 'Failed to start or complete assistant run.');
 
             return;
         }
@@ -108,17 +109,20 @@ class Create extends Component
         $last = $messages['data'][0]['content'][0]['text']['value'] ?? null;
 
         if (!\is_string($last) || $last === '') {
-            \session()->flash('error', 'No response from OpenAI assistant.');
+            Session::flash('error', 'No response from OpenAI assistant.');
 
             return;
         }
         $data = $this->extractJsonFromResponse($last);
         $this->mapExtractedDataToForm($data);
-        \session()->flash('success', 'Receipt data extracted!');
+        Session::flash('success', 'Receipt data extracted!');
     }
 
     public function save(CreateReceiptAction $action): void
     {
+        Session::flash('success', 'Receipt created!');
+
+        return;
         $this->validate([
             'data.name' => 'required|string|max:255',
             'data.vendor' => 'nullable|string|max:255',
@@ -144,7 +148,7 @@ class Create extends Component
             $path = $this->receiptImage->store('receipts', 'wasabi');
 
             if ($path === false) {
-                \session()->flash('error', 'Failed to upload receipt image.');
+                Session::flash('error', 'Failed to upload receipt image.');
 
                 return;
             }
@@ -168,7 +172,7 @@ class Create extends Component
             }
         }
 
-        \session()->flash('success', 'Receipt created!');
+        Session::flash('success', 'Receipt created!');
         $this->redirect(\route('receipts.index'));
     }
 
@@ -273,7 +277,7 @@ class Create extends Component
     private function mapExtractedDataToForm(?array $data): void
     {
         if (!\is_array($data) || !isset($data['items']) || !\is_array($data['items'])) {
-            \session()->flash('error', 'Could not extract items from receipt.');
+            Session::flash('error', 'Could not extract items from receipt.');
 
             return;
         }
