@@ -63,3 +63,13 @@ Route::get('receipts/create', App\Livewire\Receipts\Create::class)->middleware('
 Route::get('receipts/{receipt}', App\Livewire\Receipts\Show::class)->middleware('auth')->name('receipts.show');
 Route::get('receipts/{receipt}/edit', App\Livewire\Receipts\Edit::class)->middleware('auth')->name('receipts.edit');
 // Route::resource('receipts', ReceiptController::class);
+
+Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt) {
+    if (!$receipt->file_path || !\Storage::disk('wasabi')->exists($receipt->file_path)) {
+        \abort(404);
+    }
+    $mime = \Storage::disk('wasabi')->mimeType($receipt->file_path);
+    $content = \Storage::disk('wasabi')->get($receipt->file_path);
+
+    return \response($content, 200)->header('Content-Type', $mime);
+})->name('receipts.image')->middleware(['auth']);
