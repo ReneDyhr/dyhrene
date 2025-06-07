@@ -1,37 +1,52 @@
 {{-- Flash Messages --}}
 @if (session('success'))
-    <div class="mb-4 rounded bg-green-100 border border-green-300 text-green-800 px-4 py-3">
+    <div
+        style="margin-bottom: 1rem; border-radius: 6px; background: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; padding: 0.75rem 1rem;">
         {{ session('success') }}
     </div>
 @endif
 @if (session('error'))
-    <div class="mb-4 rounded bg-red-100 border border-red-300 text-red-800 px-4 py-3">
+    <div
+        style="margin-bottom: 1rem; border-radius: 6px; background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem 1rem;">
         {{ session('error') }}
     </div>
 @endif
 
-<div class="mb-3">
-    <label for="name" class="form-label">Name</label>
-    <input type="text" id="name" class="form-control" wire:model.defer="data.name" required>
+<div style="margin-bottom: 1rem;">
+    <label for="name" style="display: block; font-weight: 600; margin-bottom: 0.25rem;">Name</label>
+    <input type="text" id="name" style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;"
+        wire:model.defer="data.name" required>
 </div>
-<div class="mb-3">
-    <label for="vendor" class="form-label">Vendor</label>
-    <input type="text" id="vendor" class="form-control" wire:model.defer="data.vendor">
+<div style="margin-bottom: 1rem;">
+    <label for="vendor" style="display: block; font-weight: 600; margin-bottom: 0.25rem;">Vendor</label>
+    <input type="text" id="vendor" style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;"
+        wire:model.defer="data.vendor">
 </div>
-<div class="mb-3">
-    <label for="description" class="form-label">Description</label>
-    <textarea id="description" class="form-control" wire:model.defer="data.description"></textarea>
+<div style="margin-bottom: 1rem;">
+    <label for="description" style="display: block; font-weight: 600; margin-bottom: 0.25rem;">Description</label>
+    <textarea id="description" style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;"
+        wire:model.defer="data.description"></textarea>
 </div>
-<div class="mb-3">
-    <label for="currency" class="form-label">Currency</label>
-    <input type="text" id="currency" class="form-control" wire:model.defer="data.currency" required maxlength="3">
+<div style="margin-bottom: 1rem;">
+    <label for="currency" style="display: block; font-weight: 600; margin-bottom: 0.25rem;">Currency</label>
+    <input type="text" id="currency"
+        style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;"
+        wire:model.defer="data.currency" required maxlength="3">
 </div>
-<div class="mb-3">
-    <label for="date" class="form-label">Date</label>
-    <input type="datetime-local" id="date" class="form-control" wire:model.defer="data.date" required>
+<div style="margin-bottom: 1rem;">
+    <label for="date" style="display: block; font-weight: 600; margin-bottom: 0.25rem;">Date</label>
+    <input type="datetime-local" id="date"
+        style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;"
+        wire:model.defer="data.date" required @if(isset($data['date']) && $data['date'])
+        value="{{ \Illuminate\Support\Carbon::parse($data['date'])->format('Y-m-d\TH:i') }}" @endif>
 </div>
-<div class="mb-3">
-    <label for="receiptImage" class="form-label">Upload Receipt Image</label>
-    <input type="file" id="receiptImage" class="form-control" wire:model="receiptImage" accept="image/*">
-    <button type="button" class="btn btn-secondary mt-2" wire:click="extractFromImage">Extract from Image</button>
+<div style="margin-bottom: 1rem;">
+    <label for="receiptImage" style="display: block; font-weight: 600; margin-bottom: 0.25rem;">Upload Receipt
+        Image</label>
+    <input type="file" id="receiptImage"
+        style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;" wire:model="receiptImage"
+        accept="image/*">
+    <button type="button"
+        style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #6c757d; color: #fff; border: none; border-radius: 4px; cursor: pointer;"
+        wire:click="extractFromImage">Extract from Image</button>
 </div>
