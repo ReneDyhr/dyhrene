@@ -52,7 +52,7 @@
                                         <td>{{ $item->name }}</td>
                                         <td>{{ $item->quantity }}</td>
                                         <td>{{ $item->amount }}</td>
-                                        <td>{{ $item->total }}</td>
+                                        <td>{{ $item->total }} {{ $receipt->currency }}</td>
                                         <td>{{ $item->category?->name }}</td>
                                     </tr>
                                 @endforeach

@@ -25,7 +25,7 @@
                                     <tr>
                                         <td>{{ $receipt->name }}</td>
                                         <td>{{ $receipt->vendor }}</td>
-                                        <td>WiP</td>
+                                        <td>{{ $receipt->total }} {{ $receipt->currency }}</td>
                                         <td>{{ $receipt->date->format('F j, Y H:i') }}</td>
                                         <td>
                                             <a href="{{ route('receipts.show', $receipt) }}"

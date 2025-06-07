@@ -28,6 +28,11 @@ class Receipt extends Model
         'date' => 'datetime',
     ];
 
+    public function getTotalAttribute(): float
+    {
+        return $this->items->sum(fn(ReceiptItem $item): float => $item->total);
+    }
+
     /**
      * @return BelongsTo<User, $this>
      */
