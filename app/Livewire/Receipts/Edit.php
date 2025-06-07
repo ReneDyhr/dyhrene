@@ -16,7 +16,7 @@ class Edit extends Component
     public Receipt $receipt;
 
     /**
-     * @var ?array{name: string, vendor?: string, description?: string, currency: string, date: string, file_path?: string}
+     * @var ?array{name?: string, vendor?: string, description?: string, currency?: string, date?: string, file_path?: string}
      */
     public ?array $data = null;
 
@@ -40,6 +40,10 @@ class Edit extends Component
         $this->receipt = $receipt;
         // @phpstan-ignore assign.propertyType
         $this->data = $receipt->toArray();
+
+        if (\is_string($this->data['date'])) {
+            $this->data['date'] = \Carbon\Carbon::parse($this->data['date'])->format('Y-m-d H:i:s');
+        }
 
         $this->categories = \array_map(
             // @phpstan-ignore argument.type
