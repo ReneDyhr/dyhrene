@@ -9,10 +9,14 @@ use App\Models\Receipt;
 use App\Models\ReceiptCategory;
 use App\Models\ReceiptItem;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\UploadedFile;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Edit extends Component
 {
+    use WithFileUploads;
+
     public Receipt $receipt;
 
     /**
@@ -34,6 +38,11 @@ class Edit extends Component
      * @var null|array<int, array{id: int, name: string}>
      */
     public ?array $categories = null;
+
+    /**
+     * @var null|UploadedFile
+     */
+    public $receiptImage;
 
     public function mount(Receipt $receipt): void
     {
@@ -89,6 +98,19 @@ class Edit extends Component
         if ($this->data === null) {
             throw new \LogicException('Receipt data must not be null.');
         }
+
+        // Save uploaded image to Wasabi S3 and store path in db
+        if ($this->receiptImage instanceof UploadedFile) {
+            $path = $this->receiptImage->store('receipts', 'wasabi');
+
+            if ($path === false) {
+                \Session::flash('error', 'Failed to upload receipt image.');
+
+                return;
+            }
+            $this->data['file_path'] = $path;
+        }
+
         $action->handle($this->receipt, $this->data);
 
         // Save items
