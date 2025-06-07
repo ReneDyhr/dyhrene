@@ -10,7 +10,7 @@ use App\Models\User;
 class CreateReceiptAction
 {
     /**
-     * @param ?array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, total?: null|float, date?: null|string, file_path?: null|string} $data
+     * @param ?array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, date?: null|string, file_path?: null|string} $data
      */
     public function handle(User $user, ?array $data): Receipt
     {

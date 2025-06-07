@@ -10,7 +10,6 @@
                         <h1>{{ $receipt->name }}</h1>
                         <div class="description">
                             <strong>Vendor:</strong> {{ $receipt->vendor }}<br />
-                            <strong>Total:</strong> {{ $receipt->total }}<br />
                             <strong>Date:</strong> {{ $receipt->date->format('F j, Y H:i') }}<br />
                             <strong>Description:</strong> {{ $receipt->description }}<br />
                             <strong>Currency:</strong> {{ $receipt->currency }}<br />
@@ -43,6 +42,7 @@
                                     <th>Name</th>
                                     <th>Quantity</th>
                                     <th>Amount</th>
+                                    <th>Total</th>
                                     <th>Category</th>
                                 </tr>
                             </thead>
@@ -52,6 +52,7 @@
                                         <td>{{ $item->name }}</td>
                                         <td>{{ $item->quantity }}</td>
                                         <td>{{ $item->amount }}</td>
+                                        <td>{{ $item->total }}</td>
                                         <td>{{ $item->category?->name }}</td>
                                     </tr>
                                 @endforeach

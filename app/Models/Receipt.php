@@ -19,7 +19,6 @@ class Receipt extends Model
         'vendor',
         'description',
         'currency',
-        'total',
         'date',
         'user_id',
         'file_path',
@@ -27,7 +26,6 @@ class Receipt extends Model
 
     protected $casts = [
         'date' => 'datetime',
-        'total' => 'float',
     ];
 
     /**

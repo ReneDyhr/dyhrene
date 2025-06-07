@@ -22,6 +22,14 @@ class ReceiptItem extends Model
     ];
 
     /**
+     * Get the total by multiplying amount and quantity.
+     */
+    public function getTotalAttribute(): float
+    {
+        return $this->amount * $this->quantity;
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Receipt, $this>
      */
     public function receipt(): BelongsTo

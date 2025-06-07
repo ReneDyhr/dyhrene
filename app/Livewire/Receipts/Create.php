@@ -18,7 +18,7 @@ class Create extends Component
     use WithFileUploads;
 
     /**
-     * @var array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, total?: null|float, date?: null|string, file_path?: null|string}
+     * @var array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, date?: null|string, file_path?: null|string}
      */
     public array $data = [];
 
@@ -120,15 +120,11 @@ class Create extends Component
 
     public function save(CreateReceiptAction $action): void
     {
-        Session::flash('success', 'Receipt created!');
-
-        return;
         $this->validate([
             'data.name' => 'required|string|max:255',
             'data.vendor' => 'nullable|string|max:255',
             'data.description' => 'nullable|string',
             'data.currency' => 'required|string|max:10',
-            'data.total' => 'required|numeric',
             'data.date' => 'required|date_format:Y-m-d\TH:i',
             'data.file_path' => 'nullable|string',
             'itemEdits.*.name' => 'required|string|max:255',

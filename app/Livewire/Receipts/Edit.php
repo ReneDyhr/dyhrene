@@ -16,7 +16,7 @@ class Edit extends Component
     public Receipt $receipt;
 
     /**
-     * @var ?array{name: string, vendor?: string, description?: string, currency: string, total: float, date: string, file_path?: string}
+     * @var ?array{name: string, vendor?: string, description?: string, currency: string, date: string, file_path?: string}
      */
     public ?array $data = null;
 
@@ -40,6 +40,7 @@ class Edit extends Component
         $this->receipt = $receipt;
         // @phpstan-ignore assign.propertyType
         $this->data = $receipt->toArray();
+
         $this->categories = \array_map(
             // @phpstan-ignore argument.type
             static fn(array $cat): array => [
@@ -73,7 +74,6 @@ class Edit extends Component
             'data.vendor' => 'nullable|string|max:255',
             'data.description' => 'nullable|string',
             'data.currency' => 'required|string|max:10',
-            'data.total' => 'required|numeric',
             'data.date' => 'required|date',
             'data.file_path' => 'nullable|string',
             'itemEdits.*.name' => 'required|string|max:255',

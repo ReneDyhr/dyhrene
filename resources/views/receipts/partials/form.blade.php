@@ -27,10 +27,6 @@
     <input type="text" id="currency" class="form-control" wire:model.defer="data.currency" required maxlength="3">
 </div>
 <div class="mb-3">
-    <label for="total" class="form-label">Total</label>
-    <input type="number" step="0.01" id="total" class="form-control" wire:model.defer="data.total" required>
-</div>
-<div class="mb-3">
     <label for="date" class="form-label">Date</label>
     <input type="datetime-local" id="date" class="form-control" wire:model.defer="data.date" required>
 </div>
