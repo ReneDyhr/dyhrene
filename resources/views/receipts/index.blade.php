@@ -7,7 +7,7 @@
             <div class="col-12">
                 <div class="storage-list">
                     <div class="recipe">
-                        <a href="{{ route('receipts.create') }}" class="btn btn-success mb-3">
+                        <a href="{{ route('receipts.create') }}" class="btn btn-success mb-3" style="color: #fff;">
                             <i class="fa fa-plus"></i> New Receipt
                         </a>
                         <table class="table">
@@ -28,12 +28,12 @@
                                         <td>{{ $receipt->total }} {{ $receipt->currency }}</td>
                                         <td>{{ $receipt->date->format('F j, Y H:i') }}</td>
                                         <td>
-                                            <a href="{{ route('receipts.show', $receipt) }}"
-                                                class="btn btn-info btn-sm">View</a>
-                                            <a href="{{ route('receipts.edit', $receipt) }}"
-                                                class="btn btn-warning btn-sm">Edit</a>
+                                            <a href="{{ route('receipts.show', $receipt) }}" class="btn btn-info btn-sm"
+                                                style="color: #fff;">View</a>
+                                            <a href="{{ route('receipts.edit', $receipt) }}" class="btn btn-warning btn-sm"
+                                                style="color: #fff;">Edit</a>
                                             <button wire:click.prevent="$emit('deleteReceipt', {{ $receipt->id }})"
-                                                class="btn btn-danger btn-sm">Delete</button>
+                                                class="btn btn-danger btn-sm" style="color: #fff;">Delete</button>
                                         </td>
                                     </tr>
                                 @endforeach
