@@ -35,9 +35,7 @@ class Receipt extends Model
         $sum = 0.0;
 
         foreach ($this->items as $item) {
-            if ($item instanceof ReceiptItem) {
-                $sum += $item->total;
-            }
+            $sum += $item->total;
         }
 
         return $sum;
