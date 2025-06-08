@@ -64,11 +64,11 @@ Route::get('receipts/{receipt}', App\Livewire\Receipts\Show::class)->middleware(
 Route::get('receipts/{receipt}/edit', App\Livewire\Receipts\Edit::class)->middleware('auth')->name('receipts.edit');
 // Route::resource('receipts', ReceiptController::class);
 
-Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt) {
-    if (!$receipt->file_path || !\Storage::disk('wasabi')->exists($receipt->file_path)) {
+Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt): Illuminate\Http\Response {
+    if (empty($receipt->file_path) || !\Storage::disk('wasabi')->exists($receipt->file_path)) {
         \abort(404);
     }
-    $mime = \Storage::disk('wasabi')->mimeType($receipt->file_path);
+    $mime = \Storage::disk('wasabi')->mimeType($receipt->file_path) ?: 'application/octet-stream';
     $content = \Storage::disk('wasabi')->get($receipt->file_path);
 
     return \response($content, 200)->header('Content-Type', $mime);
