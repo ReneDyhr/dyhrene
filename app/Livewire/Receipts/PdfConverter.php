@@ -25,7 +25,29 @@ class PdfConverter
 
         try {
             $pdf = new Pdf($file->getRealPath());
-            $pdf->selectPage(1)->format(\Spatie\PdfToImage\Enums\OutputFormat::Jpg)->save($tmpPath);
+            $pageCount = $pdf->pageCount();
+            $images = [];
+
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $pageImgPath = \sys_get_temp_dir() . '/' . \uniqid('pdf2img_page_', true) . '.jpg';
+                $pdf->selectPage($i)->format(\Spatie\PdfToImage\Enums\OutputFormat::Jpg)->save($pageImgPath);
+                $images[] = $pageImgPath;
+            }
+            // Combine all page images vertically into one image
+            $imagick = new \Imagick();
+
+            foreach ($images as $img) {
+                $imagick->readImage($img);
+            }
+            $imagick->resetIterator();
+            $combined = $imagick->appendImages(true); // true = vertical
+            $combined->setImageFormat('jpg');
+            $combined->writeImage($tmpPath);
+
+            // Cleanup page images
+            foreach ($images as $img) {
+                @\unlink($img);
+            }
 
             return new File($tmpPath);
         } catch (\Throwable $e) {

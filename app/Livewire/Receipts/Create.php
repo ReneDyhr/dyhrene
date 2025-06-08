@@ -316,7 +316,7 @@ class Create extends Component
             $itemEdits[\uniqid('ai_', false)] = [
                 'name' => $name,
                 'quantity' => $quantity,
-                'amount' => $amount,
+                'amount' => $amount / $quantity,
                 'category_id' => $categoryId,
             ];
         }
