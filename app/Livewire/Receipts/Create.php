@@ -153,6 +153,12 @@ class Create extends Component
                 $path = \Storage::disk('wasabi')->putFile('receipts', $imageForSave);
             }
 
+            if ($path === false || $path === '') {
+                Session::flash('error', 'Failed to save receipt image.');
+
+                return;
+            }
+
             if ($imageForSave instanceof \Illuminate\Http\File && \file_exists($imageForSave->getPathname())) {
                 @\unlink($imageForSave->getPathname());
             }
