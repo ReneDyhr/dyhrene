@@ -43,6 +43,10 @@
         }
     },
     "scripts": {
+        "test": [
+            "./vendor/bin/phpunit"
+        ],
+        "lint": "pint --test",
         "larastan": "./vendor/bin/phpstan analyse -v",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
