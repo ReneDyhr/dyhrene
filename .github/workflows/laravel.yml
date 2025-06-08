@@ -41,10 +41,10 @@ jobs:
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
 
-    - name: Create Database
-      run: |
-        mysql -h 127.0.0.1 -u root -ppassword -e "CREATE DATABASE IF NOT EXISTS testing;"
-        php artisan migrate
+    # - name: Create Database
+    #   run: |
+    #     mysql -h 127.0.0.1 -u root -ppassword -e "CREATE DATABASE IF NOT EXISTS testing;"
+    #     php artisan migrate
 
     # - name: Execute tests (Unit and Feature tests)
     #   env:
