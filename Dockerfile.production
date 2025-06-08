@@ -1,7 +1,7 @@
 # Stage 1: Base Image with PHP and Required Extensions
 FROM php:8.4-apache as base
 
-ARG PHP_EXTS="bcmath ctype fileinfo mbstring pdo pdo_mysql intl dom pcntl zip gd sodium"
+ARG PHP_EXTS="imagick bcmath ctype fileinfo mbstring pdo pdo_mysql intl dom pcntl zip gd sodium"
 
 RUN apt update \
     && apt install -y libonig-dev libicu-dev libsodium-dev libxml2-dev libzip-dev zip libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev cron curl supervisor \
