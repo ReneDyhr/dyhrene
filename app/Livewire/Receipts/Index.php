@@ -30,7 +30,7 @@ class Index extends Component
 
     public function render(): View
     {
-        $receipts = Receipt::query()->with('user')->latest()->get();
+        $receipts = Receipt::query()->with('user')->orderByDesc('date')->get();
 
         return \view('receipts.index', \compact('receipts'));
     }
