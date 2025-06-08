@@ -13,6 +13,13 @@
 		"vscode": {
 			"extensions": [
 				"DEVSENSE.phptools-vscode",
+				"mikestead.dotenv",
+				"codingyu.laravel-goto-view",
+				"naoray.laravel-goto-components",
+				"sanderronde.phpstan-vscode",
+				"calebporzio.better-phpunit",
+				"austenc.vscode-laravel-docs",
+				"DEVSENSE.phptools-vscode",
 				"eamodio.gitlens",
 				"open-southeners.laravel-pint",
 				"dbaeumer.vscode-eslint",
@@ -25,7 +32,24 @@
 				// "onecentlin.laravel5-snippets",
 				// "onecentlin.laravel-blade"
 			],
-			"settings": {}
+			"settings": {
+				"files.autoSave": "onFocusChange",
+				"files.defaultLanguage": "markdown",
+				"files.encoding": "utf8",
+				"files.eol": "\n",
+				"phpcs.showSources": true,
+				"laravel-pint.enable": true,
+				"php.validate.enable": false,
+				"php.suggest.basic": false,
+				"[php]": {
+					"editor.defaultFormatter": "open-southeners.laravel-pint",
+					"editor.formatOnSave": true
+				},
+				"[blade]": {
+					"editor.autoClosingBrackets": "always",
+					"editor.formatOnSave": true
+				}
+			}
 		}
 	},
 	"remoteUser": "sail",

@@ -1,32 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
-use Livewire\Attributes\Validate; 
 
 class Login extends Component
 {
-    #[Validate('required|email')] 
+    #[Validate(attribute: 'required|email')]
     public string $email = '';
-    #[Validate('required')] 
+
+    #[Validate(rule: 'required')]
     public string $password = '';
 
     public bool $remember = false;
 
-    public function mount()
+    public function mount(): ?RedirectResponse
     {
-        if (auth()->check()) {
-            return redirect()->intended(route('index'));
+        if (\auth()->check()) {
+            return \redirect()->intended(\route('index'));
         }
+
+        return null;
     }
 
-    public function render()
+    public function render(): View
     {
-        return view('livewire.login', ['title' => 'Login', 'bodyClass' => 'login-page']);
+        return \view('livewire.login', ['title' => 'Login', 'bodyClass' => 'login-page']);
     }
 
-    public function login()
+    public function login(): ?RedirectResponse
     {
         $this->validate([
             'email' => 'required|email',
@@ -34,10 +41,12 @@ class Login extends Component
             'remember' => 'nullable|boolean',
         ]);
 
-        if (auth()->attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
-            return redirect()->intended(route('index'));
+        if (\auth()->attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+            return \redirect()->intended(\route('index'));
         }
 
         $this->addError('email', 'These credentials do not match our records.');
+
+        return null;
     }
 }

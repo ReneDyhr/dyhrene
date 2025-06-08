@@ -1,0 +1,156 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+    - ./vendor/shipmonk/phpstan-rules/rules.neon
+    - ./vendor/phpstan/phpstan-strict-rules/rules.neon
+    - ./vendor/symplify/phpstan-rules/config/services/services.neon
+    - ./vendor/ekino/phpstan-banned-code/extension.neon
+
+parameters:
+    # The paths where PHPstan should run
+    paths:
+        - app/
+        - bootstrap/
+        - database/
+        - routes/
+
+    excludePaths:
+        - 'vendor/*'
+        - 'config/*'
+        - 'public/*'
+        - 'resources/*'
+        - 'storage/*'
+        - 'tests/*'
+
+    # Level 9 is the highest level
+    level: 9
+
+    # This is set to false to allow certain php-doc constructs such as 'class-string' to be used
+    reportMaybesInPropertyPhpDocTypes: false
+
+    # Rules from https://github.com/shipmonk-rnd/phpstan-rules
+    shipmonkRules:
+        allowComparingOnlyComparableTypes:
+            enabled: true
+        backedEnumGenerics:
+            enabled: false
+        classSuffixNaming:
+            enabled: true
+            superclassToSuffixMapping!:
+                \Exception: Exception
+                \PHPStan\Rules\Rule: Rule
+                \PHPUnit\Framework\TestCase: Test
+                \Illuminate\Routing\Controller: Controller
+                \Illuminate\Support\ServiceProvider: ServiceProvider
+                \Illuminate\Database\Eloquent\Factories\Factory: Factory
+                \Illuminate\Mail\Mailable: Mailable
+                \Illuminate\Notifications\Notification: Notification
+                \Illuminate\Http\Resources\Json\JsonResource: Resource
+                \Illuminate\Contracts\Validation\ValidationRule: Rule
+                \Illuminate\Database\Eloquent\Scope: Scope
+                \Illuminate\Database\Eloquent\Builder: Builder
+        enforceEnumMatch:
+            enabled: false
+        enforceIteratorToArrayPreserveKeys:
+            enabled: true
+        enforceListReturn:
+            enabled: false
+        forbidCast:
+            enabled: false
+        enforceNativeReturnTypehint:
+            enabled: true
+        enforceReadonlyPublicProperty:
+            enabled: false
+        forbidCheckedExceptionInCallable:
+            enabled: false
+        forbidCheckedExceptionInYieldingMethod:
+            enabled: false
+        forbidCustomFunctions:
+            enabled: false
+        forbidEnumInFunctionArguments:
+            enabled: true
+        forbidFetchOnMixed:
+            enabled: true
+
+        # Certain classes should never be compared to one another. These should be added here.
+        forbidIdenticalClassComparison:
+            enabled: true
+            blacklist: ['DateTimeInterface']
+        forbidMatchDefaultArmForEnums:
+            enabled: true
+        forbidMethodCallOnMixed:
+            enabled: true
+        forbidNullInAssignOperations:
+            enabled: true
+            blacklist: ['??=']
+        forbidNullInBinaryOperations:
+            enabled: true
+            blacklist: ['??']
+        forbidNullInInterpolatedString:
+            enabled: true
+        forbidPhpDocNullabilityMismatchWithNativeTypehint:
+            enabled: true
+        forbidProtectedEnumMethod:
+            enabled: true
+        forbidReturnValueInYieldingMethod:
+            enabled: true
+            reportRegardlessOfReturnType: false
+        forbidVariableTypeOverwriting:
+            enabled: true
+        forbidUnsetClassField:
+            enabled: true
+        forbidUselessNullableReturn:
+            enabled: true
+        forbidUnusedException:
+            enabled: true
+        forbidUnusedMatchResult:
+            enabled: true
+        requirePreviousExceptionPass:
+            enabled: true
+            reportEvenIfExceptionIsNotAcceptableByRethrownOne: false
+        uselessPrivatePropertyDefaultValue:
+            enabled: true
+#        uselessPrivatePropertyNullability:
+#            enabled: true
+
+    # Rules from https://github.com/phpstan/phpstan-strict-rules
+    strictRules:
+        allRules: false
+        disallowedLooseComparison: true
+        booleansInConditions: true
+        uselessCast: true
+        requireParentConstructorCall: true
+#        disallowedConstructs: true
+        overwriteVariablesWithLoop: true
+        closureUsesThis: true
+        matchingInheritedMethodNames: true
+        numericOperandsInArithmeticOperators: true
+#        strictCalls: false
+        switchConditionsMatchingType: true
+        noVariableVariables: true
+
+# Additional rules, mainly from https://github.com/symplify/phpstan-rules
+rules:
+    - Symplify\PHPStanRules\Rules\Explicit\ExplicitClassPrefixSuffixRule
+    - Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
+#    - Symplify\PHPStanRules\Rules\AnnotateRegexClassConstWithRegexLinkRule
+#    - Symplify\PHPStanRules\Rules\CheckClassNamespaceFollowPsr4Rule
+    - Symplify\PHPStanRules\Rules\CheckRequiredInterfaceInContractNamespaceRule
+    - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
+    - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
+    - Symplify\PHPStanRules\Rules\NoDynamicNameRule
+#    - Symplify\PHPStanRules\Rules\NoInlineStringRegexRule
+    - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
+#    - Symplify\PHPStanRules\Rules\RegexSuffixInRegexConstantRule
+    - Symplify\PHPStanRules\Rules\RequireAttributeNameRule
+    - Symplify\PHPStanRules\Rules\Domain\RequireAttributeNamespaceRule
+    - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
+    - Symplify\PHPStanRules\Rules\UppercaseConstantRule
+
+# Rules that require extra parameters
+services:
+    # Forbids the casting of the following types
+    -
+        class: ShipMonk\PHPStan\Rule\ForbidCastRule
+        tags: [phpstan.rules.rule]
+        arguments:
+            blacklist: ['(array)', '(object)', '(unset)']

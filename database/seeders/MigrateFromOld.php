@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +15,7 @@ class MigrateFromOld extends Seeder
     public function run(): void
     {
         $icons = DB::connection('mysql_old')->table('icons')->get();
+
         foreach ($icons as $icon) {
             DB::table('icons')->insert([
                 'id' => $icon->id,
@@ -24,6 +26,7 @@ class MigrateFromOld extends Seeder
             ]);
         }
         $categories = DB::connection('mysql_old')->table('categories')->where('userId', 1)->get();
+
         foreach ($categories as $category) {
             DB::table('categories')->insert([
                 'id' => $category->id,
@@ -36,8 +39,8 @@ class MigrateFromOld extends Seeder
             ]);
         }
 
-
         $recipes = DB::connection('mysql_old')->table('recipes')->where('userId', 1)->get();
+
         foreach ($recipes as $recipe) {
             $tags = DB::connection('mysql_old')->table('recipe_tags')->where('recipeId', $recipe->id)->get();
             $ingredients = DB::connection('mysql_old')->table('recipe_ingredient')->where('recipeId', $recipe->id)->get();

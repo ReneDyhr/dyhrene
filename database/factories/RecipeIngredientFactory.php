@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Recipe;
@@ -19,7 +21,7 @@ class RecipeIngredientFactory extends Factory
     {
         return [
             'recipe_id' => Recipe::factory(),
-            'name' => fake()->name(),
+            'name' => \fake()->name(),
         ];
     }
 }

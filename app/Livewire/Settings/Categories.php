@@ -1,44 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Settings;
 
 use App\Models\Category;
 use App\Models\Icon;
-use App\Models\Recipe;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Livewire\Component;
-use Livewire\Attributes\Validate; 
 
 class Categories extends Component
 {
     public string $addName = '';
+
     public int $addIcon = 0;
 
     public int $editId = 0;
+
     public string $editName = '';
+
     public int $editIcon = 0;
 
     public int $deleteId = 0;
+
     public string $deleteName = '';
+
     public bool $deleteCheck = false;
 
-    public function mount()
-    {
-    }
-    public function render()
+    public function mount(): void {}
+
+    public function render(): View
     {
         $categories = Category::with(['icon'])->orderBy('id', 'DESC')->forAuthUser()->get();
         $icons = Icon::orderBy('id', 'DESC')->get();
-        return view('livewire.settings.categories', ['title' => 'Categories', 'categories' => $categories, 'icons' => $icons]);
+
+        return \view('livewire.settings.categories', ['title' => 'Categories', 'categories' => $categories, 'icons' => $icons]);
     }
 
-    public function addCategory()
+    public function addCategory(): \Illuminate\Http\RedirectResponse
     {
         $this->validate([
             'addName' => 'required|string|max:255',
             'addIcon' => 'required|int|exists:icons,id',
         ]);
-
 
         $icon = Icon::where('id', $this->addIcon)->firstOrFail();
 
@@ -46,7 +51,7 @@ class Categories extends Component
             'name' => $this->addName,
             'slug' => Str::slug($this->addName),
             'icon_id' => $icon->id,
-            'user_id' => auth()->id(),
+            'user_id' => \auth()->id(),
         ]);
 
         Category::where('id', '=', $id)->update([
@@ -56,10 +61,10 @@ class Categories extends Component
         $this->addName = '';
         $this->addIcon = 0;
 
-        return redirect()->route('settings.categories');
+        return \redirect()->route('settings.categories');
     }
 
-    public function showEditCategory(int $id)
+    public function showEditCategory(int $id): void
     {
         $category = Category::where('id', $id)->firstOrFail();
         $this->editId = $category->id;
@@ -68,7 +73,7 @@ class Categories extends Component
         $this->dispatch('showEditCategoryModal', ['id' => $id, 'name' => $category->name, 'icon' => $category->icon_id]);
     }
 
-    public function editCategory()
+    public function editCategory(): \Illuminate\Http\RedirectResponse
     {
         $this->validate([
             'editName' => 'required|string|max:255',
@@ -88,10 +93,10 @@ class Categories extends Component
         $this->editName = '';
         $this->editIcon = 0;
 
-        return redirect()->route('settings.categories');
+        return \redirect()->route('settings.categories');
     }
 
-    public function showDeleteCategory(int $id)
+    public function showDeleteCategory(int $id): void
     {
         $category = Category::where('id', $id)->firstOrFail();
         $this->deleteId = $category->id;
@@ -99,7 +104,7 @@ class Categories extends Component
         $this->dispatch('showDeleteCategoryModal', ['id' => $id, 'name' => $category->name]);
     }
 
-    public function deleteCategory()
+    public function deleteCategory(): \Illuminate\Http\RedirectResponse
     {
         $this->validate([
             'deleteCheck' => 'required|accepted',
@@ -112,6 +117,6 @@ class Categories extends Component
         $this->deleteName = '';
         $this->deleteCheck = false;
 
-        return redirect()->route('settings.categories');
+        return \redirect()->route('settings.categories');
     }
 }

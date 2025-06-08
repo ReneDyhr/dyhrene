@@ -30,6 +30,14 @@ jobs:
         id: extract_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
@@ -37,6 +45,8 @@ jobs:
           file: ./Dockerfile.production
           platforms: linux/amd64, linux/arm64/v8
           push: true
+          cache-from: type=gha,scope=project
+          cache-to: type=gha,scope=project,mode=max
           tags: |
             ghcr.io/renedyhr/dyhrene:${{ env.VERSION }}
             ghcr.io/renedyhr/dyhrene:latest

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\User;
@@ -19,10 +21,10 @@ class RecipeFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'name' => fake()->name(),
-            'description' => fake()->realText(),
-            'note' => fake()->realText(),
-            'public' => fake()->boolean(),
+            'name' => \fake()->name(),
+            'description' => \fake()->realText(),
+            'note' => \fake()->realText(),
+            'public' => \fake()->boolean(),
         ];
     }
 }
