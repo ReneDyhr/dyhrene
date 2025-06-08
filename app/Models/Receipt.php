@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Receipt extends Model
 {
     /** @use HasFactory<\Database\Factories\ReceiptFactory> */
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -30,7 +32,15 @@ class Receipt extends Model
 
     public function getTotalAttribute(): float
     {
-        return $this->items->sum(fn(ReceiptItem $item): float => $item->total);
+        $sum = 0.0;
+
+        foreach ($this->items as $item) {
+            if ($item instanceof ReceiptItem) {
+                $sum += $item->total;
+            }
+        }
+
+        return $sum;
     }
 
     /**

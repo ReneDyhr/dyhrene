@@ -32,8 +32,9 @@
                                                 style="color: #fff;">View</a>
                                             <a href="{{ route('receipts.edit', $receipt) }}" class="btn btn-warning btn-sm"
                                                 style="color: #fff;">Edit</a>
-                                            <button wire:click.prevent="$emit('deleteReceipt', {{ $receipt->id }})"
-                                                class="btn btn-danger btn-sm" style="color: #fff;">Delete</button>
+                                            <button wire:confirm="Are you sure?"
+                                                wire:click="deleteReceipt({{ $receipt->id }})" class="btn btn-danger btn-sm"
+                                                style="color: #fff;">Delete</button>
                                         </td>
                                     </tr>
                                 @endforeach
