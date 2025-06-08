@@ -20,7 +20,9 @@ class Create extends Component
     /**
      * @var array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, date?: null|string, file_path?: null|string}
      */
-    public array $data = [];
+    public array $data = [
+        'currency' => 'kr.',
+    ];
 
     /**
      * @var null|array<string, array{name: string, quantity: int, amount: float, category_id: int}>
@@ -83,7 +85,10 @@ class Create extends Component
 
             return;
         }
-        $fileId = $this->uploadImageToOpenAI($this->receiptImage);
+
+        $imageForOpenAI = PdfConverter::convertToJpg($this->receiptImage);
+
+        $fileId = $this->uploadImageToOpenAI($imageForOpenAI);
 
         if ($fileId === null) {
             Session::flash('error', 'Failed to upload image to OpenAI.');
@@ -126,9 +131,8 @@ class Create extends Component
             'data.description' => 'nullable|string',
             'data.currency' => 'required|string|max:10',
             'data.date' => 'required|date_format:Y-m-d\TH:i',
-            'data.file_path' => 'nullable|string',
             'itemEdits.*.name' => 'required|string|max:255',
-            'itemEdits.*.quantity' => 'required|integer|min:1',
+            'itemEdits.*.quantity' => 'required|integer|not_in:0',
             'itemEdits.*.amount' => 'required|numeric',
             'itemEdits.*.category_id' => 'required|integer|exists:receipt_categories,id',
         ]);
@@ -141,13 +145,18 @@ class Create extends Component
 
         // Save uploaded image to Wasabi S3 and store path in db
         if ($this->receiptImage instanceof UploadedFile) {
-            $path = $this->receiptImage->store('receipts', 'wasabi');
+            $imageForSave = PdfConverter::convertToJpg($this->receiptImage);
 
-            if ($path === false) {
-                Session::flash('error', 'Failed to upload receipt image.');
-
-                return;
+            if ($imageForSave instanceof UploadedFile) {
+                $path = $imageForSave->store('receipts', 'wasabi');
+            } else {
+                $path = \Storage::disk('wasabi')->putFile('receipts', $imageForSave);
             }
+
+            if ($imageForSave instanceof \Illuminate\Http\File && \file_exists($imageForSave->getPathname())) {
+                @\unlink($imageForSave->getPathname());
+            }
+
             $this->data['file_path'] = $path;
         }
 
@@ -183,7 +192,7 @@ class Create extends Component
     /**
      * Uploads the image to OpenAI and returns the file id.
      */
-    private function uploadImageToOpenAI(UploadedFile $image): ?string
+    private function uploadImageToOpenAI(\Illuminate\Http\File | UploadedFile $image): ?string
     {
         $imageFile = \fopen($image->getRealPath(), 'rb');
 
@@ -282,13 +291,14 @@ class Create extends Component
         $time = isset($data['time']) && \is_string($data['time']) ? $data['time'] : null;
 
         if ($date !== null && $time !== null) {
-            $this->data['date'] = $date . 'T' . $time;
+            $this->data['date'] = $date . 'T' . \substr($time, 0, 5);
         } elseif ($date !== null) {
             $this->data['date'] = $date;
         }
 
         if (isset($data['vendor']) && \is_string($data['vendor'])) {
             $this->data['vendor'] = $data['vendor'];
+            $this->data['name'] = $data['vendor'];
         }
         // Map categories to IDs
         $categoryMap = \collect($this->categories)->mapWithKeys(fn(array $cat): array => [\strtolower($cat['name']) => $cat['id']]);

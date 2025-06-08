@@ -9,7 +9,7 @@ use App\Models\Receipt;
 class UpdateReceiptAction
 {
     /**
-     * @param array{name: string, vendor?: string, description?: string, currency: string, date: string, file_path?: string} $data
+     * @param array{name?: null|string, vendor?: null|string, description?: null|string, currency?: null|string, date?: null|string, file_path?: null|string} $data
      */
     public function handle(Receipt $receipt, array $data): Receipt
     {
