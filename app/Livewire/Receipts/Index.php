@@ -24,6 +24,7 @@ class Index extends Component
         \app(\App\Actions\DeleteReceiptAction::class)->handle($receipt);
         \session()->flash('success', 'Receipt deleted!');
 
+        // @phpstan-ignore return.type
         return \redirect()->route('receipts.index');
     }
 
