@@ -170,6 +170,14 @@ class Edit extends Component
         $this->mount($this->receipt->refresh());
     }
 
+    /**
+     * Public method to recalculate the total for edit view.
+     */
+    public function calculateTotal(): void
+    {
+        // No-op: total is calculated in the Blade for now, but this allows wire:change to work without error.
+    }
+
     public function render(): View
     {
         return \view('receipts.edit', [

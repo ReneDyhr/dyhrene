@@ -196,6 +196,14 @@ class Create extends Component
     }
 
     /**
+     * Public method to recalculate the total for edit view.
+     */
+    public function calculateTotal(): void
+    {
+        // No-op: total is calculated in the Blade for now, but this allows wire:change to work without error.
+    }
+
+    /**
      * Uploads the image to OpenAI and returns the file id.
      */
     private function uploadImageToOpenAI(\Illuminate\Http\File | UploadedFile $image): ?string
