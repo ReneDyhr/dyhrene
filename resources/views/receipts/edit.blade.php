@@ -27,9 +27,7 @@
                                 <tbody id="receipt-items-list">
                                     @foreach($itemEdits as $id => $item)
                                         <tr data-id="{{ $id }}">
-                                            <td><span class="handle" style="cursor:move;"><i
-                                                        class="fa fa-arrows-v"></i></span> <input type="text"
-                                                    class="form-control form-control-sm"
+                                            <td><input type="text" class="form-control form-control-sm"
                                                     wire:model="itemEdits.{{ $id }}.name" wire:change="calculateTotal"></td>
                                             <td><input type="number" class="form-control form-control-sm"
                                                     wire:model="itemEdits.{{ $id }}.quantity" wire:change="calculateTotal">
@@ -47,6 +45,8 @@
                                                 </select>
                                             </td>
                                             <td>
+                                                <span class="handle btn btn-default btn-sm" style="cursor:move;"><i
+                                                        class="fa fa-arrows-v"></i></span>
                                                 <button type="button" wire:click="deleteItem('{{ $id }}')"
                                                     class="btn btn-danger btn-sm">Delete</button>
                                             </td>
