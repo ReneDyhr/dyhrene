@@ -87,6 +87,11 @@
 @script
 <script>
     console.log('hej');
+    document.addEventListener('click', function (e) {
+        if (e.target && e.target.id === 'extractFromImage') {
+            e.target.style.background = '#399107';
+        }
+    });
     function initReceiptSortable() {
         console.log('HERE');
         var el = document.getElementById('receipt-items-list');

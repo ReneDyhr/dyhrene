@@ -46,7 +46,7 @@
     <input type="file" id="receiptImage"
         style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;" wire:model="receiptImage">
     @if (!isset($this->receipt))
-        <button type="button" {{ !$this->receiptImage ? 'disabled="disabled"' : '' }}
+        <button id="extractFromImage" type="button" {{ !$this->receiptImage ? 'disabled="disabled"' : '' }}
             style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #6c757d; color: #fff; border: none; border-radius: 4px; cursor: pointer;"
             wire:click="extractFromImage">Extract from Image</button>
     @endif
