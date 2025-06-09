@@ -204,7 +204,7 @@ class Create extends Component
         }
 
         Session::flash('success', 'Receipt created!');
-        $this->redirect(\route('receipts.index'));
+        $this->redirect(\route('receipts.show', ['receipt' => $receipt->id]));
     }
 
     public function render(): View
