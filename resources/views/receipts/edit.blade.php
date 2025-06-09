@@ -24,18 +24,19 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="receipt-items-list">
                                     @foreach($itemEdits as $id => $item)
-                                        <tr>
-                                            <td><input type="text" class="form-control form-control-sm"
-                                                    wire:model="itemEdits.{{ $id }}.name"
-                                                    wire:change="calculateTotal"></td>
+                                        <tr data-id="{{ $id }}">
+                                            <td><span class="handle" style="cursor:move;"><i
+                                                        class="fa fa-arrows-v"></i></span> <input type="text"
+                                                    class="form-control form-control-sm"
+                                                    wire:model="itemEdits.{{ $id }}.name" wire:change="calculateTotal"></td>
                                             <td><input type="number" class="form-control form-control-sm"
-                                                    wire:model="itemEdits.{{ $id }}.quantity"
-                                                    wire:change="calculateTotal"></td>
+                                                    wire:model="itemEdits.{{ $id }}.quantity" wire:change="calculateTotal">
+                                            </td>
                                             <td><input type="number" step="0.01" class="form-control form-control-sm"
-                                                    wire:model="itemEdits.{{ $id }}.amount"
-                                                    wire:change="calculateTotal"></td>
+                                                    wire:model="itemEdits.{{ $id }}.amount" wire:change="calculateTotal">
+                                            </td>
                                             <td>
                                                 <select class="form-control form-control-sm"
                                                     wire:model="itemEdits.{{ $id }}.category_id"
@@ -46,7 +47,7 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <button type="button" wire:click="deleteItem({{ $id }})"
+                                                <button type="button" wire:click="deleteItem('{{ $id }}')"
                                                     class="btn btn-danger btn-sm">Delete</button>
                                             </td>
                                         </tr>
@@ -57,7 +58,9 @@
                                         <td></td>
                                         <td></td>
                                         <td class="fw-bold text-end">
-                                            Total: {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + ($item['amount'] * $item['quantity']), 0) }} {{ $data['currency'] ?? '' }}
+                                            Total:
+                                            {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + ($item['amount'] * $item['quantity']), 0) }}
+                                            {{ $data['currency'] ?? '' }}
                                         </td>
                                         <td></td>
                                         <td></td>
@@ -74,3 +77,33 @@
         </div>
     </div>
 </div>
+
+@script
+<script>
+    console.log('Test');
+    function initReceiptSortable() {
+        var el = document.getElementById('receipt-items-list');
+        if (el && window.$ && $.fn.sortable) {
+            if ($(el).data('ui-sortable')) {
+                $(el).sortable('destroy');
+            }
+            $(el).sortable({
+                axis: 'y',
+                handle: '.handle',
+                items: '> tr',
+                update: function (event, ui) {
+                    let ids = [];
+                    $('#receipt-items-list tr').each(function () {
+                        ids.push($(this).attr('data-id'));
+                    });
+                    @this.call('updateItemOrder', ids);
+                }
+            });
+        }
+    }
+    initReceiptSortable();
+    document.addEventListener('livewire:update', function () {
+        initReceiptSortable();
+    });
+</script>
+@endscript

@@ -76,6 +76,26 @@ class Create extends Component
     }
 
     /**
+     * Update the order of receipt items after drag-and-drop.
+     *
+     * @param array<int, string> $orderedIds
+     */
+    public function updateItemOrder(array $orderedIds): void
+    {
+        if ($this->itemEdits === null) {
+            return;
+        }
+        $newOrder = [];
+
+        foreach ($orderedIds as $id) {
+            if (isset($this->itemEdits[$id])) {
+                $newOrder[$id] = $this->itemEdits[$id];
+            }
+        }
+        $this->itemEdits = $newOrder;
+    }
+
+    /**
      * Extract receipt data from uploaded image using your custom OpenAI Assistant.
      */
     public function extractFromImage(): void

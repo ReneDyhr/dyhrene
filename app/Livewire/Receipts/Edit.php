@@ -129,18 +129,18 @@ class Edit extends Component
             throw new \LogicException('Item edits must not be null.');
         }
 
-        foreach ($this->itemEdits as $id => $item) {
-            $receiptItem = $this->receipt->items()->find($id);
+        // Remove all existing items and recreate in new order
+        $this->receipt->items()->delete();
 
-            if ($receiptItem !== null) {
-                $receiptItem->update([
-                    'name' => $item['name'],
-                    'quantity' => $item['quantity'],
-                    'amount' => $item['amount'],
-                    'category_id' => $item['category_id'],
-                ]);
-            }
+        foreach ($this->itemEdits as $item) {
+            $this->receipt->items()->create([
+                'name' => $item['name'],
+                'quantity' => $item['quantity'],
+                'amount' => $item['amount'],
+                'category_id' => $item['category_id'],
+            ]);
         }
+
         \session()->flash('success', 'Receipt and items updated!');
         $this->redirect(\route('receipts.index'));
     }
@@ -168,6 +168,27 @@ class Edit extends Component
         $this->receipt->items()->where('id', $itemId)->delete();
         unset($this->itemEdits[$itemId]);
         $this->mount($this->receipt->refresh());
+    }
+
+    /**
+     * Update the order of receipt items after drag-and-drop.
+     *
+     * @param array<int, int|string> $orderedIds
+     */
+    public function updateItemOrder(array $orderedIds): void
+    {
+        if ($this->itemEdits === null) {
+            return;
+        }
+        $newOrder = [];
+
+        /** @var int $id */
+        foreach ($orderedIds as $id) {
+            if (isset($this->itemEdits[$id])) {
+                $newOrder[$id] = $this->itemEdits[$id];
+            }
+        }
+        $this->itemEdits = $newOrder;
     }
 
     /**

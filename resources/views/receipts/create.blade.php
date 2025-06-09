@@ -24,15 +24,17 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="receipt-items-list">
                                     @if ($itemEdits === null)
                                         <tr>
                                             <td colspan="5" class="text-center">No items added yet.</td>
                                         </tr>
                                     @else
                                         @foreach($itemEdits as $id => $item)
-                                            <tr>
-                                                <td><input type="text" class="form-control form-control-sm"
+                                            <tr data-id="{{ $id }}">
+                                                <td><span class="handle" style="cursor:move;"><i
+                                                            class="fa fa-arrows-v"></i></span> <input type="text"
+                                                        class="form-control form-control-sm"
                                                         wire:model="itemEdits.{{ $id }}.name" wire:change="calculateTotal"></td>
                                                 <td><input type="number" class="form-control form-control-sm"
                                                         wire:model="itemEdits.{{ $id }}.quantity" wire:change="calculateTotal">
@@ -81,3 +83,34 @@
         </div>
     </div>
 </div>
+
+@script
+<script>
+    console.log('hej');
+    function initReceiptSortable() {
+        console.log('HERE');
+        var el = document.getElementById('receipt-items-list');
+        if (el && window.$ && $.fn.sortable) {
+            if ($(el).data('ui-sortable')) {
+                $(el).sortable('destroy');
+            }
+            $(el).sortable({
+                axis: 'y',
+                handle: '.handle',
+                items: '> tr',
+                update: function (event, ui) {
+                    let ids = [];
+                    $('#receipt-items-list tr').each(function () {
+                        ids.push($(this).attr('data-id'));
+                    });
+                    @this.call('updateItemOrder', ids);
+                }
+            });
+        }
+    }
+    initReceiptSortable();
+    document.addEventListener('livewire:update', function () {
+        initReceiptSortable();
+    });
+</script>
+@endscript
