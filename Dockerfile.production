@@ -59,6 +59,7 @@ COPY --from=app-builder /var/www/html/ /var/www/html/
 
 COPY docker/production/supervisor.conf /etc/supervisor/conf.d/worker.conf
 COPY docker/production/php.ini /usr/local/etc/php/conf.d/production-upload-limits.ini
+COPY docker/production/policy.xml /etc/ImageMagick-6/policy.xml
 
 RUN chown -R www-data:www-data /var/www/html/
 
