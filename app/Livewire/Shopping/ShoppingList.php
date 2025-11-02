@@ -52,14 +52,17 @@ class ShoppingList extends Component
         $order = 1;
 
         foreach ($items as $item) {
-            $item = \App\Models\ShoppingList::find($item);
+            $shoppingListItem = \App\Models\ShoppingList::forAuthUser()->find($item);
 
-            if ($item === null) {
+            // @phpstan-ignore-next-line
+            if ($shoppingListItem === null) {
                 continue;
             }
 
-            $item->order = $order;
-            $item->save();
+            // @phpstan-ignore-next-line
+            $shoppingListItem->order = $order;
+            // @phpstan-ignore-next-line
+            $shoppingListItem->save();
             $order++;
         }
         $this->updateList();

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class Login extends Component
 {
@@ -19,10 +20,10 @@ class Login extends Component
 
     public bool $remember = false;
 
-    public function mount(): ?RedirectResponse
+    public function mount(): ?Redirector
     {
         if (\auth()->check()) {
-            return \redirect()->intended(\route('index'));
+            return $this->redirect(\route('index'));
         }
 
         return null;
@@ -33,7 +34,7 @@ class Login extends Component
         return \view('livewire.login', ['title' => 'Login', 'bodyClass' => 'login-page']);
     }
 
-    public function login(): ?RedirectResponse
+    public function login(): ?Redirector
     {
         $this->validate([
             'email' => 'required|email',
@@ -41,8 +42,10 @@ class Login extends Component
             'remember' => 'nullable|boolean',
         ]);
 
-        if (\auth()->attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
-            return \redirect()->intended(\route('index'));
+        if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+            $intendedUrl = \session()->pull('url.intended', \route('index'));
+
+            return $this->redirect($intendedUrl);
         }
 
         $this->addError('email', 'These credentials do not match our records.');
