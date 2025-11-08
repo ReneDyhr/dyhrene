@@ -8,10 +8,10 @@ use App\Actions\CreateReceiptAction;
 use App\Models\ReceiptCategory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use OpenAI\Laravel\Facades\OpenAI;
 
 class Create extends Component
 {
@@ -96,7 +96,7 @@ class Create extends Component
     }
 
     /**
-     * Extract receipt data from uploaded image using your custom OpenAI Assistant.
+     * Extract receipt data from uploaded image using n8n webhook.
      */
     public function extractFromImage(): void
     {
@@ -106,41 +106,80 @@ class Create extends Component
             return;
         }
 
-        $imageForOpenAI = PdfConverter::convertToJpg($this->receiptImage);
+        $webhookUrl = \config('n8n.webhook_url');
 
-        $fileId = $this->uploadImageToOpenAI($imageForOpenAI);
-
-        if ($fileId === null) {
-            Session::flash('error', 'Failed to upload image to OpenAI.');
+        if (!\is_string($webhookUrl) || \trim($webhookUrl) === '') {
+            Session::flash('error', 'n8n webhook URL is not configured.');
 
             return;
         }
-        $threadId = $this->createThreadWithImage($fileId);
 
-        if ($threadId === null) {
-            Session::flash('error', 'Failed to create thread.');
+        $image = PdfConverter::convertToJpg($this->receiptImage);
+        $imagePath = $image->getRealPath();
 
-            return;
-        }
-        $assistantId = \Config::string('openai.assistant_id');
-        $runId = $this->runAssistantAndWait($threadId, $assistantId);
-
-        if ($runId === null) {
-            Session::flash('error', 'Failed to start or complete assistant run.');
+        if ($imagePath === false || !\file_exists($imagePath)) {
+            Session::flash('error', 'Failed to process image.');
 
             return;
         }
-        $messages = OpenAI::threads()->messages()->list($threadId);
-        $last = $messages['data'][0]['content'][0]['text']['value'] ?? null;
 
-        if (!\is_string($last) || $last === '') {
-            Session::flash('error', 'No response from OpenAI assistant.');
+        $mimeType = $image instanceof UploadedFile ? $image->getMimeType() : 'image/jpeg';
+        $isTemporaryFile = $image instanceof \Illuminate\Http\File;
+        $filename = $image instanceof UploadedFile ? $image->getClientOriginalName() : 'receipt.jpg';
+
+        // Read file contents for multipart upload
+        $fileContents = \file_get_contents($imagePath);
+
+        if ($fileContents === false) {
+            Session::flash('error', 'Failed to read image file.');
 
             return;
         }
-        $data = $this->extractJsonFromResponse($last);
-        $this->mapExtractedDataToForm($data);
-        Session::flash('success', 'Receipt data extracted!');
+
+        /** @var string $fileContents */
+        try {
+            $response = Http::timeout(60)
+                ->attach('File', $fileContents, $filename)
+                ->post($webhookUrl);
+
+            // Clean up temporary file if it was created by PdfConverter
+            if ($isTemporaryFile && \file_exists($imagePath)) {
+                @\unlink($imagePath);
+            }
+
+            if (!$response->successful()) {
+                Session::flash('error', 'Failed to extract receipt data from webhook.');
+
+                return;
+            }
+
+            $responseData = $response->json();
+
+            if (!\is_array($responseData)) {
+                Session::flash('error', 'Invalid response from webhook.');
+
+                return;
+            }
+
+            // Extract data from the "output" wrapper
+            $outputData = $responseData['output'] ?? null;
+
+            if (!\is_array($outputData)) {
+                Session::flash('error', 'No output data in webhook response.');
+
+                return;
+            }
+
+            /** @var array<string, mixed> $outputData */
+            $this->mapExtractedDataToForm($outputData);
+            Session::flash('success', 'Receipt data extracted!');
+        } catch (\Throwable $e) {
+            // Clean up temporary file in case of error
+            if ($isTemporaryFile && \file_exists($imagePath)) {
+                @\unlink($imagePath);
+            }
+            Session::flash('error', 'Error calling webhook: ' . $e->getMessage());
+        }
     }
 
     public function save(CreateReceiptAction $action): void
@@ -221,91 +260,6 @@ class Create extends Component
     public function calculateTotal(): void
     {
         // No-op: total is calculated in the Blade for now, but this allows wire:change to work without error.
-    }
-
-    /**
-     * Uploads the image to OpenAI and returns the file id.
-     */
-    private function uploadImageToOpenAI(\Illuminate\Http\File | UploadedFile $image): ?string
-    {
-        $imageFile = \fopen($image->getRealPath(), 'rb');
-
-        if ($imageFile === false) {
-            return null;
-        }
-        $file = OpenAI::files()->upload([
-            'purpose' => 'assistants',
-            'file' => $imageFile,
-        ]);
-
-        if (\is_resource($imageFile)) {
-            \fclose($imageFile);
-        }
-
-        return $file['id'] ?? null;
-    }
-
-    /**
-     * Creates a thread with the image and returns the thread id.
-     */
-    private function createThreadWithImage(string $fileId): ?string
-    {
-        $thread = OpenAI::threads()->create([
-            'messages' => [
-                [
-                    'role' => 'user',
-                    'content' => [
-                        ['type' => 'image_file', 'image_file' => ['file_id' => $fileId]],
-                    ],
-                ],
-            ],
-        ]);
-
-        return $thread['id'] ?? null;
-    }
-
-    /**
-     * Runs the assistant and waits for completion. Returns the run id or null.
-     */
-    private function runAssistantAndWait(string $threadId, string $assistantId): ?string
-    {
-        $run = OpenAI::threads()->runs()->create($threadId, [
-            'assistant_id' => $assistantId,
-        ]);
-        $runId = $run['id'] ?? null;
-
-        if ($runId === null || $runId === '') {
-            return null;
-        }
-        $status = $run['status'] ?? '';
-        $maxTries = 20;
-        $tries = 0;
-
-        while ($status !== 'completed' && $tries < $maxTries) {
-            \sleep(2);
-            $run = OpenAI::threads()->runs()->retrieve($threadId, $runId);
-            $status = $run['status'] ?? '';
-            $tries++;
-        }
-
-        return $status === 'completed' ? $runId : null;
-    }
-
-    /**
-     * Extracts the JSON block from the assistant's response.
-     *
-     * @return null|array<mixed, mixed>
-     */
-    private function extractJsonFromResponse(string $response): ?array
-    {
-        if (\preg_match('/\{(?:[^{}]|(?R))*\}/s', $response, $matches) === 1) {
-            $json = $matches[0];
-            $data = \json_decode($json, true);
-
-            return \is_array($data) ? $data : null;
-        }
-
-        return null;
     }
 
     /**
