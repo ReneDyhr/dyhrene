@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Livewire\Receipts;
 
 use App\Actions\CreateReceiptAction;
+use App\Models\Receipt;
 use App\Models\ReceiptCategory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -200,6 +202,48 @@ class Create extends Component
 
         if (!$user instanceof \App\Models\User) {
             \abort(403, 'Unauthorized');
+        }
+
+        // Calculate total from items
+        $total = 0.0;
+
+        if ($this->itemEdits !== null) {
+            foreach ($this->itemEdits as $item) {
+                $total += $item['amount'] * $item['quantity'];
+            }
+        }
+        // Check for duplicate receipt (same vendor, date/time, and total)
+        $vendor = $this->data['vendor'] ?? null;
+        $dateTime = \DateTime::createFromFormat('Y-m-d\TH:i', $this->data['date'] ?? '');
+
+        if ($dateTime !== false) {
+            $existingReceipts = Receipt::query()
+                ->where('user_id', $user->id)
+                ->where('date', $dateTime->format('Y-m-d H:i:s'))
+                ->where(function (Builder $query) use ($vendor): void {
+                    if ($vendor === null) {
+                        $query->whereNull('vendor');
+                    } else {
+                        $query->where('vendor', $vendor);
+                    }
+                })
+                ->with('items')
+                ->get();
+
+            foreach ($existingReceipts as $existingReceipt) {
+                $existingTotal = 0.0;
+
+                foreach ($existingReceipt->items as $item) {
+                    $existingTotal += $item->amount * $item->quantity;
+                }
+
+                // Compare totals with a small tolerance for floating point precision
+                if (\abs($total - $existingTotal) < 0.01) {
+                    Session::flash('error', 'This receipt has already been uploaded. A receipt with the same vendor, time, and total price already exists.');
+
+                    return;
+                }
+            }
         }
 
         // Save uploaded image to Wasabi S3 and store path in db
