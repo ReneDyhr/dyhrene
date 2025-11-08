@@ -143,7 +143,7 @@ class Create extends Component
                 ->post($webhookUrl);
 
             // Clean up temporary file if it was created by PdfConverter
-            if ($isTemporaryFile && \file_exists($imagePath)) {
+            if ($isTemporaryFile) {
                 @\unlink($imagePath);
             }
 
