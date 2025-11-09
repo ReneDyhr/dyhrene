@@ -140,7 +140,7 @@ class Create extends Component
 
         /** @var string $fileContents */
         try {
-            $response = Http::timeout(60)
+            $response = Http::timeout(120)
                 ->attach('File', $fileContents, $filename)
                 ->post($webhookUrl);
 
