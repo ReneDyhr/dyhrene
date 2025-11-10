@@ -14,7 +14,7 @@
                         </form>
                         <div class="mt-4">
                             <h2>Items</h2>
-                            
+
                             <!-- Desktop Table View -->
                             <div class="receipt-items-desktop">
                                 <table class="table table-sm">
@@ -36,12 +36,15 @@
                                             @foreach($itemEdits as $id => $item)
                                                 <tr data-id="{{ $id }}">
                                                     <td><input type="text" class="form-control form-control-sm"
-                                                            wire:model="itemEdits.{{ $id }}.name" wire:change="calculateTotal"></td>
+                                                            wire:model="itemEdits.{{ $id }}.name" wire:change="calculateTotal">
+                                                    </td>
                                                     <td><input type="number" class="form-control form-control-sm"
-                                                            wire:model="itemEdits.{{ $id }}.quantity" wire:change="calculateTotal">
+                                                            wire:model="itemEdits.{{ $id }}.quantity"
+                                                            wire:change="calculateTotal">
                                                     </td>
                                                     <td><input type="number" step="0.01" class="form-control form-control-sm"
-                                                            wire:model="itemEdits.{{ $id }}.amount" wire:change="calculateTotal">
+                                                            wire:model="itemEdits.{{ $id }}.amount"
+                                                            wire:change="calculateTotal">
                                                     </td>
                                                     <td>
                                                         <select class="form-control form-control-sm"
@@ -97,18 +100,19 @@
                                                     <div class="receipt-item-field">
                                                         <label>Quantity</label>
                                                         <input type="number" class="form-control"
-                                                            wire:model="itemEdits.{{ $id }}.quantity" wire:change="calculateTotal">
+                                                            wire:model="itemEdits.{{ $id }}.quantity"
+                                                            wire:change="calculateTotal">
                                                     </div>
                                                     <div class="receipt-item-field">
                                                         <label>Amount</label>
                                                         <input type="number" step="0.01" class="form-control"
-                                                            wire:model="itemEdits.{{ $id }}.amount" wire:change="calculateTotal">
+                                                            wire:model="itemEdits.{{ $id }}.amount"
+                                                            wire:change="calculateTotal">
                                                     </div>
                                                 </div>
                                                 <div class="receipt-item-field">
                                                     <label>Category</label>
-                                                    <select class="form-control"
-                                                        wire:model="itemEdits.{{ $id }}.category_id"
+                                                    <select class="form-control" wire:model="itemEdits.{{ $id }}.category_id"
                                                         wire:change="calculateTotal">
                                                         @foreach($categories as $cat)
                                                             <option value="{{ $cat['id'] }}">{{ $cat['name'] }}</option>
@@ -127,7 +131,9 @@
                                 </div>
                                 @if ($itemEdits !== null)
                                     <div class="receipt-total-mobile">
-                                        <strong>Total: {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + ($item['amount'] * $item['quantity']), 0) }} {{ $data['currency'] ?? '' }}</strong>
+                                        <strong>Total:
+                                            {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + ($item['amount'] * $item['quantity']), 0) }}
+                                            {{ $data['currency'] ?? '' }}</strong>
                                     </div>
                                 @endif
                             </div>
@@ -160,61 +166,67 @@
                                 .receipt-item-card {
                                     background: #fff;
                                     border: 1px solid #ddd;
-                                    border-radius: 4px;
-                                    padding: 15px;
-                                    margin-bottom: 15px;
+                                    border-radius: 3px;
+                                    padding: 6px 8px;
+                                    margin-bottom: 6px;
                                 }
 
                                 .receipt-item-field {
-                                    margin-bottom: 15px;
+                                    margin-bottom: 6px;
+                                }
+
+                                .receipt-item-field:last-child {
+                                    margin-bottom: 0;
                                 }
 
                                 .receipt-item-field label {
                                     display: block;
                                     font-weight: bold;
-                                    margin-bottom: 5px;
-                                    font-size: 0.9rem;
-                                    color: #333;
+                                    margin-bottom: 2px;
+                                    font-size: 0.7rem;
+                                    color: #555;
                                 }
 
                                 .receipt-item-field input,
                                 .receipt-item-field select {
                                     width: 100%;
-                                    padding: 8px;
+                                    padding: 4px 5px;
                                     border: 1px solid #ddd;
-                                    border-radius: 4px;
-                                    font-size: 1rem;
+                                    border-radius: 3px;
+                                    font-size: 0.85rem;
                                 }
 
                                 .receipt-item-row {
                                     display: flex;
-                                    gap: 10px;
+                                    gap: 6px;
                                 }
 
                                 .receipt-item-row .receipt-item-field {
                                     flex: 1;
-                                    margin-bottom: 15px;
+                                    margin-bottom: 6px;
                                 }
 
                                 .receipt-item-actions {
                                     display: flex;
-                                    gap: 10px;
+                                    gap: 5px;
                                     align-items: center;
-                                    margin-top: 10px;
+                                    margin-top: 4px;
                                 }
 
                                 .receipt-item-actions .btn {
                                     flex: 1;
+                                    padding: 3px 6px;
+                                    font-size: 0.75rem;
                                 }
 
                                 .receipt-total-mobile {
                                     text-align: center;
-                                    padding: 15px;
+                                    padding: 8px;
                                     background: #f9f9f9;
                                     border: 1px solid #ddd;
-                                    border-radius: 4px;
-                                    margin-top: 15px;
-                                    font-size: 1.1rem;
+                                    border-radius: 3px;
+                                    margin-top: 8px;
+                                    font-size: 0.9rem;
                                 }
                             }
                         </style>
