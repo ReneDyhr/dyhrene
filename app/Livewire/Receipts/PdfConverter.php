@@ -47,7 +47,7 @@ class PdfConverter
                     if (\Storage::disk('wasabi')->exists($pathname)) {
                         $storageContents = \Storage::disk('wasabi')->get($pathname);
 
-                        if ($storageContents !== false && $storageContents !== '') {
+                        if (!empty($storageContents)) {
                             $fileContents = $storageContents;
                         }
                     }
