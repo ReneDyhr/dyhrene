@@ -71,7 +71,7 @@
                                             <td></td>
                                             <td class="fw-bold text-end">
                                                 Total:
-                                                {{ $itemEdits ? collect($itemEdits)->reduce(fn($carry, $item) => $carry + (($item['amount'] ?? 0) * ($item['quantity'] ?? 0)), 0) : 0 }}
+                                                {{ $itemEdits ? collect($itemEdits)->reduce(fn($carry, $item) => $carry + ((float) ($item['amount'] ?? 0) * (float) ($item['quantity'] ?? 0)), 0) : 0 }}
                                                 {{ $data['currency'] ?? '' }}
                                             </td>
                                             <td></td>
@@ -132,7 +132,7 @@
                                 @if ($itemEdits !== null)
                                     <div class="receipt-total-mobile">
                                         <strong>Total:
-                                            {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + (($item['amount'] ?? 0) * ($item['quantity'] ?? 0)), 0) }}
+                                            {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + ((float) ($item['amount'] ?? 0) * (float) ($item['quantity'] ?? 0)), 0) }}
                                             {{ $data['currency'] ?? '' }}</strong>
                                     </div>
                                 @endif
