@@ -65,7 +65,7 @@
                                             <td></td>
                                             <td class="fw-bold text-end">
                                                 Total:
-                                                {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + ($item['amount'] * $item['quantity']), 0) }}
+                                                {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + (($item['amount'] ?? 0) * ($item['quantity'] ?? 0)), 0) }}
                                                 {{ $data['currency'] ?? '' }}
                                             </td>
                                             <td></td>
@@ -119,7 +119,7 @@
                                 </div>
                                 <div class="receipt-total-mobile">
                                     <strong>Total:
-                                        {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + ($item['amount'] * $item['quantity']), 0) }}
+                                        {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + (($item['amount'] ?? 0) * ($item['quantity'] ?? 0)), 0) }}
                                         {{ $data['currency'] ?? '' }}</strong>
                                 </div>
                             </div>
