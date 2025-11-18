@@ -62,6 +62,8 @@ return [
             'region' => \env('WAS_DEFAULT_REGION'),
             'bucket' => \env('WAS_BUCKET_FINAL'),
             'endpoint' => \env('WAS_URL'),
+            'use_path_style_endpoint' => \env('WAS_USE_PATH_STYLE_ENDPOINT', true),
+            'throw' => false,
         ],
     ],
 
