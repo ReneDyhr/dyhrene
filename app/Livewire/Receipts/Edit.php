@@ -107,7 +107,6 @@ class Edit extends Component
                 $path = $imageForSave->store('receipts', 'wasabi');
             } else {
                 $path = \Storage::disk('wasabi')->putFile('receipts', $imageForSave);
-                $path = false;
             }
 
             if ($imageForSave instanceof \Illuminate\Http\File && \file_exists($imageForSave->getPathname())) {
