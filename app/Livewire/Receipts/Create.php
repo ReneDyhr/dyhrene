@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -118,27 +119,40 @@ class Create extends Component
 
         $image = PdfConverter::convertToJpg($this->receiptImage);
         $imagePath = $image->getRealPath();
-
-        if ($imagePath === false || !\file_exists($imagePath)) {
-            Session::flash('error', 'Failed to process image.');
-
-            return;
-        }
-
         $mimeType = $image instanceof UploadedFile ? $image->getMimeType() : 'image/jpeg';
         $isTemporaryFile = $image instanceof \Illuminate\Http\File;
         $filename = $image instanceof UploadedFile ? $image->getClientOriginalName() : 'receipt.jpg';
 
-        // Read file contents for multipart upload
-        $fileContents = \file_get_contents($imagePath);
+        // Read file contents for multipart upload - handle both local and Wasabi storage
+        $fileContents = false;
 
-        if ($fileContents === false) {
+        if ($image instanceof UploadedFile) {
+            // Try to get file contents directly from UploadedFile
+            $fileContents = $image->get();
+
+            // If that fails, try to get from Wasabi storage using pathname
+            if ($fileContents === false || $fileContents === '') {
+                $pathname = $image->getPathname();
+
+                if (\Storage::disk('wasabi')->exists($pathname)) {
+                    $storageContents = \Storage::disk('wasabi')->get($pathname);
+
+                    if (!empty($storageContents)) {
+                        $fileContents = $storageContents;
+                    }
+                }
+            }
+        } elseif ($imagePath !== false && \file_exists($imagePath)) {
+            // File is local, read it normally
+            $fileContents = \file_get_contents($imagePath);
+        }
+
+        if ($fileContents === false || $fileContents === '') {
             Session::flash('error', 'Failed to read image file.');
 
             return;
         }
 
-        /** @var string $fileContents */
         try {
             $response = Http::timeout(120)
                 ->attach('File', $fileContents, $filename)
