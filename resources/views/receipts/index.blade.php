@@ -146,13 +146,25 @@
                                         {{ $monthData['monthName'] }}
                                     </h3>
                                     <div style="text-align: right; font-size: 1em;">
-                                        <span style="font-weight: 600; color: #28a745;">
-                                            {{ number_format($monthData['total'], 2) }} {{ $monthData['currency'] }}
-                                        </span>
-                                        <span style="color: #999; margin-left: 8px;">
-                                            ({{ $monthData['count'] }}
-                                            {{ $monthData['count'] === 1 ? 'receipt' : 'receipts' }})
-                                        </span>
+                                        <div style="margin-bottom: 4px;">
+                                            <span style="font-weight: 600; color: #28a745;">
+                                                {{ number_format($monthData['total'], 2) }} {{ $monthData['currency'] }}
+                                            </span>
+                                            <span style="color: #999; margin-left: 8px;">
+                                                ({{ $monthData['count'] }}
+                                                {{ $monthData['count'] === 1 ? 'receipt' : 'receipts' }})
+                                            </span>
+                                        </div>
+                                        @if(!empty($monthData['topCategories']))
+                                            <div style="font-size: 0.85em; color: #666; margin-top: 4px;">
+                                                @foreach($monthData['topCategories'] as $category)
+                                                    <span style="margin-right: 12px;">
+                                                        <strong>{{ $category['name'] }}:</strong> 
+                                                        {{ number_format($category['total'], 0) }} {{ $monthData['currency'] }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
 
