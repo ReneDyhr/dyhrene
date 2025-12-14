@@ -1,6 +1,85 @@
 <div>
     @section('title', 'Receipts')
     @include('components.layouts.sidenav')
+    <style>
+        @media screen and (max-width: 767px) {
+            .receipts-table {
+                display: none !important;
+            }
+
+            .receipts-mobile {
+                display: block !important;
+            }
+
+            .month-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+            }
+
+            .month-header>div {
+                text-align: left !important;
+                margin-top: 4px;
+            }
+        }
+
+        .receipts-mobile {
+            display: none;
+        }
+
+        @media screen and (min-width: 768px) {
+            .receipts-mobile {
+                display: none !important;
+            }
+        }
+
+        .receipt-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #fff;
+        }
+
+        .receipt-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .receipt-card-name {
+            font-weight: 600;
+            font-size: 1em;
+            flex: 1;
+        }
+
+        .receipt-card-total {
+            font-weight: 600;
+            color: #28a745;
+            font-size: 1em;
+        }
+
+        .receipt-card-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .receipt-card-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .receipt-card-actions .btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 5px 8px !important;
+            font-size: 0.8em !important;
+        }
+    </style>
     <div id="main">
         @include('components.layouts.header')
         <div class="content homepage">
@@ -31,7 +110,9 @@
                                     </div>
                                 </div>
 
-                                <table class="table" style="table-layout: fixed; width: 100%; margin-bottom: 0;">
+                                <!-- Desktop Table View -->
+                                <table class="table receipts-table"
+                                    style="table-layout: fixed; width: 100%; margin-bottom: 0;">
                                     <colgroup>
                                         <col style="width: 25%;">
                                         <col style="width: 20%;">
@@ -90,6 +171,32 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+
+                                <!-- Mobile Card View -->
+                                <div class="receipts-mobile">
+                                    @foreach($monthData['receipts'] as $receipt)
+                                        <div class="receipt-card">
+                                            <div class="receipt-card-header">
+                                                <div class="receipt-card-name">{{ $receipt->name }}</div>
+                                                <div class="receipt-card-total">{{ number_format($receipt->total, 2) }}
+                                                    {{ $receipt->currency }}</div>
+                                            </div>
+                                            <div class="receipt-card-details">
+                                                <div><strong>Vendor:</strong> {{ $receipt->vendor }}</div>
+                                                <div><strong>Date:</strong> {{ $receipt->date->format('M j, Y H:i') }}</div>
+                                            </div>
+                                            <div class="receipt-card-actions">
+                                                <a href="{{ route('receipts.show', $receipt) }}" class="btn btn-info btn-sm"
+                                                    style="color: #fff;">View</a>
+                                                <a href="{{ route('receipts.edit', $receipt) }}" class="btn btn-warning btn-sm"
+                                                    style="color: #fff;">Edit</a>
+                                                <button wire:confirm="Are you sure?"
+                                                    wire:click="deleteReceipt({{ $receipt->id }})" class="btn btn-danger btn-sm"
+                                                    style="color: #fff;">Delete</button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         @endforeach
 
