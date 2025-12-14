@@ -32,7 +32,7 @@ class Index extends Component
     public function render(): View
     {
         $receipts = Receipt::query()
-            ->with(['user', 'items'])
+            ->with(['user', 'items.category'])
             ->orderByDesc('date')
             ->get();
 
@@ -49,6 +49,36 @@ class Index extends Component
             \assert($firstReceipt instanceof Receipt);
             $currency = $firstReceipt->currency ?? 'DKK';
 
+            // Calculate top 3 categories by expense
+            $categoryTotals = [];
+
+            foreach ($monthReceipts as $receipt) {
+                foreach ($receipt->items as $item) {
+                    $categoryId = $item->category_id;
+                    $categoryName = $item->category->name ?? 'Uncategorized';
+
+                    if (!isset($categoryTotals[$categoryId])) {
+                        $categoryTotals[$categoryId] = [
+                            'name' => $categoryName,
+                            'total' => 0.0,
+                        ];
+                    }
+                    $categoryTotals[$categoryId]['total'] += $item->total;
+                }
+            }
+
+            // Sort by total descending and get top 3
+            \usort($categoryTotals, function (array $a, array $b): int {
+                return $b['total'] <=> $a['total'];
+            });
+            $topCategories = \array_slice($categoryTotals, 0, 3);
+
+            // Round each category total to nearest 5
+            foreach ($topCategories as &$category) {
+                $category['total'] = \round($category['total'] / 5) * 5;
+            }
+            unset($category);
+
             return [
                 'month' => $monthKey,
                 'monthName' => $firstReceipt->date->format('F Y'),
@@ -56,6 +86,7 @@ class Index extends Component
                 'total' => $monthTotal,
                 'currency' => $currency,
                 'count' => $monthReceipts->count(),
+                'topCategories' => $topCategories,
             ];
         })->sortKeysDesc();
 
