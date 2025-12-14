@@ -6,6 +6,7 @@ namespace App\Livewire\Receipts;
 
 use App\Models\Receipt;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 
 class Index extends Component
@@ -30,8 +31,34 @@ class Index extends Component
 
     public function render(): View
     {
-        $receipts = Receipt::query()->with('user')->orderByDesc('date')->get();
+        $receipts = Receipt::query()
+            ->with(['user', 'items'])
+            ->orderByDesc('date')
+            ->get();
 
-        return \view('receipts.index', \compact('receipts'));
+        // Group receipts by month
+        $receiptsByMonth = $receipts->groupBy(function (Receipt $receipt): string {
+            return $receipt->date->format('Y-m');
+        })->map(function (Collection $monthReceipts, string $monthKey): array {
+            $monthTotal = $monthReceipts->sum(function (Receipt $receipt): float {
+                return $receipt->total;
+            });
+
+            // Get the first receipt's currency (assuming all receipts in a month have the same currency)
+            $firstReceipt = $monthReceipts->first();
+            \assert($firstReceipt instanceof Receipt);
+            $currency = $firstReceipt->currency ?? 'DKK';
+
+            return [
+                'month' => $monthKey,
+                'monthName' => $firstReceipt->date->format('F Y'),
+                'receipts' => $monthReceipts,
+                'total' => $monthTotal,
+                'currency' => $currency,
+                'count' => $monthReceipts->count(),
+            ];
+        })->sortKeysDesc();
+
+        return \view('receipts.index', \compact('receiptsByMonth'));
     }
 }
