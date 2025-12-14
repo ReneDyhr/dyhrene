@@ -6,6 +6,7 @@ namespace App\Livewire\Receipts;
 
 use App\Models\Receipt;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 
 class Index extends Component
@@ -36,19 +37,21 @@ class Index extends Component
             ->get();
 
         // Group receipts by month
-        $receiptsByMonth = $receipts->groupBy(function ($receipt) {
+        $receiptsByMonth = $receipts->groupBy(function (Receipt $receipt): string {
             return $receipt->date->format('Y-m');
-        })->map(function ($monthReceipts, $monthKey) {
-            $monthTotal = $monthReceipts->sum(function ($receipt) {
+        })->map(function (Collection $monthReceipts, string $monthKey): array {
+            $monthTotal = $monthReceipts->sum(function (Receipt $receipt): float {
                 return $receipt->total;
             });
 
             // Get the first receipt's currency (assuming all receipts in a month have the same currency)
-            $currency = $monthReceipts->first()->currency ?? 'DKK';
+            $firstReceipt = $monthReceipts->first();
+            \assert($firstReceipt instanceof Receipt);
+            $currency = $firstReceipt->currency ?? 'DKK';
 
             return [
                 'month' => $monthKey,
-                'monthName' => $monthReceipts->first()->date->format('F Y'),
+                'monthName' => $firstReceipt->date->format('F Y'),
                 'receipts' => $monthReceipts,
                 'total' => $monthTotal,
                 'currency' => $currency,
