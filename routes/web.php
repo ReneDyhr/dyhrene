@@ -60,6 +60,7 @@ Route::get('/storage', Storage::class)->name('storage')->middleware('auth');
 
 Route::get('receipts', App\Livewire\Receipts\Index::class)->middleware('auth')->name('receipts.index');
 Route::get('receipts/create', App\Livewire\Receipts\Create::class)->middleware('auth')->name('receipts.create');
+Route::get('receipts/mass-edit-items', App\Livewire\Receipts\MassEditItems::class)->middleware('auth')->name('receipts.mass-edit-items');
 Route::get('receipts/{receipt}', App\Livewire\Receipts\Show::class)->middleware('auth')->name('receipts.show');
 Route::get('receipts/{receipt}/edit', App\Livewire\Receipts\Edit::class)->middleware('auth')->name('receipts.edit');
 // Route::resource('receipts', ReceiptController::class);

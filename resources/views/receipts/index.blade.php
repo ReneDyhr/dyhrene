@@ -79,24 +79,70 @@
             padding: 5px 8px !important;
             font-size: 0.8em !important;
         }
+
+        .month-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .month-header:hover {
+            opacity: 0.8;
+        }
+
+        .month-toggle-icon {
+            display: inline-block;
+            margin-right: 8px;
+            transition: transform 0.2s ease;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .month-expanded .month-toggle-icon {
+            transform: rotate(90deg);
+        }
+
+        .month-receipts {
+            display: none;
+        }
+
+        .month-expanded .month-receipts {
+            display: block;
+        }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.month-header').forEach(function(header) {
+                header.addEventListener('click', function() {
+                    const monthSummary = this.closest('.month-summary');
+                    monthSummary.classList.toggle('month-expanded');
+                });
+            });
+        });
+    </script>
     <div id="main">
         @include('components.layouts.header')
         <div class="content homepage">
             <div class="col-12">
                 <div class="storage-list">
                     <div class="recipe">
-                        <a href="{{ route('receipts.create') }}" class="btn btn-success mb-2"
-                            style="color: #fff; margin-bottom: 12px;">
-                            <i class="fa fa-plus"></i> New Receipt
-                        </a>
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <a href="{{ route('receipts.create') }}" class="btn btn-success mb-2"
+                                style="color: #fff;">
+                                <i class="fa fa-plus"></i> New Receipt
+                            </a>
+                            <a href="{{ route('receipts.mass-edit-items') }}" class="btn btn-primary mb-2"
+                                style="color: #fff;">
+                                <i class="fa fa-edit"></i> Mass Edit Items
+                            </a>
+                        </div>
 
                         @foreach($receiptsByMonth as $monthData)
                             <div class="month-summary mb-2"
                                 style="border-bottom: 1px solid #e0e0e0; padding-bottom: 12px; margin-bottom: 12px;">
                                 <div class="month-header"
                                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                    <h3 style="margin: 0; font-size: 1.2em; font-weight: 600; color: #555;">
+                                    <h3 style="margin: 0; font-size: 1.2em; font-weight: 600; color: #555; display: flex; align-items: center;">
+                                        <span class="month-toggle-icon">▶</span>
                                         {{ $monthData['monthName'] }}
                                     </h3>
                                     <div style="text-align: right; font-size: 1em;">
@@ -110,6 +156,7 @@
                                     </div>
                                 </div>
 
+                                <div class="month-receipts">
                                 <!-- Desktop Table View -->
                                 <table class="table receipts-table"
                                     style="table-layout: fixed; width: 100%; margin-bottom: 0;">
@@ -196,6 +243,7 @@
                                             </div>
                                         </div>
                                     @endforeach
+                                </div>
                                 </div>
                             </div>
                         @endforeach
