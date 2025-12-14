@@ -125,10 +125,16 @@
             <div class="col-12">
                 <div class="storage-list">
                     <div class="recipe">
-                        <a href="{{ route('receipts.create') }}" class="btn btn-success mb-2"
-                            style="color: #fff; margin-bottom: 12px;">
-                            <i class="fa fa-plus"></i> New Receipt
-                        </a>
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <a href="{{ route('receipts.create') }}" class="btn btn-success mb-2"
+                                style="color: #fff;">
+                                <i class="fa fa-plus"></i> New Receipt
+                            </a>
+                            <a href="{{ route('receipts.mass-edit-items') }}" class="btn btn-primary mb-2"
+                                style="color: #fff;">
+                                <i class="fa fa-edit"></i> Mass Edit Items
+                            </a>
+                        </div>
 
                         @foreach($receiptsByMonth as $monthData)
                             <div class="month-summary mb-2"
