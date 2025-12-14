@@ -30,8 +30,32 @@ class Index extends Component
 
     public function render(): View
     {
-        $receipts = Receipt::query()->with('user')->orderByDesc('date')->get();
+        $receipts = Receipt::query()
+            ->with(['user', 'items'])
+            ->orderByDesc('date')
+            ->get();
 
-        return \view('receipts.index', \compact('receipts'));
+        // Group receipts by month
+        $receiptsByMonth = $receipts->groupBy(function ($receipt) {
+            return $receipt->date->format('Y-m');
+        })->map(function ($monthReceipts, $monthKey) {
+            $monthTotal = $monthReceipts->sum(function ($receipt) {
+                return $receipt->total;
+            });
+
+            // Get the first receipt's currency (assuming all receipts in a month have the same currency)
+            $currency = $monthReceipts->first()->currency ?? 'DKK';
+
+            return [
+                'month' => $monthKey,
+                'monthName' => $monthReceipts->first()->date->format('F Y'),
+                'receipts' => $monthReceipts,
+                'total' => $monthTotal,
+                'currency' => $currency,
+                'count' => $monthReceipts->count(),
+            ];
+        })->sortKeysDesc();
+
+        return \view('receipts.index', \compact('receiptsByMonth'));
     }
 }
