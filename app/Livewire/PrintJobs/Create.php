@@ -33,7 +33,7 @@ class Create extends Component
         $this->date = now()->format('Y-m-d');
     }
 
-    public function save(): \Livewire\Features\SupportRedirects\Redirector
+    public function save()
     {
         $this->validate([
             'date' => 'required|date',
@@ -51,11 +51,20 @@ class Create extends Component
         ]);
 
         // Generate order number transaction-safely
-        $orderNo = $this->generateOrderNumber();
+        try {
+            $orderNo = $this->generateOrderNumber();
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('Error generating order number: ' . $e->getMessage(), 0, $e);
+        }
+        
+        // Ensure order number was generated
+        if ($orderNo === null || $orderNo === '') {
+            throw new \RuntimeException('Failed to generate order number. Got: ' . var_export($orderNo, true));
+        }
 
         // Create print job as draft
         $printJob = PrintJob::create([
-            'order_no' => $orderNo,
+            'order_no' => (string) $orderNo,
             'date' => $this->date,
             'description' => $this->description,
             'internal_notes' => $this->internal_notes,
@@ -74,7 +83,6 @@ class Create extends Component
 
         \session()->flash('success', 'Print job created successfully.');
 
-        // @phpstan-ignore return.type
         return $this->redirect(\route('print-jobs.show', $printJob));
     }
 
@@ -85,14 +93,18 @@ class Create extends Component
      */
     private function generateOrderNumber(): string
     {
-        return DB::transaction(function () {
+        $result = DB::transaction(function () {
             $year = (int) now()->year;
 
-            // SELECT ... FOR UPDATE to lock the row
-            $sequence = PrintOrderSequence::query()
-                ->where('year', $year)
-                ->lockForUpdate()
-                ->first();
+            // SELECT ... FOR UPDATE to lock the row (SQLite doesn't support lockForUpdate, but transaction still works)
+            $query = PrintOrderSequence::query()->where('year', $year);
+            
+            // Only use lockForUpdate for databases that support it
+            if (DB::getDriverName() !== 'sqlite') {
+                $query->lockForUpdate();
+            }
+            
+            $sequence = $query->first();
 
             // If row doesn't exist, create it
             if ($sequence === null) {
@@ -107,8 +119,20 @@ class Create extends Component
             $sequence->refresh();
 
             // Format order number
-            return \sprintf('%d-%04d', $year, $sequence->last_number);
+            $orderNo = \sprintf('%d-%04d', $year, $sequence->last_number);
+            
+            if (empty($orderNo)) {
+                throw new \RuntimeException('Generated order number is empty');
+            }
+            
+            return $orderNo;
         });
+        
+        if ($result === null || $result === '') {
+            throw new \RuntimeException('Failed to generate order number. Transaction returned: ' . var_export($result, true));
+        }
+        
+        return $result;
     }
 
     public function render(): View

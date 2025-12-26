@@ -89,7 +89,7 @@ class Show extends Component
     /**
      * Unlock the print job by clearing snapshot and updating status.
      */
-    public function unlock(): \Livewire\Features\SupportRedirects\Redirector
+    public function unlock()
     {
         // Guard: if not locked, redirect to edit
         $this->printJob->refresh();

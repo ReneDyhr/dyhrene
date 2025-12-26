@@ -20,7 +20,10 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        DB::statement('ALTER TABLE print_material_types ADD CONSTRAINT print_material_types_avg_kwh_per_hour_check CHECK (avg_kwh_per_hour > 0)');
+        // Add CHECK constraint only for databases that support it (not SQLite)
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE print_material_types ADD CONSTRAINT print_material_types_avg_kwh_per_hour_check CHECK (avg_kwh_per_hour > 0)');
+        }
     }
 
     /**

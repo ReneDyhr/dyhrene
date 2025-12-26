@@ -104,7 +104,7 @@ class Edit extends Component
     /**
      * Lock the print job by creating a snapshot and updating status.
      */
-    public function lock(): \Livewire\Features\SupportRedirects\Redirector
+    public function lock()
     {
         // Guard: if already locked, redirect to show
         $this->printJob->refresh();

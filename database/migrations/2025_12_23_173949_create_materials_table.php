@@ -26,7 +26,10 @@ return new class extends Migration {
             $table->unique(['material_type_id', 'name']);
         });
 
-        DB::statement('ALTER TABLE print_materials ADD CONSTRAINT print_materials_price_per_kg_dkk_check CHECK (price_per_kg_dkk > 0)');
+        // Add CHECK constraint only for databases that support it (not SQLite)
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE print_materials ADD CONSTRAINT print_materials_price_per_kg_dkk_check CHECK (price_per_kg_dkk > 0)');
+        }
     }
 
     /**

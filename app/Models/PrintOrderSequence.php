@@ -11,6 +11,13 @@ class PrintOrderSequence extends Model
 {
     /** @use HasFactory<\Database\Factories\PrintOrderSequenceFactory> */
     use HasFactory;
+    
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
 
     /**
      * The table associated with the model.

@@ -34,6 +34,7 @@ class PrintJob extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'order_no',
         'date',
         'description',
         'internal_notes',
