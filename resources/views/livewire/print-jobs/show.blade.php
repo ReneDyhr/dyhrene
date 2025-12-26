@@ -159,60 +159,11 @@
                             </div>
                         </div>
 
-                        <!-- Calculation Results -->
-                        <div style="background-color: #f0f8ff; padding: 20px; border-radius: 4px; margin-bottom: 20px;">
-                            <h2 style="margin-top: 0; margin-bottom: 15px;">
-                                Calculation Results
-                                @if($printJob->isDraft())
-                                    <span style="font-size: 0.8em; color: #777; font-weight: normal;">(Draft/Not Locked - Computed Live)</span>
-                                @endif
-                            </h2>
-
-                            @if($calculation)
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
-                                    <div>
-                                        <h3 style="font-size: 1.1em; margin-bottom: 10px;">Totals</h3>
-                                        <div style="background-color: #fff; padding: 15px; border-radius: 4px;">
-                                            <div style="margin-bottom: 8px;"><strong>Total Pieces:</strong> {{ \App\Support\Format::integer($calculation['totals']['total_pieces'] ?? 0) }}</div>
-                                            <div style="margin-bottom: 8px;"><strong>Total Grams:</strong> {{ \App\Support\Format::number($calculation['totals']['total_grams'] ?? 0) }}</div>
-                                            <div style="margin-bottom: 8px;"><strong>Total Print Hours:</strong> {{ \App\Support\Format::number($calculation['totals']['total_print_hours'] ?? 0, 3) }}</div>
-                                            <div><strong>kWh:</strong> {{ \App\Support\Format::number($calculation['totals']['kwh'] ?? 0, 2) }}</div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h3 style="font-size: 1.1em; margin-bottom: 10px;">Costs</h3>
-                                        <div style="background-color: #fff; padding: 15px; border-radius: 4px;">
-                                            <div style="margin-bottom: 8px;"><strong>Material Cost:</strong> {{ \App\Support\Format::dkk($calculation['costs']['material_cost'] ?? 0) }}</div>
-                                            <div style="margin-bottom: 8px;"><strong>Material Cost (with Waste):</strong> {{ \App\Support\Format::dkk($calculation['costs']['material_cost_with_waste'] ?? 0) }}</div>
-                                            <div style="margin-bottom: 8px;"><strong>Power Cost:</strong> {{ \App\Support\Format::dkk($calculation['costs']['power_cost'] ?? 0) }}</div>
-                                            <div style="margin-bottom: 8px;"><strong>Labor Cost:</strong> {{ \App\Support\Format::dkk($calculation['costs']['labor_cost'] ?? 0) }}</div>
-                                            <div style="margin-bottom: 8px;"><strong>First Time Fee:</strong> {{ \App\Support\Format::dkk($calculation['costs']['first_time_fee_applied'] ?? 0) }}</div>
-                                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;"><strong>Total Cost:</strong> {{ \App\Support\Format::dkk($calculation['costs']['total_cost'] ?? 0) }}</div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h3 style="font-size: 1.1em; margin-bottom: 10px;">Pricing</h3>
-                                        <div style="background-color: #fff; padding: 15px; border-radius: 4px;">
-                                            <div style="margin-bottom: 8px;"><strong>Applied Avance %:</strong> {{ \App\Support\Format::pct($calculation['pricing']['applied_avance_pct'] ?? 0) }}</div>
-                                            <div style="margin-bottom: 8px;"><strong>Sales Price:</strong> {{ \App\Support\Format::dkk($calculation['pricing']['sales_price'] ?? 0) }}</div>
-                                            <div><strong>Price per Piece:</strong> {{ \App\Support\Format::dkk($calculation['pricing']['price_per_piece'] ?? 0) }}</div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h3 style="font-size: 1.1em; margin-bottom: 10px;">Profit</h3>
-                                        <div style="background-color: #fff; padding: 15px; border-radius: 4px;">
-                                            <div style="margin-bottom: 8px;"><strong>Profit:</strong> {{ \App\Support\Format::dkk($calculation['profit']['profit'] ?? 0) }}</div>
-                                            <div><strong>Profit per Piece:</strong> {{ \App\Support\Format::dkk($calculation['profit']['profit_per_piece'] ?? 0) }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @else
-                                <p style="color: #777;">No calculation data available.</p>
-                            @endif
-                        </div>
+                        <!-- Calculation Panel -->
+                        @livewire('print-jobs.components.calculation-panel', [
+                            'printJob' => $printJob,
+                            'isLocked' => $printJob->isLocked(),
+                        ], key('calc-panel-show-' . $printJob->id))
 
                         <!-- Activity Log -->
                         @if(isset($activityLogs) && $activityLogs->count() > 0)

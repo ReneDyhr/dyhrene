@@ -48,8 +48,8 @@
                             </select>
                         </div>
 
-                        <div style="overflow-x: auto;">
-                            <table class="table" style="width: 100%; min-width: 1200px;">
+                        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                            <table class="table" style="width: 100%; min-width: 1200px; border-collapse: collapse;">
                                 <thead>
                                     <tr>
                                         <th style="padding: 8px; border-bottom: 1px solid #ddd;">Order No</th>
