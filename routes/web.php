@@ -102,3 +102,12 @@ Route::delete('/print-materials/{material}', [App\Livewire\PrintMaterials\Index:
 // Print Settings
 Route::get('/print-settings', App\Livewire\PrintSettings\Edit::class)->middleware('auth')->name('print-settings.edit');
 Route::put('/print-settings', [App\Livewire\PrintSettings\Edit::class, 'save'])->middleware('auth')->name('print-settings.update');
+
+// Print Jobs CRUD
+Route::get('/print-jobs', App\Livewire\PrintJobs\Index::class)->middleware('auth')->name('print-jobs.index');
+Route::get('/print-jobs/create', App\Livewire\PrintJobs\Create::class)->middleware('auth')->name('print-jobs.create');
+Route::post('/print-jobs', [App\Livewire\PrintJobs\Create::class, 'save'])->middleware('auth')->name('print-jobs.store');
+Route::get('/print-jobs/{printJob}', App\Livewire\PrintJobs\Show::class)->middleware('auth')->name('print-jobs.show');
+Route::get('/print-jobs/{printJob}/edit', App\Livewire\PrintJobs\Edit::class)->middleware('auth')->name('print-jobs.edit');
+Route::put('/print-jobs/{printJob}', [App\Livewire\PrintJobs\Edit::class, 'save'])->middleware('auth')->name('print-jobs.update');
+Route::delete('/print-jobs/{printJob}', [App\Livewire\PrintJobs\Index::class, 'delete'])->middleware('auth')->name('print-jobs.destroy');
