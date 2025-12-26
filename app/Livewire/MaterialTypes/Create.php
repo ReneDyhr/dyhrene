@@ -13,7 +13,7 @@ class Create extends Component
     public string $name = '';
     public string $avg_kwh_per_hour = '';
 
-    public function save(): \Livewire\Features\SupportRedirects\Redirector
+    public function save()
     {
         $this->validate([
             'name' => 'required|string|max:255|unique:print_material_types,name',
@@ -27,7 +27,6 @@ class Create extends Component
 
         \session()->flash('success', 'Material type created successfully.');
 
-        // @phpstan-ignore return.type
         return $this->redirect(\route('material-types.index'));
     }
 

@@ -28,7 +28,7 @@ class Edit extends Component
         $this->notes = $material->notes;
     }
 
-    public function save(): \Livewire\Features\SupportRedirects\Redirector
+    public function save()
     {
         $this->validate([
             'material_type_id' => 'required|exists:print_material_types,id',
@@ -62,7 +62,6 @@ class Edit extends Component
 
         \session()->flash('success', 'Material updated successfully.');
 
-        // @phpstan-ignore return.type
         return $this->redirect(\route('materials.index'));
     }
 

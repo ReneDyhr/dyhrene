@@ -21,7 +21,7 @@ class Edit extends Component
         $this->avg_kwh_per_hour = (string) $materialType->avg_kwh_per_hour;
     }
 
-    public function save(): \Livewire\Features\SupportRedirects\Redirector
+    public function save()
     {
         $this->validate([
             'name' => 'required|string|max:255|unique:print_material_types,name,' . $this->materialType->id,
@@ -35,7 +35,6 @@ class Edit extends Component
 
         \session()->flash('success', 'Material type updated successfully.');
 
-        // @phpstan-ignore return.type
         return $this->redirect(\route('print-material-types.index'));
     }
 

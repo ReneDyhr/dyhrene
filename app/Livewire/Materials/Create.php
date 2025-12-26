@@ -25,7 +25,7 @@ class Create extends Component
         }
     }
 
-    public function save(): \Livewire\Features\SupportRedirects\Redirector
+    public function save()
     {
         $this->validate([
             'material_type_id' => 'required|exists:print_material_types,id',
@@ -58,7 +58,6 @@ class Create extends Component
 
         \session()->flash('success', 'Material created successfully.');
 
-        // @phpstan-ignore return.type
         return $this->redirect(\route('materials.index'));
     }
 

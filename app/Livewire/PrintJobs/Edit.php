@@ -56,7 +56,7 @@ class Edit extends Component
         return null;
     }
 
-    public function save(): \Livewire\Features\SupportRedirects\Redirector
+    public function save()
     {
         // Guard: if locked, redirect to show
         $this->printJob->refresh();

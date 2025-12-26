@@ -75,6 +75,9 @@ Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt): 
     return \response($content, 200)->header('Content-Type', $mime);
 })->name('receipts.image')->middleware(['auth']);
 
+// 3D Printing Dashboard
+Route::get('/printing', App\Livewire\Printing\Index::class)->middleware('auth')->name('printing.index');
+
 // Print Customers CRUD
 Route::get('/print-customers', App\Livewire\PrintCustomers\Index::class)->middleware('auth')->name('print-customers.index');
 Route::get('/print-customers/create', App\Livewire\PrintCustomers\Create::class)->middleware('auth')->name('print-customers.create');

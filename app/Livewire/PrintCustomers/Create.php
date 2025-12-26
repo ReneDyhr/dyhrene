@@ -15,7 +15,7 @@ class Create extends Component
     public ?string $phone = null;
     public ?string $notes = null;
 
-    public function save(): \Livewire\Features\SupportRedirects\Redirector
+    public function save()
     {
         $this->validate([
             'name' => 'required|string|max:255',
@@ -33,7 +33,6 @@ class Create extends Component
 
         \session()->flash('success', 'Customer created successfully.');
 
-        // @phpstan-ignore return.type
         return $this->redirect(\route('print-customers.index'));
     }
 

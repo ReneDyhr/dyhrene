@@ -25,7 +25,7 @@ class Edit extends Component
         $this->notes = $customer->notes;
     }
 
-    public function save(): \Livewire\Features\SupportRedirects\Redirector
+    public function save()
     {
         $this->validate([
             'name' => 'required|string|max:255',
@@ -43,7 +43,6 @@ class Edit extends Component
 
         \session()->flash('success', 'Customer updated successfully.');
 
-        // @phpstan-ignore return.type
         return $this->redirect(\route('print-customers.index'));
     }
 
