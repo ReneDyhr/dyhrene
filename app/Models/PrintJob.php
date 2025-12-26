@@ -86,7 +86,7 @@ class PrintJob extends Model
     /**
      * Scope a query to only include draft print jobs.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<PrintJob>  $query
+     * @param  Builder<PrintJob>                               $query
      * @return \Illuminate\Database\Eloquent\Builder<PrintJob>
      */
     public function scopeDraft(Builder $query): Builder
@@ -97,7 +97,7 @@ class PrintJob extends Model
     /**
      * Scope a query to only include locked print jobs.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<PrintJob>  $query
+     * @param  Builder<PrintJob>                               $query
      * @return \Illuminate\Database\Eloquent\Builder<PrintJob>
      */
     public function scopeLocked(Builder $query): Builder
@@ -108,7 +108,7 @@ class PrintJob extends Model
     /**
      * Scope a query to only include active (non-deleted) print jobs.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<PrintJob>  $query
+     * @param  Builder<PrintJob>                               $query
      * @return \Illuminate\Database\Eloquent\Builder<PrintJob>
      */
     public function scopeActive(Builder $query): Builder
@@ -118,8 +118,6 @@ class PrintJob extends Model
 
     /**
      * Check if the print job is in draft status.
-     *
-     * @return bool
      */
     public function isDraft(): bool
     {
@@ -128,8 +126,6 @@ class PrintJob extends Model
 
     /**
      * Check if the print job is locked.
-     *
-     * @return bool
      */
     public function isLocked(): bool
     {

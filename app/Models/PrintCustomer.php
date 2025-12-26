@@ -46,7 +46,7 @@ class PrintCustomer extends Model
     /**
      * Scope a query to only include active (non-deleted) customers.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<PrintCustomer>  $query
+     * @param  Builder<PrintCustomer>                               $query
      * @return \Illuminate\Database\Eloquent\Builder<PrintCustomer>
      */
     public function scopeActive(Builder $query): Builder
@@ -54,4 +54,3 @@ class PrintCustomer extends Model
         return $query->whereNull('deleted_at');
     }
 }
-
