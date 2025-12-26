@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Domain\Printing\PrintJobCalculator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property null|array<string, mixed> $calculation
+ */
 class PrintJob extends Model
 {
     /** @use HasFactory<\Database\Factories\PrintJobFactory> */
@@ -130,5 +134,78 @@ class PrintJob extends Model
     public function isLocked(): bool
     {
         return $this->status === 'locked';
+    }
+
+    /**
+     * Build a complete calculation snapshot for this print job.
+     * Includes input values, rates used, derived totals, costs, pricing, and profit.
+     *
+     * @return array<string, mixed>
+     */
+    public function buildSnapshot(): array
+    {
+        // Ensure relationships are loaded
+        $this->loadMissing(['material', 'material.materialType']);
+
+        // Load current settings
+        $settings = PrintSetting::current();
+
+        // Build calculator input
+        $calculator = new PrintJobCalculator();
+        $input = [
+            'pieces_per_plate' => $this->pieces_per_plate,
+            'plates' => $this->plates,
+            'grams_per_plate' => $this->grams_per_plate,
+            'hours_per_plate' => $this->hours_per_plate,
+            'labor_hours' => $this->labor_hours,
+            'is_first_time_order' => $this->is_first_time_order,
+            'avance_pct_override' => $this->avance_pct_override,
+            'electricity_rate_dkk_per_kwh' => $settings->electricity_rate_dkk_per_kwh ?? 0,
+            'wage_rate_dkk_per_hour' => $settings->wage_rate_dkk_per_hour ?? 0,
+            'first_time_fee_dkk' => $settings->first_time_fee_dkk ?? 0,
+            'default_avance_pct' => $settings->default_avance_pct ?? 0,
+            'price_per_kg_dkk' => $this->material->price_per_kg_dkk ?? 0,
+            'waste_factor_pct' => $this->material->waste_factor_pct ?? 0,
+            'avg_kwh_per_hour' => $this->material->materialType->avg_kwh_per_hour ?? 0,
+        ];
+
+        // Calculate using calculator
+        $calculation = $calculator->calculate($input);
+
+        // Determine applied avance percentage
+        $appliedAvancePct = $this->avance_pct_override ?? ($settings->default_avance_pct ?? 0);
+
+        // Build complete snapshot
+        return [
+            // Input values
+            'input' => [
+                'pieces_per_plate' => $this->pieces_per_plate,
+                'plates' => $this->plates,
+                'grams_per_plate' => $this->grams_per_plate,
+                'hours_per_plate' => $this->hours_per_plate,
+                'labor_hours' => $this->labor_hours,
+                'is_first_time_order' => $this->is_first_time_order,
+                'avance_pct_override' => $this->avance_pct_override,
+            ],
+            // Rates used
+            'rates' => [
+                'electricity_rate_dkk_per_kwh' => $settings->electricity_rate_dkk_per_kwh ?? 0,
+                'wage_rate_dkk_per_hour' => $settings->wage_rate_dkk_per_hour ?? 0,
+                'first_time_fee_dkk' => $settings->first_time_fee_dkk ?? 0,
+                'applied_avance_pct' => $appliedAvancePct,
+                'material_price_per_kg_dkk' => $this->material->price_per_kg_dkk ?? 0,
+                'material_waste_factor_pct' => $this->material->waste_factor_pct ?? 0,
+                'material_type_avg_kwh_per_hour' => $this->material->materialType->avg_kwh_per_hour ?? 0,
+                'material_name' => $this->material->name ?? '',
+                'material_type_name' => $this->material->materialType->name ?? '',
+            ],
+            // Derived totals
+            'totals' => $calculation['totals'],
+            // Rounded cost breakdown
+            'costs' => $calculation['costs'],
+            // Pricing/profit
+            'pricing' => $calculation['pricing'],
+            'profit' => $calculation['profit'],
+        ];
     }
 }

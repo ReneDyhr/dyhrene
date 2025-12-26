@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Livewire\PrintJobs;
 
+use App\Models\PrintActivityLog;
 use App\Models\PrintCustomer;
 use App\Models\PrintJob;
 use App\Models\PrintMaterial;
 use App\Models\PrintMaterialType;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class Edit extends Component
@@ -34,7 +36,6 @@ class Edit extends Component
         // Guard: if locked, redirect to show
         if ($printJob->isLocked()) {
             \session()->flash('error', 'Locked jobs cannot be edited. Please unlock first.');
-            // @phpstan-ignore return.type
             return $this->redirect(\route('print-jobs.show', $printJob));
         }
 
@@ -61,7 +62,6 @@ class Edit extends Component
         $this->printJob->refresh();
         if ($this->printJob->isLocked()) {
             \session()->flash('error', 'Locked jobs cannot be edited. Please unlock first.');
-            // @phpstan-ignore return.type
             return $this->redirect(\route('print-jobs.show', $this->printJob));
         }
 
@@ -98,16 +98,80 @@ class Edit extends Component
 
         \session()->flash('success', 'Print job updated successfully.');
 
-        // @phpstan-ignore return.type
         return $this->redirect(\route('print-jobs.show', $this->printJob));
     }
 
     /**
-     * Placeholder for lock method (will be implemented in Phase 6).
+     * Lock the print job by creating a snapshot and updating status.
      */
-    public function lock(): void
+    public function lock(): \Livewire\Features\SupportRedirects\Redirector
     {
-        // Placeholder - will be implemented in Phase 6
+        // Guard: if already locked, redirect to show
+        $this->printJob->refresh();
+        if ($this->printJob->isLocked()) {
+            \session()->flash('error', 'This job is already locked.');
+            return $this->redirect(\route('print-jobs.show', $this->printJob));
+        }
+
+        // Validate all required fields
+        $this->validate([
+            'date' => 'required|date',
+            'description' => 'required|string',
+            'customer_id' => 'required|exists:print_customers,id',
+            'material_id' => 'required|exists:print_materials,id',
+            'pieces_per_plate' => 'required|integer|min:1|max:100',
+            'plates' => 'required|integer|min:1|max:10',
+            'grams_per_plate' => 'required|numeric|min:0|max:999',
+            'hours_per_plate' => 'required|numeric|min:0|max:999',
+            'labor_hours' => 'required|numeric|min:0|max:999',
+            'is_first_time_order' => 'boolean',
+            'avance_pct_override' => 'nullable|numeric|min:0|max:1000',
+        ]);
+
+        // First, save any pending changes
+        $this->printJob->update([
+            'date' => $this->date,
+            'description' => $this->description,
+            'internal_notes' => $this->internal_notes,
+            'customer_id' => $this->customer_id,
+            'material_id' => $this->material_id,
+            'pieces_per_plate' => $this->pieces_per_plate,
+            'plates' => $this->plates,
+            'grams_per_plate' => $this->grams_per_plate,
+            'hours_per_plate' => $this->hours_per_plate,
+            'labor_hours' => $this->labor_hours,
+            'is_first_time_order' => $this->is_first_time_order,
+            'avance_pct_override' => $this->avance_pct_override,
+        ]);
+
+        // Wrap in database transaction
+        DB::transaction(function (): void {
+            // Refresh to get latest data
+            $this->printJob->refresh();
+            $this->printJob->loadMissing(['material', 'material.materialType']);
+
+            // Build snapshot using snapshot builder
+            $snapshot = $this->printJob->buildSnapshot();
+
+            // Update job: status='locked', locked_at=now(), calc_snapshot=<snapshot json>
+            $this->printJob->update([
+                'status' => 'locked',
+                'locked_at' => now(),
+                'calc_snapshot' => $snapshot,
+            ]);
+
+            // Log activity: create ActivityLog entry with action='locked'
+            PrintActivityLog::create([
+                'print_job_id' => $this->printJob->id,
+                'action' => 'locked',
+                'user_id' => auth()->id(),
+                'metadata' => null,
+            ]);
+        });
+
+        \session()->flash('success', 'Print job locked successfully.');
+
+        return $this->redirect(\route('print-jobs.show', $this->printJob));
     }
 
     public function render(): View

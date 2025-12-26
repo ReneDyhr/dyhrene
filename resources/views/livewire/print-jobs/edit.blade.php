@@ -141,8 +141,10 @@
 
                             <div style="display: flex; gap: 10px; margin-top: 20px;">
                                 <button type="submit" class="btn btn-primary" style="color: #fff;">Save</button>
-                                <button type="button" wire:click="lock" class="btn btn-warning" style="color: #fff;" disabled>
-                                    Lock (Placeholder)
+                                <button type="button" wire:click="lock" 
+                                    wire:confirm="Are you sure you want to lock this job? Once locked, calculation inputs cannot be changed."
+                                    class="btn btn-warning" style="color: #fff;">
+                                    <i class="fa fa-lock"></i> Lock
                                 </button>
                                 <a href="{{ route('print-jobs.show', $printJob) }}" class="btn btn-secondary"
                                     style="color: #fff;">Cancel</a>

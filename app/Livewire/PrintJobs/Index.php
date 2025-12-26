@@ -56,10 +56,10 @@ class Index extends Component
 
         // Search: order_no, description, customer name
         if ($this->search !== '') {
-            $query->where(function ($q) {
+            $query->where(function (\Illuminate\Database\Eloquent\Builder $q) {
                 $q->where('order_no', 'like', '%' . $this->search . '%')
                     ->orWhere('description', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('customer', function ($customerQuery) {
+                    ->orWhereHas('customer', function (\Illuminate\Database\Eloquent\Builder $customerQuery) {
                         $customerQuery->where('name', 'like', '%' . $this->search . '%');
                     });
             });
@@ -77,7 +77,7 @@ class Index extends Component
 
         // Material type filter
         if ($this->materialTypeFilter !== null) {
-            $query->whereHas('material', function ($materialQuery) {
+            $query->whereHas('material', function (\Illuminate\Database\Eloquent\Builder $materialQuery) {
                 $materialQuery->where('material_type_id', $this->materialTypeFilter);
             });
         }
@@ -97,7 +97,24 @@ class Index extends Component
                 $job->calculation = $calculation;
             } else {
                 // Use snapshot for locked jobs
-                $job->calculation = $job->calc_snapshot;
+                $snapshot = $job->calc_snapshot;
+                if ($snapshot !== null && is_array($snapshot)) {
+                    // Extract calculation data from snapshot (snapshot has totals, costs, pricing, profit at root)
+                    $job->calculation = [
+                        'totals' => $snapshot['totals'] ?? [],
+                        'costs' => $snapshot['costs'] ?? [],
+                        'pricing' => $snapshot['pricing'] ?? [],
+                        'profit' => $snapshot['profit'] ?? [],
+                    ];
+                } else {
+                    // Handle gracefully if snapshot is missing or invalid
+                    $job->calculation = [
+                        'totals' => ['total_pieces' => 0],
+                        'costs' => ['total_cost' => 0],
+                        'pricing' => ['sales_price' => 0],
+                        'profit' => ['profit' => 0, 'profit_per_piece' => 0],
+                    ];
+                }
             }
         }
 

@@ -14,8 +14,10 @@
                                     <i class="fa fa-edit"></i> Edit
                                 </a>
                             @else
-                                <button wire:click="unlock" class="btn btn-warning" style="color: #fff;" disabled>
-                                    <i class="fa fa-unlock"></i> Unlock (Placeholder)
+                                <button wire:click="unlock" 
+                                    wire:confirm="Are you sure you want to unlock this job? The calculation snapshot will be cleared."
+                                    class="btn btn-warning" style="color: #fff;">
+                                    <i class="fa fa-unlock"></i> Unlock
                                 </button>
                             @endif
                             <a href="{{ route('print-jobs.index') }}" class="btn btn-secondary" style="color: #fff;">
@@ -211,6 +213,47 @@
                                 <p style="color: #777;">No calculation data available.</p>
                             @endif
                         </div>
+
+                        <!-- Activity Log -->
+                        @if(isset($activityLogs) && $activityLogs->count() > 0)
+                            <div style="background-color: #f9f9f9; padding: 20px; border-radius: 4px; margin-bottom: 20px;">
+                                <h2 style="margin-top: 0; margin-bottom: 15px;">Recent Activity</h2>
+                                <div style="background-color: #fff; padding: 15px; border-radius: 4px;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr style="border-bottom: 1px solid #ddd;">
+                                                <th style="padding: 8px; text-align: left;">Action</th>
+                                                <th style="padding: 8px; text-align: left;">User</th>
+                                                <th style="padding: 8px; text-align: left;">Timestamp</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($activityLogs as $log)
+                                                <tr style="border-bottom: 1px solid #eee;">
+                                                    <td style="padding: 8px;">
+                                                        @if($log->action === 'locked')
+                                                            <span class="badge" style="background-color: #28a745; color: #fff; padding: 4px 8px; border-radius: 4px;">
+                                                                <i class="fa fa-lock"></i> Locked
+                                                            </span>
+                                                        @elseif($log->action === 'unlocked')
+                                                            <span class="badge" style="background-color: #ffc107; color: #000; padding: 4px 8px; border-radius: 4px;">
+                                                                <i class="fa fa-unlock"></i> Unlocked
+                                                            </span>
+                                                        @else
+                                                            <span class="badge" style="background-color: #6c757d; color: #fff; padding: 4px 8px; border-radius: 4px;">
+                                                                {{ ucfirst($log->action) }}
+                                                            </span>
+                                                        @endif
+                                                    </td>
+                                                    <td style="padding: 8px;">{{ $log->user->name ?? 'System' }}</td>
+                                                    <td style="padding: 8px;">{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div class="clear"></div>

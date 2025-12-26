@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Livewire\PrintJobs;
 
 use App\Domain\Printing\PrintJobCalculator;
+use App\Models\PrintActivityLog;
 use App\Models\PrintCustomer;
 use App\Models\PrintJob;
 use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class Show extends Component
@@ -20,7 +22,7 @@ class Show extends Component
     public ?string $internal_notes = null;
 
     /**
-     * @var array<string, array<string, float>>|null
+     * @var array<string, mixed>|null
      */
     public ?array $calculation = null;
 
@@ -37,7 +39,19 @@ class Show extends Component
         // Load calculation data
         if ($printJob->isLocked()) {
             // Use snapshot for locked jobs
-            $this->calculation = $printJob->calc_snapshot;
+            $snapshot = $printJob->calc_snapshot;
+            if ($snapshot !== null && is_array($snapshot)) {
+                // Extract calculation data from snapshot (snapshot has totals, costs, pricing, profit at root)
+                $this->calculation = [
+                    'totals' => $snapshot['totals'] ?? [],
+                    'costs' => $snapshot['costs'] ?? [],
+                    'pricing' => $snapshot['pricing'] ?? [],
+                    'profit' => $snapshot['profit'] ?? [],
+                ];
+            } else {
+                // Handle gracefully if snapshot is missing or invalid
+                $this->calculation = null;
+            }
         } else {
             // Compute live for draft jobs
             $settings = PrintSetting::current();
@@ -73,11 +87,39 @@ class Show extends Component
     }
 
     /**
-     * Placeholder for unlock method (will be implemented in Phase 6).
+     * Unlock the print job by clearing snapshot and updating status.
      */
-    public function unlock(): void
+    public function unlock(): \Livewire\Features\SupportRedirects\Redirector
     {
-        // Placeholder - will be implemented in Phase 6
+        // Guard: if not locked, redirect to edit
+        $this->printJob->refresh();
+        if (!$this->printJob->isLocked()) {
+            \session()->flash('error', 'This job is not locked.');
+            return $this->redirect(\route('print-jobs.edit', $this->printJob));
+        }
+
+        // Wrap in database transaction
+        DB::transaction(function (): void {
+            // Update job: status='draft', locked_at=null, calc_snapshot=null
+            // Preserve current field values (do not restore from snapshot)
+            $this->printJob->update([
+                'status' => 'draft',
+                'locked_at' => null,
+                'calc_snapshot' => null,
+            ]);
+
+            // Log activity: create ActivityLog entry with action='unlocked'
+            PrintActivityLog::create([
+                'print_job_id' => $this->printJob->id,
+                'action' => 'unlocked',
+                'user_id' => auth()->id(),
+                'metadata' => null,
+            ]);
+        });
+
+        \session()->flash('success', 'Print job unlocked successfully. You can now edit calculation inputs.');
+
+        return $this->redirect(\route('print-jobs.edit', $this->printJob));
     }
 
     /**
@@ -110,8 +152,15 @@ class Show extends Component
     public function render(): View
     {
         $customers = PrintCustomer::query()->active()->orderBy('name')->get();
+        
+        // Load recent activity logs for this job
+        $activityLogs = $this->printJob->activityLogs()
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
 
-        return \view('livewire.print-jobs.show', \compact('customers'));
+        return \view('livewire.print-jobs.show', \compact('customers', 'activityLogs'));
     }
 }
 
