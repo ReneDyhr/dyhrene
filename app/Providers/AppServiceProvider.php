@@ -16,6 +16,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Fix Laravel 12 issue: Ensure console commands get Laravel instance when resolved from container
+        $this->app->resolving(\Illuminate\Console\Command::class, function (\Illuminate\Console\Command $command): void {
+            if ($command->getLaravel() === null) {
+                $command->setLaravel($this->app);
+            }
+        });
+
         UrlGenerator::macro(
             'alternateHasCorrectSignature',
             function (Request $request, bool $absolute = true, array $ignoreQuery = []): bool {
@@ -30,7 +37,8 @@ class AppServiceProvider extends ServiceProvider
                     ->join('&');
 
                 $original = \rtrim($url . '?' . $queryString, '?');
-                $signature = \hash_hmac('sha256', $original, \Config::string('app.key'));
+                $appKey = \config('app.key', '');
+                $signature = \hash_hmac('sha256', $original, $appKey);
 
                 return \hash_equals($signature, (string) $request->string('signature', ''));
             },
