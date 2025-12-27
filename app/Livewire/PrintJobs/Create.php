@@ -67,7 +67,7 @@ class Create extends Component
         $this->updateHoursPerPlateFromTime();
     }
 
-    public function save(): Redirector
+    public function save(): ?Redirector
     {
         // Ensure hours_per_plate is updated from time inputs before validation
         $this->updateHoursPerPlateFromTime();

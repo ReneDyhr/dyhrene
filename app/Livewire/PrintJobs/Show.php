@@ -96,7 +96,7 @@ class Show extends Component
     /**
      * Unlock the print job by clearing snapshot and updating status.
      */
-    public function unlock(): Redirector
+    public function unlock(): ?Redirector
     {
         // Guard: if not locked, redirect to edit
         $this->printJob->refresh();
