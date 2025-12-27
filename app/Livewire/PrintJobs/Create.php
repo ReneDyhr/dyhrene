@@ -26,6 +26,8 @@ class Create extends Component
     public int $plates = 1;
     public float $grams_per_plate = 0;
     public float $hours_per_plate = 0;
+    public int $hours_per_plate_hours = 0;
+    public int $hours_per_plate_minutes = 0;
     public float $labor_hours = 0;
     public bool $is_first_time_order = false;
     public ?float $avance_pct_override = null;
@@ -35,9 +37,47 @@ class Create extends Component
         $this->date = now()->format('Y-m-d');
     }
 
+    /**
+     * Convert hours and minutes to float hours_per_plate.
+     */
+    public function updatedHoursPerPlateHours(): void
+    {
+        $this->updateHoursPerPlateFromTime();
+    }
+
+    /**
+     * Convert hours and minutes to float hours_per_plate.
+     */
+    public function updatedHoursPerPlateMinutes(): void
+    {
+        $this->updateHoursPerPlateFromTime();
+    }
+
+    /**
+     * Update hours_per_plate float from hours and minutes inputs.
+     */
+    private function updateHoursPerPlateFromTime(): void
+    {
+        $hours = $this->hours_per_plate_hours ?? 0;
+        $minutes = $this->hours_per_plate_minutes ?? 0;
+        
+        // Ensure minutes are between 0 and 59
+        if ($minutes < 0) {
+            $minutes = 0;
+        } elseif ($minutes > 59) {
+            $minutes = 59;
+        }
+        
+        // Convert to float: hours + (minutes / 60)
+        $this->hours_per_plate = $hours + ($minutes / 60.0);
+    }
+
 
     public function save()
     {
+        // Ensure hours_per_plate is updated from time inputs before validation
+        $this->updateHoursPerPlateFromTime();
+        
         $this->validate([
             'date' => 'required|date',
             'description' => 'required|string',
@@ -47,6 +87,8 @@ class Create extends Component
             'pieces_per_plate' => 'required|integer|min:1|max:100',
             'plates' => 'required|integer|min:1|max:10',
             'grams_per_plate' => 'required|numeric|min:0|max:999',
+            'hours_per_plate_hours' => 'required|integer|min:0|max:999',
+            'hours_per_plate_minutes' => 'required|integer|min:0|max:59',
             'hours_per_plate' => 'required|numeric|min:0|max:999',
             'labor_hours' => 'required|numeric|min:0|max:999',
             'is_first_time_order' => 'boolean',

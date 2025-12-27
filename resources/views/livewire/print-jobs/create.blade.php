@@ -215,21 +215,25 @@
                             </div>
 
                             <div class="form-group" style="margin-bottom: 15px;">
-                                <label for="hours_per_plate">Hours per Plate <span style="color: red;">*</span></label>
-                                <input type="text" id="hours_per_plate" wire:model.live.debounce.500ms="hours_per_plate"
-                                    class="form-control" placeholder="0.000"
-                                    inputmode="decimal"
-                                    x-on:input="
-                                        let val = $el.value;
-                                        // Replace comma with dot
-                                        val = val.replace(',', '.');
-                                        // If there are multiple dots, keep only the first one
-                                        const dotIndex = val.indexOf('.');
-                                        if (dotIndex !== -1) {
-                                            val = val.substring(0, dotIndex + 1) + val.substring(dotIndex + 1).replace(/\./g, '');
-                                        }
-                                        $el.value = val;
-                                    ">
+                                <label>Hours per Plate <span style="color: red;">*</span></label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div style="flex: 1;">
+                                        <label for="hours_per_plate_hours" style="font-size: 0.9em; color: #666; display: block; margin-bottom: 4px;">Hours</label>
+                                        <input type="number" id="hours_per_plate_hours" wire:model.live.debounce.500ms="hours_per_plate_hours"
+                                            class="form-control" placeholder="0" min="0" max="999" step="1">
+                                        @error('hours_per_plate_hours')
+                                            <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label for="hours_per_plate_minutes" style="font-size: 0.9em; color: #666; display: block; margin-bottom: 4px;">Minutes</label>
+                                        <input type="number" id="hours_per_plate_minutes" wire:model.live.debounce.500ms="hours_per_plate_minutes"
+                                            class="form-control" placeholder="0" min="0" max="59" step="1">
+                                        @error('hours_per_plate_minutes')
+                                            <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
                                 @error('hours_per_plate')
                                     <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
                                 @enderror

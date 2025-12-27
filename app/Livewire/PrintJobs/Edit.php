@@ -38,6 +38,10 @@ class Edit extends Component
 
     public float $hours_per_plate = 0;
 
+    public int $hours_per_plate_hours = 0;
+
+    public int $hours_per_plate_minutes = 0;
+
     public float $labor_hours = 0;
 
     public bool $is_first_time_order = false;
@@ -69,10 +73,29 @@ class Edit extends Component
         $this->is_first_time_order = $printJob->is_first_time_order;
         $this->avance_pct_override = $printJob->avance_pct_override;
 
+        // Convert float to hours and minutes
+        $this->updateTimeFromHoursPerPlate();
+
         return null;
     }
 
-    public function save(): Redirector
+    /**
+     * Convert hours and minutes to float hours_per_plate.
+     */
+    public function updatedHoursPerPlateHours(): void
+    {
+        $this->updateHoursPerPlateFromTime();
+    }
+
+    /**
+     * Convert hours and minutes to float hours_per_plate.
+     */
+    public function updatedHoursPerPlateMinutes(): void
+    {
+        $this->updateHoursPerPlateFromTime();
+    }
+
+    public function save()
     {
         // Guard: if locked, redirect to show
         $this->printJob->refresh();
@@ -83,6 +106,9 @@ class Edit extends Component
             return $this->redirect(\route('print-jobs.show', $this->printJob));
         }
 
+        // Ensure hours_per_plate is updated from time inputs before validation
+        $this->updateHoursPerPlateFromTime();
+
         $this->validate([
             'date' => 'required|date',
             'description' => 'required|string',
@@ -92,6 +118,8 @@ class Edit extends Component
             'pieces_per_plate' => 'required|integer|min:1|max:100',
             'plates' => 'required|integer|min:1|max:10',
             'grams_per_plate' => 'required|numeric|min:0|max:999',
+            'hours_per_plate_hours' => 'required|integer|min:0|max:999',
+            'hours_per_plate_minutes' => 'required|integer|min:0|max:59',
             'hours_per_plate' => 'required|numeric|min:0|max:999',
             'labor_hours' => 'required|numeric|min:0|max:999',
             'is_first_time_order' => 'boolean',
@@ -133,6 +161,9 @@ class Edit extends Component
             return $this->redirect(\route('print-jobs.show', $this->printJob));
         }
 
+        // Ensure hours_per_plate is updated from time inputs before validation
+        $this->updateHoursPerPlateFromTime();
+
         // Validate all required fields
         $this->validate([
             'date' => 'required|date',
@@ -142,6 +173,8 @@ class Edit extends Component
             'pieces_per_plate' => 'required|integer|min:1|max:100',
             'plates' => 'required|integer|min:1|max:10',
             'grams_per_plate' => 'required|numeric|min:0|max:999',
+            'hours_per_plate_hours' => 'required|integer|min:0|max:999',
+            'hours_per_plate_minutes' => 'required|integer|min:0|max:59',
             'hours_per_plate' => 'required|numeric|min:0|max:999',
             'labor_hours' => 'required|numeric|min:0|max:999',
             'is_first_time_order' => 'boolean',
@@ -213,6 +246,41 @@ class Edit extends Component
         $calculation = $this->computeCalculation();
 
         return \view('livewire.print-jobs.edit', \compact('customers', 'materials', 'materialTypes', 'calculation'));
+    }
+
+    /**
+     * Update hours_per_plate float from hours and minutes inputs.
+     */
+    private function updateHoursPerPlateFromTime(): void
+    {
+        $hours = $this->hours_per_plate_hours ?? 0;
+        $minutes = $this->hours_per_plate_minutes ?? 0;
+
+        // Ensure minutes are between 0 and 59
+        if ($minutes < 0) {
+            $minutes = 0;
+        } elseif ($minutes > 59) {
+            $minutes = 59;
+        }
+
+        // Convert to float: hours + (minutes / 60)
+        $this->hours_per_plate = $hours + ($minutes / 60.0);
+    }
+
+    /**
+     * Update hours and minutes from float hours_per_plate.
+     */
+    private function updateTimeFromHoursPerPlate(): void
+    {
+        $totalHours = (float) ($this->hours_per_plate ?? 0);
+        $this->hours_per_plate_hours = (int) \floor($totalHours);
+        $this->hours_per_plate_minutes = (int) \round(($totalHours - $this->hours_per_plate_hours) * 60);
+
+        // Ensure minutes are between 0 and 59
+        if ($this->hours_per_plate_minutes >= 60) {
+            $this->hours_per_plate_hours += 1;
+            $this->hours_per_plate_minutes = 0;
+        }
     }
 
     /**
