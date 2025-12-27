@@ -2,9 +2,10 @@
     @section('title', 'Create Print Job')
     <style>
         @media (max-width: 768px) {
-            .calculation-panel > div[style*="grid"] {
+            .calculation-panel>div[style*="grid"] {
                 grid-template-columns: 1fr !important;
             }
+
             .form-group {
                 margin-bottom: 12px !important;
             }
@@ -114,6 +115,7 @@
                             <div class="form-group" style="margin-bottom: 15px;" x-data="{
                                 searchTerm: '',
                                 open: false,
+                                selectedMaterialId: @js($material_id),
                                 materials: [
                                     @foreach($materialTypes as $type)
                                         @foreach($materials->get($type->id, []) as $material)
@@ -130,56 +132,64 @@
                                     );
                                 },
                                 get selectedMaterial() {
-                                    const id = @entangle('material_id');
-                                    return this.materials.find(m => m.id == id);
+                                    if (!this.selectedMaterialId) return null;
+                                    return this.materials.find(m => m.id == this.selectedMaterialId);
+                                },
+                                get displayValue() {
+                                    const selected = this.selectedMaterial;
+                                    if (selected) {
+                                        return selected.name + ' (' + selected.type + ')';
+                                    }
+                                    return '';
                                 },
                                 selectMaterial(material) {
-                                    @this.set('material_id', material.id);
+                                    this.selectedMaterialId = material.id;
                                     this.searchTerm = '';
                                     this.open = false;
+                                    // Update Livewire directly
+                                    @this.set('material_id', material.id, true);
                                 }
-                            }">
+                            }" x-init="$watch('selectedMaterialId', value => {
+                                if (value) {
+                                    @this.set('material_id', value, true);
+                                }
+                            })">
                                 <label for="material_id">Material (Plastnavn) <span style="color: red;">*</span></label>
                                 <div style="position: relative;">
-                                    <input 
-                                        type="text" 
-                                        x-model="searchTerm"
-                                        @focus="open = true"
-                                        @click="open = true"
-                                        @keydown.escape="open = false"
-                                        :value="selectedMaterial ? selectedMaterial.name + ' (' + selectedMaterial.type + ')' : ''"
-                                        placeholder="Search and select a material..."
-                                        class="form-control"
+                                    <input type="text" x-model="searchTerm" @focus="open = true" @click="open = true"
+                                        @keydown.escape="open = false" :value="displayValue"
+                                        @input="if (!searchTerm) { $event.target.value = displayValue; }"
+                                        placeholder="Search and select a material..." class="form-control"
                                         style="cursor: pointer;">
-                                    <div x-show="open" 
-                                         @click.away="open = false"
-                                         x-transition
-                                         style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 2px;">
+                                    <div x-show="open" @click.away="open = false" x-transition
+                                        style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 2px;">
                                         <template x-for="material in filteredMaterials" :key="material.id">
-                                            <div 
-                                                @click="selectMaterial(material)"
+                                            <div @click="selectMaterial(material)"
                                                 style="padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #eee;"
                                                 :style="selectedMaterial && selectedMaterial.id == material.id ? 'background-color: #007bff; color: white;' : ''"
                                                 x-on:mouseenter="$el.style.backgroundColor = selectedMaterial && selectedMaterial.id == material.id ? '#007bff' : '#f5f5f5'"
                                                 x-on:mouseleave="$el.style.backgroundColor = selectedMaterial && selectedMaterial.id == material.id ? '#007bff' : 'white'">
-                                                <strong x-text="material.name"></strong> <span style="color: #666;" x-text="'(' + material.type + ')'"></span>
+                                                <strong x-text="material.name"></strong> <span style="color: #666;"
+                                                    x-text="'(' + material.type + ')'"></span>
                                             </div>
                                         </template>
-                                        <div x-show="filteredMaterials.length === 0" style="padding: 15px; text-align: center; color: #777;">
+                                        <div x-show="filteredMaterials.length === 0"
+                                            style="padding: 15px; text-align: center; color: #777;">
                                             No materials found
                                         </div>
                                     </div>
                                 </div>
-                                <input type="hidden" wire:model.debounce.500ms="material_id">
+                                <input type="hidden" wire:model.live="material_id">
                                 @error('material_id')
                                     <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div class="form-group" style="margin-bottom: 15px;">
-                                <label for="pieces_per_plate">Pieces per Plate <span style="color: red;">*</span></label>
-                                <input type="number" id="pieces_per_plate" wire:model.debounce.500ms="pieces_per_plate" class="form-control"
-                                    min="1" max="100">
+                                <label for="pieces_per_plate">Pieces per Plate <span
+                                        style="color: red;">*</span></label>
+                                <input type="number" id="pieces_per_plate" wire:model.live.debounce.500ms="pieces_per_plate"
+                                    class="form-control" min="1" max="100">
                                 @error('pieces_per_plate')
                                     <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
                                 @enderror
@@ -187,7 +197,7 @@
 
                             <div class="form-group" style="margin-bottom: 15px;">
                                 <label for="plates">Plates <span style="color: red;">*</span></label>
-                                <input type="number" id="plates" wire:model.debounce.500ms="plates" class="form-control"
+                                <input type="number" id="plates" wire:model.live.debounce.500ms="plates" class="form-control"
                                     min="1" max="10">
                                 @error('plates')
                                     <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
@@ -196,8 +206,9 @@
 
                             <div class="form-group" style="margin-bottom: 15px;">
                                 <label for="grams_per_plate">Grams per Plate <span style="color: red;">*</span></label>
-                                <input type="number" id="grams_per_plate" wire:model.debounce.500ms="grams_per_plate" class="form-control"
-                                    step="0.01" min="0" max="999" placeholder="0.00" inputmode="decimal">
+                                <input type="number" id="grams_per_plate" wire:model.live.debounce.500ms="grams_per_plate"
+                                    class="form-control" step="0.01" min="0" max="999" placeholder="0.00"
+                                    inputmode="decimal">
                                 @error('grams_per_plate')
                                     <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
                                 @enderror
@@ -205,8 +216,9 @@
 
                             <div class="form-group" style="margin-bottom: 15px;">
                                 <label for="hours_per_plate">Hours per Plate <span style="color: red;">*</span></label>
-                                <input type="number" id="hours_per_plate" wire:model.debounce.500ms="hours_per_plate" class="form-control"
-                                    step="0.001" min="0" max="999" placeholder="0.000" inputmode="decimal">
+                                <input type="number" id="hours_per_plate" wire:model.live.debounce.500ms="hours_per_plate"
+                                    class="form-control" step="0.001" min="0" max="999" placeholder="0.000"
+                                    inputmode="decimal">
                                 @error('hours_per_plate')
                                     <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
                                 @enderror
@@ -214,8 +226,9 @@
 
                             <div class="form-group" style="margin-bottom: 15px;">
                                 <label for="labor_hours">Labor Hours <span style="color: red;">*</span></label>
-                                <input type="number" id="labor_hours" wire:model.debounce.500ms="labor_hours" class="form-control"
-                                    step="0.001" min="0" max="999" value="0" placeholder="0.000" inputmode="decimal">
+                                <input type="number" id="labor_hours" wire:model.live.debounce.500ms="labor_hours"
+                                    class="form-control" step="0.001" min="0" max="999" value="0" placeholder="0.000"
+                                    inputmode="decimal">
                                 @error('labor_hours')
                                     <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
                                 @enderror
@@ -223,15 +236,16 @@
 
                             <div class="form-group" style="margin-bottom: 15px;">
                                 <label>
-                                    <input type="checkbox" wire:model.debounce.500ms="is_first_time_order">
+                                    <input type="checkbox" wire:model.live="is_first_time_order">
                                     Is First Time Order
                                 </label>
                             </div>
 
                             <div class="form-group" style="margin-bottom: 15px;">
                                 <label for="avance_pct_override">Avance % Override</label>
-                                <input type="number" id="avance_pct_override" wire:model.debounce.500ms="avance_pct_override" class="form-control"
-                                    step="0.01" min="0" max="1000" placeholder="Leave empty to use default">
+                                <input type="number" id="avance_pct_override"
+                                    wire:model.live.debounce.500ms="avance_pct_override" class="form-control" step="0.01"
+                                    min="0" max="1000" placeholder="Leave empty to use default">
                                 @error('avance_pct_override')
                                     <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
                                 @enderror
@@ -245,19 +259,157 @@
                         </form>
 
                         <!-- Calculation Panel -->
-                        @livewire('print-jobs.components.calculation-panel', [
-                            'jobInputs' => [
-                                'material_id' => $material_id,
-                                'pieces_per_plate' => $pieces_per_plate,
-                                'plates' => $plates,
-                                'grams_per_plate' => $grams_per_plate,
-                                'hours_per_plate' => $hours_per_plate,
-                                'labor_hours' => $labor_hours,
-                                'is_first_time_order' => $is_first_time_order,
-                                'avance_pct_override' => $avance_pct_override,
-                            ],
-                            'isLocked' => false,
-                        ], key('calc-panel-create-' . $material_id . '-' . $pieces_per_plate . '-' . $plates))
+                        @php
+                            use App\Support\Format;
+                            $calc = $calculation ?? null;
+                            $isLocked = false;
+                        @endphp
+                        <div class="calculation-panel"
+                            wire:key="calc-panel-{{ $material_id ?? '0' }}-{{ $pieces_per_plate }}-{{ $plates }}-{{ (int) ($grams_per_plate * 100) }}-{{ (int) ($hours_per_plate * 1000) }}-{{ (int) ($labor_hours * 1000) }}"
+                            style="margin-top: 30px; padding: 20px; background-color: #f0f8ff; border-radius: 4px; border: 2px solid {{ $isLocked ? '#28a745' : '#ffc107' }};">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                                <h2 style="margin: 0; font-size: 1.3em;">
+                                    Calculation Results
+                                    <span class="badge"
+                                        style="background-color: #ffc107; color: #000; padding: 4px 12px; border-radius: 4px; font-size: 0.7em; margin-left: 10px;">
+                                        <i class="fa fa-file"></i> Draft
+                                    </span>
+                                </h2>
+                            </div>
+
+                            @if($calc)
+                                <div
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                                    <!-- Totals Section -->
+                                    <div class="calculation-section"
+                                        style="background-color: #fff; padding: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <h3
+                                            style="font-size: 1.1em; margin-top: 0; margin-bottom: 12px; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 8px;">
+                                            Totals</h3>
+                                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                                            <div>
+                                                <strong style="color: #666;">Total Pieces:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::integer((int) ($calc['totals']['total_pieces'] ?? 0)) }}</div>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #666;">Total Grams:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::number($calc['totals']['total_grams'] ?? 0) }}</div>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #666;">Total Print Hours:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::number($calc['totals']['total_print_hours'] ?? 0, 3) }}</div>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #666;">kWh:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::number($calc['totals']['kwh'] ?? 0, 2) }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Costs Section -->
+                                    <div class="calculation-section"
+                                        style="background-color: #fff; padding: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <h3
+                                            style="font-size: 1.1em; margin-top: 0; margin-bottom: 12px; color: #333; border-bottom: 2px solid #dc3545; padding-bottom: 8px;">
+                                            Costs</h3>
+                                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                                            <div>
+                                                <strong style="color: #666;">Material Cost:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['costs']['material_cost'] ?? 0) }}</div>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #666;">Material Cost (with Waste):</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['costs']['material_cost_with_waste'] ?? 0) }}</div>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #666;">Power Cost:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['costs']['power_cost'] ?? 0) }}</div>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #666;">Labor Cost:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['costs']['labor_cost'] ?? 0) }}</div>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #666;">First Time Fee:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['costs']['first_time_fee_applied'] ?? 0) }}</div>
+                                            </div>
+                                            <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
+                                                <strong style="color: #333; font-size: 1.1em;">Total Cost:</strong>
+                                                <div
+                                                    style="font-size: 1.3em; color: #dc3545; font-weight: bold; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['costs']['total_cost'] ?? 0) }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pricing Section -->
+                                    <div class="calculation-section"
+                                        style="background-color: #fff; padding: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <h3
+                                            style="font-size: 1.1em; margin-top: 0; margin-bottom: 12px; color: #333; border-bottom: 2px solid #28a745; padding-bottom: 8px;">
+                                            Pricing</h3>
+                                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                                            <div>
+                                                <strong style="color: #666;">Applied Avance %:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::pct($calc['pricing']['applied_avance_pct'] ?? 0) }}</div>
+                                            </div>
+                                            <div>
+                                                <strong style="color: #666;">Price per Piece:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['pricing']['price_per_piece'] ?? 0) }}</div>
+                                            </div>
+                                            <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
+                                                <strong style="color: #333; font-size: 1.1em;">Sales Price:</strong>
+                                                <div
+                                                    style="font-size: 1.3em; color: #28a745; font-weight: bold; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['pricing']['sales_price'] ?? 0) }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Profit Section -->
+                                    <div class="calculation-section"
+                                        style="background-color: #fff; padding: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <h3
+                                            style="font-size: 1.1em; margin-top: 0; margin-bottom: 12px; color: #333; border-bottom: 2px solid #17a2b8; padding-bottom: 8px;">
+                                            Profit</h3>
+                                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                                            <div>
+                                                <strong style="color: #666;">Profit:</strong>
+                                                <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['profit']['profit'] ?? 0) }}</div>
+                                            </div>
+                                            <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
+                                                <strong style="color: #333; font-size: 1.1em;">Profit per Piece:</strong>
+                                                <div
+                                                    style="font-size: 1.3em; color: #17a2b8; font-weight: bold; margin-top: 4px;">
+                                                    {{ Format::dkk($calc['profit']['profit_per_piece'] ?? 0) }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div style="padding: 20px; text-align: center; color: #777;">
+                                    <p style="margin: 0;">No calculation data available. Please fill in the required fields
+                                        (especially Material).</p>
+                                    @if(empty($material_id))
+                                        <p style="margin: 5px 0 0 0; font-size: 0.9em;">Material is required for calculation.
+                                        </p>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
                 <div class="clear"></div>
@@ -265,4 +417,3 @@
         </div>
     </div>
 </div>
-

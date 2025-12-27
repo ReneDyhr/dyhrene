@@ -119,6 +119,7 @@
                             <div class="form-group" style="margin-bottom: 15px;" x-data="{
                                 searchTerm: '',
                                 open: false,
+                                selectedMaterialId: @js($material_id),
                                 materials: [
                                     @foreach($materialTypes as $type)
                                         @foreach($materials->get($type->id, []) as $material)
@@ -135,47 +136,84 @@
                                     );
                                 },
                                 get selectedMaterial() {
-                                    const id = @entangle('material_id');
-                                    return this.materials.find(m => m.id == id);
+                                    if (!this.selectedMaterialId) return null;
+                                    return this.materials.find(m => m.id == this.selectedMaterialId);
+                                },
+                                get displayValue() {
+                                    const selected = this.selectedMaterial;
+                                    if (selected) {
+                                        return selected.name + ' (' + selected.type + ')';
+                                    }
+                                    return '';
+                                },
+                                get inputValue() {
+                                    if (this.open && this.searchTerm) {
+                                        return this.searchTerm;
+                                    }
+                                    return this.displayValue;
                                 },
                                 selectMaterial(material) {
-                                    @this.set('material_id', material.id);
+                                    this.selectedMaterialId = material.id;
                                     this.searchTerm = '';
                                     this.open = false;
+                                    // Update Livewire directly
+                                    @this.set('material_id', material.id, true);
+                                },
+                                handleFocus() {
+                                    this.open = true;
+                                    if (!this.searchTerm) {
+                                        this.searchTerm = '';
+                                    }
+                                },
+                                handleInput(event) {
+                                    this.searchTerm = event.target.value;
+                                    if (!this.open) {
+                                        this.open = true;
+                                    }
+                                },
+                                handleBlur() {
+                                    setTimeout(() => {
+                                        if (!this.open) {
+                                            this.searchTerm = '';
+                                        }
+                                    }, 200);
                                 }
-                            }">
+                            }" x-init="$watch('selectedMaterialId', value => {
+                                if (value) {
+                                    @this.set('material_id', value, true);
+                                }
+                            })">
                                 <label for="material_id">Material (Plastnavn) <span style="color: red;">*</span></label>
                                 <div style="position: relative;">
-                                    <input 
-                                        type="text" 
-                                        x-model="searchTerm"
-                                        @focus="open = true"
-                                        @click="open = true"
-                                        @keydown.escape="open = false"
-                                        :value="selectedMaterial ? selectedMaterial.name + ' (' + selectedMaterial.type + ')' : ''"
-                                        placeholder="Search and select a material..."
+                                    <input type="text" 
+                                        :value="inputValue"
+                                        @focus="handleFocus()"
+                                        @click="handleFocus()"
+                                        @input="handleInput($event)"
+                                        @blur="handleBlur()"
+                                        @keydown.escape="open = false; searchTerm = '';"
+                                        :placeholder="displayValue || 'Search and select a material...'"
                                         class="form-control"
                                         style="cursor: pointer;">
-                                    <div x-show="open" 
-                                         @click.away="open = false"
-                                         x-transition
-                                         style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 2px;">
+                                    <div x-show="open" @click.away="open = false; searchTerm = '';" x-transition
+                                        style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 2px;">
                                         <template x-for="material in filteredMaterials" :key="material.id">
-                                            <div 
-                                                @click="selectMaterial(material)"
+                                            <div @click="selectMaterial(material)"
                                                 style="padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #eee;"
                                                 :style="selectedMaterial && selectedMaterial.id == material.id ? 'background-color: #007bff; color: white;' : ''"
                                                 x-on:mouseenter="$el.style.backgroundColor = selectedMaterial && selectedMaterial.id == material.id ? '#007bff' : '#f5f5f5'"
                                                 x-on:mouseleave="$el.style.backgroundColor = selectedMaterial && selectedMaterial.id == material.id ? '#007bff' : 'white'">
-                                                <strong x-text="material.name"></strong> <span style="color: #666;" x-text="'(' + material.type + ')'"></span>
+                                                <strong x-text="material.name"></strong> <span style="color: #666;"
+                                                    x-text="'(' + material.type + ')'"></span>
                                             </div>
                                         </template>
-                                        <div x-show="filteredMaterials.length === 0" style="padding: 15px; text-align: center; color: #777;">
+                                        <div x-show="filteredMaterials.length === 0"
+                                            style="padding: 15px; text-align: center; color: #777;">
                                             No materials found
                                         </div>
                                     </div>
                                 </div>
-                                <input type="hidden" wire:model.debounce.500ms="material_id">
+                                <input type="hidden" wire:model.live="material_id">
                                 @error('material_id')
                                     <span class="text-danger" style="font-size: 0.9em;">{{ $message }}</span>
                                 @enderror
@@ -256,9 +294,18 @@
 
                         <!-- Calculation Panel -->
                         @livewire('print-jobs.components.calculation-panel', [
-                            'printJob' => $printJob,
+                            'jobInputs' => [
+                                'material_id' => $material_id,
+                                'pieces_per_plate' => $pieces_per_plate,
+                                'plates' => $plates,
+                                'grams_per_plate' => $grams_per_plate,
+                                'hours_per_plate' => $hours_per_plate,
+                                'labor_hours' => $labor_hours,
+                                'is_first_time_order' => $is_first_time_order,
+                                'avance_pct_override' => $avance_pct_override,
+                            ],
                             'isLocked' => $printJob->isLocked(),
-                        ], key('calc-panel-edit-' . $printJob->id))
+                        ], key('calc-edit-' . $printJob->id . '-' . ($material_id ?? '0') . '-' . $pieces_per_plate . '-' . $plates . '-' . (int)($grams_per_plate * 100) . '-' . (int)($hours_per_plate * 1000) . '-' . (int)($labor_hours * 1000) . '-' . ($is_first_time_order ? '1' : '0') . '-' . ($avance_pct_override ?? '0')))
                     </div>
                 </div>
                 <div class="clear"></div>

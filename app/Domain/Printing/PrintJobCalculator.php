@@ -29,8 +29,8 @@ class PrintJobCalculator
      * @return array<string, array<string, float>> Structured output with keys:
      *   - totals: total_pieces, total_grams, total_print_hours, kwh
      *   - costs: material_cost, material_cost_with_waste, power_cost, labor_cost, first_time_fee_applied, total_cost
-     *   - pricing: applied_avance_pct, sales_price, price_per_piece
-     *   - profit: profit, profit_per_piece
+     *   - pricing: applied_avance_pct, sales_price, price_per_piece (cost per piece, exclusive of avance)
+     *   - profit: profit, profit_per_piece (inclusive of avance)
      */
     public function calculate(array $input): array
     {
@@ -222,18 +222,19 @@ class PrintJobCalculator
         return [
             'applied_avance_pct' => $appliedAvancePct,
             'sales_price' => round($salesPrice, 2),
-            'price_per_piece' => $this->calculatePricePerPiece($salesPrice, $totals),
+            'price_per_piece' => $this->calculatePricePerPiece($totalCost, $totals),
         ];
     }
 
     /**
-     * Calculate price per piece (with division by zero protection).
+     * Calculate price per piece (cost per piece, exclusive of avance).
+     * This shows the raw cost per piece before markup.
      *
-     * @param float $salesPrice
+     * @param float $totalCost
      * @param array<string, float> $totals
      * @return float
      */
-    private function calculatePricePerPiece(float $salesPrice, array $totals): float
+    private function calculatePricePerPiece(float $totalCost, array $totals): float
     {
         $totalPieces = $totals['total_pieces'];
 
@@ -241,7 +242,7 @@ class PrintJobCalculator
             return 0.00;
         }
 
-        return round($salesPrice / $totalPieces, 2);
+        return round($totalCost / $totalPieces, 2);
     }
 
     /**

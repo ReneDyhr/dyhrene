@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Livewire\PrintJobs;
 
+use App\Domain\Printing\PrintJobCalculator;
 use App\Models\PrintCustomer;
 use App\Models\PrintJob;
 use App\Models\PrintMaterial;
 use App\Models\PrintMaterialType;
 use App\Models\PrintOrderSequence;
+use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -32,6 +34,7 @@ class Create extends Component
     {
         $this->date = now()->format('Y-m-d');
     }
+
 
     public function save()
     {
@@ -135,6 +138,56 @@ class Create extends Component
         return $result;
     }
 
+    /**
+     * Compute calculation result for display.
+     * Called directly in render() to ensure it's always up to date.
+     */
+    private function computeCalculation(): ?array
+    {
+        // Need material_id to compute
+        if (empty($this->material_id) || $this->material_id === null) {
+            return null;
+        }
+
+        try {
+            $material = PrintMaterial::with('materialType')->find($this->material_id);
+            if ($material === null) {
+                return null;
+            }
+
+            $settings = PrintSetting::current();
+            $calculator = new PrintJobCalculator();
+            
+            $input = [
+                'pieces_per_plate' => (int) ($this->pieces_per_plate ?? 1),
+                'plates' => (int) ($this->plates ?? 1),
+                'grams_per_plate' => (float) ($this->grams_per_plate ?? 0),
+                'hours_per_plate' => (float) ($this->hours_per_plate ?? 0),
+                'labor_hours' => (float) ($this->labor_hours ?? 0),
+                'is_first_time_order' => (bool) ($this->is_first_time_order ?? false),
+                'avance_pct_override' => isset($this->avance_pct_override) && $this->avance_pct_override !== '' && $this->avance_pct_override !== null
+                    ? (float) $this->avance_pct_override
+                    : null,
+                'electricity_rate_dkk_per_kwh' => $settings->electricity_rate_dkk_per_kwh ?? 0,
+                'wage_rate_dkk_per_hour' => $settings->wage_rate_dkk_per_hour ?? 0,
+                'first_time_fee_dkk' => $settings->first_time_fee_dkk ?? 0,
+                'default_avance_pct' => $settings->default_avance_pct ?? 0,
+                'price_per_kg_dkk' => $material->price_per_kg_dkk ?? 0,
+                'waste_factor_pct' => $material->waste_factor_pct ?? 0,
+                'avg_kwh_per_hour' => $material->materialType->avg_kwh_per_hour ?? 0,
+            ];
+
+            return $calculator->calculate($input);
+        } catch (\Throwable $e) {
+            // Log error but don't break the page
+            \Log::error('Calculation error: ' . $e->getMessage(), [
+                'material_id' => $this->material_id,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
     public function render(): View
     {
         $customers = PrintCustomer::query()->active()->orderBy('name')->get();
@@ -146,8 +199,11 @@ class Create extends Component
             ->groupBy('material_type_id');
 
         $materialTypes = PrintMaterialType::query()->orderBy('name')->get();
+        
+        // Compute calculation directly in render to ensure it's always up to date
+        $calculation = $this->computeCalculation();
 
-        return \view('livewire.print-jobs.create', \compact('customers', 'materials', 'materialTypes'));
+        return \view('livewire.print-jobs.create', \compact('customers', 'materials', 'materialTypes', 'calculation'));
     }
 }
 

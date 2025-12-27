@@ -47,9 +47,9 @@ class Edit extends Component
         $this->material_id = $printJob->material_id;
         $this->pieces_per_plate = $printJob->pieces_per_plate;
         $this->plates = $printJob->plates;
-        $this->grams_per_plate = $printJob->grams_per_plate;
-        $this->hours_per_plate = $printJob->hours_per_plate;
-        $this->labor_hours = $printJob->labor_hours;
+        $this->grams_per_plate = (float) $printJob->grams_per_plate;
+        $this->hours_per_plate = (float) $printJob->hours_per_plate;
+        $this->labor_hours = (float) $printJob->labor_hours;
         $this->is_first_time_order = $printJob->is_first_time_order;
         $this->avance_pct_override = $printJob->avance_pct_override;
 
@@ -172,6 +172,26 @@ class Edit extends Component
         \session()->flash('success', 'Print job locked successfully.');
 
         return $this->redirect(\route('print-jobs.show', $this->printJob));
+    }
+
+    /**
+     * Get a hash key for the calculation panel based on current inputs.
+     * This is a computed property that Livewire will track.
+     */
+    public function getCalculationPanelKeyProperty(): string
+    {
+        $inputs = [
+            'material_id' => $this->material_id,
+            'pieces_per_plate' => $this->pieces_per_plate,
+            'plates' => $this->plates,
+            'grams_per_plate' => $this->grams_per_plate,
+            'hours_per_plate' => $this->hours_per_plate,
+            'labor_hours' => $this->labor_hours,
+            'is_first_time_order' => $this->is_first_time_order,
+            'avance_pct_override' => $this->avance_pct_override,
+        ];
+
+        return 'calc-panel-edit-' . $this->printJob->id . '-' . md5(serialize($inputs));
     }
 
     public function render(): View

@@ -25,28 +25,48 @@ class CalculationPanel extends Component
     /**
      * Calculation result array.
      *
-     * @var array<string, array<string, float>>|null
+     * @var null|array<string, array<string, float>>
      */
     public ?array $calculationResult = null;
 
     /**
      * Whether this is a locked job (uses snapshot).
-     *
-     * @var bool
      */
     public bool $isLocked = false;
 
     /**
+     * Called when any property is updated.
+     * This ensures the calculation recomputes when jobInputs change.
+     */
+    public function updated($propertyName): void
+    {
+        // Force recalculation when jobInputs change
+        if ($propertyName === 'jobInputs') {
+            $this->calculationResult = null;
+        }
+    }
+
+    /**
+     * Called on every render to ensure calculation is up to date.
+     */
+    public function hydrate(): void
+    {
+        // Clear cached result to force recalculation
+        $this->calculationResult = null;
+    }
+
+    /**
      * Computed property: get calculation result.
      *
-     * @return array<string, array<string, float>>|null
+     * @return null|array<string, array<string, float>>
      */
     public function getCalculationProperty(): ?array
     {
         if ($this->isLocked && $this->printJob !== null) {
             // For locked jobs, use snapshot
             $snapshot = $this->printJob->calc_snapshot;
-            if ($snapshot !== null && is_array($snapshot)) {
+
+            if ($snapshot !== null && \is_array($snapshot)) {
                 return [
                     'totals' => $snapshot['totals'] ?? [],
                     'costs' => $snapshot['costs'] ?? [],
@@ -54,6 +74,7 @@ class CalculationPanel extends Component
                     'profit' => $snapshot['profit'] ?? [],
                 ];
             }
+
             return null;
         }
 
@@ -61,10 +82,19 @@ class CalculationPanel extends Component
         return $this->computeCalculation();
     }
 
+    public function render(): View
+    {
+        $calculation = $this->calculation;
+
+        return \view('livewire.print-jobs.components.calculation-panel', [
+            'calculation' => $calculation,
+        ]);
+    }
+
     /**
      * Compute calculation using PrintJobCalculator.
      *
-     * @return array<string, array<string, float>>|null
+     * @return null|array<string, array<string, float>>
      */
     private function computeCalculation(): ?array
     {
@@ -74,6 +104,7 @@ class CalculationPanel extends Component
             $settings = PrintSetting::current();
             $calculator = new PrintJobCalculator();
             $input = $this->buildCalculatorInputFromJob($this->printJob, $settings);
+
             return $calculator->calculate($input);
         }
 
@@ -84,11 +115,13 @@ class CalculationPanel extends Component
 
         // Load material and settings
         $materialId = $this->jobInputs['material_id'] ?? null;
+
         if ($materialId === null) {
             return null;
         }
 
         $material = PrintMaterial::with('materialType')->find($materialId);
+
         if ($material === null) {
             return null;
         }
@@ -103,8 +136,6 @@ class CalculationPanel extends Component
     /**
      * Build calculator input from PrintJob model.
      *
-     * @param PrintJob $job
-     * @param PrintSetting $settings
      * @return array<string, mixed>
      */
     private function buildCalculatorInputFromJob(PrintJob $job, PrintSetting $settings): array
@@ -130,9 +161,7 @@ class CalculationPanel extends Component
     /**
      * Build calculator input from jobInputs array.
      *
-     * @param array<string, mixed> $inputs
-     * @param PrintMaterial $material
-     * @param PrintSetting $settings
+     * @param  array<string, mixed> $inputs
      * @return array<string, mixed>
      */
     private function buildCalculatorInputFromArray(array $inputs, PrintMaterial $material, PrintSetting $settings): array
@@ -144,8 +173,8 @@ class CalculationPanel extends Component
             'hours_per_plate' => (float) ($inputs['hours_per_plate'] ?? 0),
             'labor_hours' => (float) ($inputs['labor_hours'] ?? 0),
             'is_first_time_order' => (bool) ($inputs['is_first_time_order'] ?? false),
-            'avance_pct_override' => isset($inputs['avance_pct_override']) && $inputs['avance_pct_override'] !== '' 
-                ? (float) $inputs['avance_pct_override'] 
+            'avance_pct_override' => isset($inputs['avance_pct_override']) && $inputs['avance_pct_override'] !== ''
+                ? (float) $inputs['avance_pct_override']
                 : null,
             'electricity_rate_dkk_per_kwh' => $settings->electricity_rate_dkk_per_kwh ?? 0,
             'wage_rate_dkk_per_hour' => $settings->wage_rate_dkk_per_hour ?? 0,
@@ -156,14 +185,4 @@ class CalculationPanel extends Component
             'avg_kwh_per_hour' => $material->materialType->avg_kwh_per_hour ?? 0,
         ];
     }
-
-    public function render(): View
-    {
-        $calculation = $this->calculation;
-
-        return \view('livewire.print-jobs.components.calculation-panel', [
-            'calculation' => $calculation,
-        ]);
-    }
 }
-

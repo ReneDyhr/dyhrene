@@ -62,6 +62,10 @@ class PrintJob extends Model
         'is_first_time_order' => 'boolean',
         'calc_snapshot' => 'array',
         'locked_at' => 'datetime',
+        'grams_per_plate' => 'float',
+        'hours_per_plate' => 'float',
+        'labor_hours' => 'float',
+        'avance_pct_override' => 'float',
     ];
 
     /**

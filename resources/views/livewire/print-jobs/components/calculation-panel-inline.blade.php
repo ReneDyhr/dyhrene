@@ -2,9 +2,7 @@
     use App\Support\Format;
 @endphp
 
-<div class="calculation-panel" 
-     @if(!$isLocked) wire:poll.1s @endif
-     style="margin-top: 30px; padding: 20px; background-color: #f0f8ff; border-radius: 4px; border: 2px solid {{ $isLocked ? '#28a745' : '#ffc107' }};">
+<div class="calculation-panel" style="margin-top: 30px; padding: 20px; background-color: #f0f8ff; border-radius: 4px; border: 2px solid {{ $isLocked ? '#28a745' : '#ffc107' }};">
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
         <h2 style="margin: 0; font-size: 1.3em;">
             Calculation Results
@@ -142,7 +140,7 @@
         </div>
     @else
         <div style="padding: 20px; text-align: center; color: #777;">
-            <p style="margin: 0;">No calculation data available. Please fill in the required fields.</p>
+            <p style="margin: 0;">No calculation data available. Please fill in the required fields (especially Material).</p>
         </div>
     @endif
 </div>
