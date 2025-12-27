@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
             // getLaravel() can return null, but PHPStan sees it as always non-null due to type inference
             // This is a defensive check that may be optimized away but is safe to keep
             $laravel = $command->getLaravel();
+
             // @phpstan-ignore-next-line
             if ($laravel === null) {
                 $command->setLaravel($this->app);

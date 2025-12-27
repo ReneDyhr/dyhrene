@@ -121,7 +121,7 @@ class CalculationPanel extends Component
             return null;
         }
 
-        /** @var PrintMaterial|null $material */
+        /** @var null|PrintMaterial $material */
         $material = PrintMaterial::with('materialType')->find($materialId);
 
         if ($material === null) {
@@ -190,8 +190,6 @@ class CalculationPanel extends Component
 
     /**
      * Safely convert mixed value to int.
-     *
-     * @param mixed $value
      */
     private function toInt(mixed $value): int
     {
@@ -204,8 +202,6 @@ class CalculationPanel extends Component
 
     /**
      * Safely convert mixed value to float.
-     *
-     * @param mixed $value
      */
     private function toFloat(mixed $value): float
     {
