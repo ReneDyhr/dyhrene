@@ -20,7 +20,7 @@ class Format
         }
 
         // Format with specified decimals
-        $formatted = \number_format((float) $v, $decimals, ',', '.');
+        $formatted = \number_format($v, $decimals, ',', '.');
 
         // Remove trailing zeros after decimal point
         if ($decimals > 0) {
@@ -86,7 +86,7 @@ class Format
             return '';
         }
 
-        $formatted = \number_format((int) $v, 0, ',', '.');
+        $formatted = \number_format($v, 0, ',', '.');
 
         if ($suffix !== '') {
             $formatted .= ' ' . $suffix;

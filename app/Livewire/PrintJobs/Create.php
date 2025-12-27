@@ -14,6 +14,7 @@ use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class Create extends Component
 {
@@ -66,7 +67,7 @@ class Create extends Component
         $this->updateHoursPerPlateFromTime();
     }
 
-    public function save()
+    public function save(): Redirector
     {
         // Ensure hours_per_plate is updated from time inputs before validation
         $this->updateHoursPerPlateFromTime();
@@ -96,13 +97,13 @@ class Create extends Component
         }
 
         // Ensure order number was generated
-        if ($orderNo === null || $orderNo === '') {
+        if ($orderNo === '') {
             throw new \RuntimeException('Failed to generate order number. Got: ' . \var_export($orderNo, true));
         }
 
         // Create print job as draft
         $printJob = PrintJob::create([
-            'order_no' => (string) $orderNo,
+            'order_no' => $orderNo,
             'date' => $this->date,
             'description' => $this->description,
             'internal_notes' => $this->internal_notes,
@@ -166,8 +167,8 @@ class Create extends Component
      */
     private function generateOrderNumber(): string
     {
-        $result = DB::transaction(function () {
-            $year = (int) \now()->year;
+        $result = DB::transaction(function (): string {
+            $year = \now()->year;
 
             // SELECT ... FOR UPDATE to lock the row (SQLite doesn't support lockForUpdate, but transaction still works)
             $query = PrintOrderSequence::query()->where('year', $year);
@@ -194,14 +195,18 @@ class Create extends Component
             // Format order number
             $orderNo = \sprintf('%d-%04d', $year, $sequence->last_number);
 
-            if (empty($orderNo)) {
+            // sprintf always returns a string, but validate it's not empty as a safety check
+            // @phpstan-ignore-next-line
+            if ($orderNo === '') {
                 throw new \RuntimeException('Generated order number is empty');
             }
 
             return $orderNo;
         });
 
-        if ($result === null || $result === '') {
+        // Transaction always returns a string from sprintf, but validate as safety check
+        // @phpstan-ignore-next-line
+        if ($result === '') {
             throw new \RuntimeException('Failed to generate order number. Transaction returned: ' . \var_export($result, true));
         }
 
@@ -211,11 +216,13 @@ class Create extends Component
     /**
      * Compute calculation result for display.
      * Called directly in render() to ensure it's always up to date.
+     *
+     * @return null|array<string, array<string, float>>
      */
     private function computeCalculation(): ?array
     {
         // Need material_id to compute
-        if (empty($this->material_id) || $this->material_id === null) {
+        if ($this->material_id === null) {
             return null;
         }
 
@@ -230,15 +237,13 @@ class Create extends Component
             $calculator = new PrintJobCalculator();
 
             $input = [
-                'pieces_per_plate' => (int) ($this->pieces_per_plate ?? 1),
-                'plates' => (int) ($this->plates ?? 1),
-                'grams_per_plate' => (float) ($this->grams_per_plate ?? 0),
-                'hours_per_plate' => (float) ($this->hours_per_plate ?? 0),
-                'labor_hours' => (float) ($this->labor_hours ?? 0),
-                'is_first_time_order' => (bool) ($this->is_first_time_order ?? false),
-                'avance_pct_override' => isset($this->avance_pct_override) && $this->avance_pct_override !== '' && $this->avance_pct_override !== null
-                    ? (float) $this->avance_pct_override
-                    : null,
+                'pieces_per_plate' => $this->pieces_per_plate,
+                'plates' => $this->plates,
+                'grams_per_plate' => $this->grams_per_plate,
+                'hours_per_plate' => $this->hours_per_plate,
+                'labor_hours' => $this->labor_hours,
+                'is_first_time_order' => $this->is_first_time_order,
+                'avance_pct_override' => $this->avance_pct_override,
                 'electricity_rate_dkk_per_kwh' => $settings->electricity_rate_dkk_per_kwh ?? 0,
                 'wage_rate_dkk_per_hour' => $settings->wage_rate_dkk_per_hour ?? 0,
                 'first_time_fee_dkk' => $settings->first_time_fee_dkk ?? 0,

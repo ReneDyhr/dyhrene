@@ -95,7 +95,7 @@ class Edit extends Component
         $this->updateHoursPerPlateFromTime();
     }
 
-    public function save()
+    public function save(): Redirector
     {
         // Guard: if locked, redirect to show
         $this->printJob->refresh();

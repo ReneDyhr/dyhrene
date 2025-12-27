@@ -56,10 +56,10 @@ class Index extends Component
 
         // Search: order_no, description, customer name
         if ($this->search !== '') {
-            $query->where(function (\Illuminate\Database\Eloquent\Builder $q) {
+            $query->where(function (\Illuminate\Database\Eloquent\Builder $q): void {
                 $q->where('order_no', 'like', '%' . $this->search . '%')
                     ->orWhere('description', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('customer', function (\Illuminate\Database\Eloquent\Builder $customerQuery) {
+                    ->orWhereHas('customer', function (\Illuminate\Database\Eloquent\Builder $customerQuery): void {
                         $customerQuery->where('name', 'like', '%' . $this->search . '%');
                     });
             });
@@ -77,7 +77,7 @@ class Index extends Component
 
         // Material type filter
         if ($this->materialTypeFilter !== null) {
-            $query->whereHas('material', function (\Illuminate\Database\Eloquent\Builder $materialQuery) {
+            $query->whereHas('material', function (\Illuminate\Database\Eloquent\Builder $materialQuery): void {
                 $materialQuery->where('material_type_id', $this->materialTypeFilter);
             });
         }
@@ -99,7 +99,7 @@ class Index extends Component
                 // Use snapshot for locked jobs
                 $snapshot = $job->calc_snapshot;
 
-                if ($snapshot !== null && \is_array($snapshot)) {
+                if ($snapshot !== null) {
                     // Extract calculation data from snapshot (snapshot has totals, costs, pricing, profit at root)
                     $job->calculation = [
                         'totals' => $snapshot['totals'] ?? [],

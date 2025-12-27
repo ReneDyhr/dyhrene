@@ -7,6 +7,7 @@ namespace App\Livewire\Customers;
 use App\Models\PrintCustomer;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class Create extends Component
 {
@@ -18,7 +19,7 @@ class Create extends Component
 
     public ?string $notes = null;
 
-    public function save()
+    public function save(): Redirector
     {
         $this->validate([
             'name' => 'required|string|max:255',

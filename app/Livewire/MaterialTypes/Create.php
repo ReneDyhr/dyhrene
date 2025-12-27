@@ -7,6 +7,7 @@ namespace App\Livewire\MaterialTypes;
 use App\Models\PrintMaterialType;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class Create extends Component
 {
@@ -14,7 +15,7 @@ class Create extends Component
 
     public string $avg_kwh_per_hour = '';
 
-    public function save()
+    public function save(): Redirector
     {
         $this->validate([
             'name' => 'required|string|max:255|unique:print_material_types,name',

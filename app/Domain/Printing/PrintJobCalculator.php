@@ -62,11 +62,11 @@ class PrintJobCalculator
      */
     private function calculateTotals(array $input): array
     {
-        $piecesPerPlate = (float) ($input['pieces_per_plate'] ?? 0);
-        $plates = (float) ($input['plates'] ?? 0);
-        $gramsPerPlate = (float) ($input['grams_per_plate'] ?? 0);
-        $hoursPerPlate = (float) ($input['hours_per_plate'] ?? 0);
-        $avgKwhPerHour = (float) ($input['avg_kwh_per_hour'] ?? 0);
+        $piecesPerPlate = $this->toFloat($input['pieces_per_plate'] ?? 0);
+        $plates = $this->toFloat($input['plates'] ?? 0);
+        $gramsPerPlate = $this->toFloat($input['grams_per_plate'] ?? 0);
+        $hoursPerPlate = $this->toFloat($input['hours_per_plate'] ?? 0);
+        $avgKwhPerHour = $this->toFloat($input['avg_kwh_per_hour'] ?? 0);
 
         $totalPieces = $piecesPerPlate * $plates;
         $totalGrams = $gramsPerPlate * $plates;
@@ -132,7 +132,7 @@ class PrintJobCalculator
      */
     private function calculateMaterialCost(array $input, array $totals): float
     {
-        $pricePerKgDkk = (float) ($input['price_per_kg_dkk'] ?? 0);
+        $pricePerKgDkk = $this->toFloat($input['price_per_kg_dkk'] ?? 0);
         $totalGrams = $totals['total_grams'];
 
         $materialPricePerG = $pricePerKgDkk / 1000;
@@ -148,7 +148,7 @@ class PrintJobCalculator
      */
     private function calculateMaterialCostWithWaste(array $input, float $materialCost): float
     {
-        $wasteFactorPct = (float) ($input['waste_factor_pct'] ?? 0);
+        $wasteFactorPct = $this->toFloat($input['waste_factor_pct'] ?? 0);
         $materialCostWithWaste = $materialCost * (1 + $wasteFactorPct / 100);
 
         return \round($materialCostWithWaste, 2);
@@ -163,7 +163,7 @@ class PrintJobCalculator
     private function calculatePowerCost(array $input, array $totals): float
     {
         $kwh = $totals['kwh'];
-        $electricityRateDkkPerKwh = (float) ($input['electricity_rate_dkk_per_kwh'] ?? 0);
+        $electricityRateDkkPerKwh = $this->toFloat($input['electricity_rate_dkk_per_kwh'] ?? 0);
         $powerCost = $kwh * $electricityRateDkkPerKwh;
 
         return \round($powerCost, 2);
@@ -176,8 +176,8 @@ class PrintJobCalculator
      */
     private function calculateLaborCost(array $input): float
     {
-        $laborHours = (float) ($input['labor_hours'] ?? 0);
-        $wageRateDkkPerHour = (float) ($input['wage_rate_dkk_per_hour'] ?? 0);
+        $laborHours = $this->toFloat($input['labor_hours'] ?? 0);
+        $wageRateDkkPerHour = $this->toFloat($input['wage_rate_dkk_per_hour'] ?? 0);
         $laborCost = $laborHours * $wageRateDkkPerHour;
 
         return \round($laborCost, 2);
@@ -191,7 +191,7 @@ class PrintJobCalculator
     private function calculateFirstTimeFee(array $input): float
     {
         $isFirstTimeOrder = (bool) ($input['is_first_time_order'] ?? false);
-        $firstTimeFeeDkk = (float) ($input['first_time_fee_dkk'] ?? 0);
+        $firstTimeFeeDkk = $this->toFloat($input['first_time_fee_dkk'] ?? 0);
 
         return $isFirstTimeOrder ? $firstTimeFeeDkk : 0.00;
     }
@@ -206,8 +206,8 @@ class PrintJobCalculator
      */
     private function calculatePricing(array $input, array $costs, array $totals): array
     {
-        $defaultAvancePct = (float) ($input['default_avance_pct'] ?? 0);
-        $avancePctOverride = isset($input['avance_pct_override']) ? (float) $input['avance_pct_override'] : null;
+        $defaultAvancePct = $this->toFloat($input['default_avance_pct'] ?? 0);
+        $avancePctOverride = isset($input['avance_pct_override']) ? $this->toFloat($input['avance_pct_override']) : null;
 
         $appliedAvancePct = $avancePctOverride ?? $defaultAvancePct;
         $totalCost = $costs['total_cost'];
@@ -230,7 +230,7 @@ class PrintJobCalculator
     {
         $totalPieces = $totals['total_pieces'];
 
-        if ($totalPieces == 0) {
+        if ($totalPieces === 0.0) {
             return 0.00;
         }
 
@@ -252,11 +252,23 @@ class PrintJobCalculator
         $profit = $salesPrice - $totalCost;
         $totalPieces = $totals['total_pieces'];
 
-        $profitPerPiece = $totalPieces == 0 ? 0.00 : \round($profit / $totalPieces, 2);
+        $profitPerPiece = $totalPieces === 0.0 ? 0.00 : \round($profit / $totalPieces, 2);
 
         return [
             'profit' => \round($profit, 2),
             'profit_per_piece' => $profitPerPiece,
         ];
+    }
+
+    /**
+     * Safely convert mixed value to float.
+     */
+    private function toFloat(mixed $value): float
+    {
+        if (\is_numeric($value)) {
+            return (float) $value;
+        }
+
+        return 0.0;
     }
 }

@@ -7,6 +7,7 @@ namespace App\Livewire\PrintMaterialTypes;
 use App\Models\PrintMaterialType;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class Edit extends Component
 {
@@ -23,7 +24,7 @@ class Edit extends Component
         $this->avg_kwh_per_hour = (string) $materialType->avg_kwh_per_hour;
     }
 
-    public function save()
+    public function save(): Redirector
     {
         $this->validate([
             'name' => 'required|string|max:255|unique:print_material_types,name,' . $this->materialType->id,

@@ -38,7 +38,7 @@ class CalculationPanel extends Component
      * Called when any property is updated.
      * This ensures the calculation recomputes when jobInputs change.
      */
-    public function updated($propertyName): void
+    public function updated(string $propertyName): void
     {
         // Force recalculation when jobInputs change
         if ($propertyName === 'jobInputs') {
@@ -66,7 +66,8 @@ class CalculationPanel extends Component
             // For locked jobs, use snapshot
             $snapshot = $this->printJob->calc_snapshot;
 
-            if ($snapshot !== null && \is_array($snapshot)) {
+            if ($snapshot !== null) {
+                /** @var array<string, array<string, float>> $snapshot */
                 return [
                     'totals' => $snapshot['totals'] ?? [],
                     'costs' => $snapshot['costs'] ?? [],
@@ -84,7 +85,7 @@ class CalculationPanel extends Component
 
     public function render(): View
     {
-        $calculation = $this->calculation;
+        $calculation = $this->getCalculationProperty();
 
         return \view('livewire.print-jobs.components.calculation-panel', [
             'calculation' => $calculation,
@@ -120,6 +121,7 @@ class CalculationPanel extends Component
             return null;
         }
 
+        /** @var PrintMaterial|null $material */
         $material = PrintMaterial::with('materialType')->find($materialId);
 
         if ($material === null) {
@@ -167,14 +169,14 @@ class CalculationPanel extends Component
     private function buildCalculatorInputFromArray(array $inputs, PrintMaterial $material, PrintSetting $settings): array
     {
         return [
-            'pieces_per_plate' => (int) ($inputs['pieces_per_plate'] ?? 1),
-            'plates' => (int) ($inputs['plates'] ?? 1),
-            'grams_per_plate' => (float) ($inputs['grams_per_plate'] ?? 0),
-            'hours_per_plate' => (float) ($inputs['hours_per_plate'] ?? 0),
-            'labor_hours' => (float) ($inputs['labor_hours'] ?? 0),
+            'pieces_per_plate' => $this->toInt($inputs['pieces_per_plate'] ?? 1),
+            'plates' => $this->toInt($inputs['plates'] ?? 1),
+            'grams_per_plate' => $this->toFloat($inputs['grams_per_plate'] ?? 0),
+            'hours_per_plate' => $this->toFloat($inputs['hours_per_plate'] ?? 0),
+            'labor_hours' => $this->toFloat($inputs['labor_hours'] ?? 0),
             'is_first_time_order' => (bool) ($inputs['is_first_time_order'] ?? false),
             'avance_pct_override' => isset($inputs['avance_pct_override']) && $inputs['avance_pct_override'] !== ''
-                ? (float) $inputs['avance_pct_override']
+                ? $this->toFloat($inputs['avance_pct_override'])
                 : null,
             'electricity_rate_dkk_per_kwh' => $settings->electricity_rate_dkk_per_kwh ?? 0,
             'wage_rate_dkk_per_hour' => $settings->wage_rate_dkk_per_hour ?? 0,
@@ -184,5 +186,33 @@ class CalculationPanel extends Component
             'waste_factor_pct' => $material->waste_factor_pct ?? 0,
             'avg_kwh_per_hour' => $material->materialType->avg_kwh_per_hour ?? 0,
         ];
+    }
+
+    /**
+     * Safely convert mixed value to int.
+     *
+     * @param mixed $value
+     */
+    private function toInt(mixed $value): int
+    {
+        if (\is_numeric($value)) {
+            return (int) $value;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Safely convert mixed value to float.
+     *
+     * @param mixed $value
+     */
+    private function toFloat(mixed $value): float
+    {
+        if (\is_numeric($value)) {
+            return (float) $value;
+        }
+
+        return 0.0;
     }
 }

@@ -23,7 +23,7 @@ class PrintJobFactory extends Factory
      */
     public function definition(): array
     {
-        $year = (int) \now()->year;
+        $year = \now()->year;
         $sequence = \App\Models\PrintOrderSequence::firstOrCreate(
             ['year' => $year],
             ['last_number' => 0],

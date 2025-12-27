@@ -8,6 +8,7 @@ use App\Models\PrintMaterial;
 use App\Models\PrintMaterialType;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class Edit extends Component
 {
@@ -33,7 +34,7 @@ class Edit extends Component
         $this->notes = $material->notes;
     }
 
-    public function save()
+    public function save(): ?Redirector
     {
         $this->validate([
             'material_type_id' => 'required|exists:print_material_types,id',

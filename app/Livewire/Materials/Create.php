@@ -8,6 +8,7 @@ use App\Models\PrintMaterial;
 use App\Models\PrintMaterialType;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class Create extends Component
 {
@@ -30,7 +31,7 @@ class Create extends Component
         }
     }
 
-    public function save()
+    public function save(): ?Redirector
     {
         $this->validate([
             'material_type_id' => 'required|exists:print_material_types,id',
@@ -51,7 +52,7 @@ class Create extends Component
         if ($exists) {
             $this->addError('name', 'A material with this name already exists for the selected material type.');
 
-            return;
+            return null;
         }
 
         PrintMaterial::create([

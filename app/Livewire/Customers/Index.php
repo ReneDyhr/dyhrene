@@ -30,7 +30,7 @@ class Index extends Component
         $query = PrintCustomer::query()->orderBy('name');
 
         if ($this->search !== '') {
-            $query->where(function ($q) {
+            $query->where(function (\Illuminate\Database\Eloquent\Builder $q): void {
                 $q->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%');
             });

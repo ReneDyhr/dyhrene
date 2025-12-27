@@ -53,7 +53,8 @@ class PrintSetting extends Model
      */
     public static function current(): self
     {
-        return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+        /** @var self $setting */
+        $setting = Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function (): self {
             $setting = self::find(1);
 
             if ($setting === null) {
@@ -68,6 +69,8 @@ class PrintSetting extends Model
 
             return $setting;
         });
+
+        return $setting;
     }
 
     /**
@@ -84,13 +87,13 @@ class PrintSetting extends Model
     protected static function booted(): void
     {
         // Clear cache when settings are saved or updated
-        static::saved(function (PrintSetting $setting) {
+        static::saved(function (PrintSetting $setting): void {
             if ($setting->id === 1) {
                 self::clearCache();
             }
         });
 
-        static::deleted(function (PrintSetting $setting) {
+        static::deleted(function (PrintSetting $setting): void {
             if ($setting->id === 1) {
                 self::clearCache();
             }

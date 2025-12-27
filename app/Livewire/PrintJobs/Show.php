@@ -12,6 +12,7 @@ use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class Show extends Component
 {
@@ -45,7 +46,7 @@ class Show extends Component
             // Use snapshot for locked jobs
             $snapshot = $printJob->calc_snapshot;
 
-            if ($snapshot !== null && \is_array($snapshot)) {
+            if ($snapshot !== null) {
                 // Extract calculation data from snapshot (snapshot has totals, costs, pricing, profit at root)
                 $this->calculation = [
                     'totals' => $snapshot['totals'] ?? [],
@@ -95,7 +96,7 @@ class Show extends Component
     /**
      * Unlock the print job by clearing snapshot and updating status.
      */
-    public function unlock()
+    public function unlock(): Redirector
     {
         // Guard: if not locked, redirect to edit
         $this->printJob->refresh();
