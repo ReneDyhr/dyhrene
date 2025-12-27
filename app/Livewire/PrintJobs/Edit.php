@@ -14,6 +14,7 @@ use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class Edit extends Component
 {
@@ -43,7 +44,7 @@ class Edit extends Component
 
     public ?float $avance_pct_override = null;
 
-    public function mount(PrintJob $printJob): ?\Livewire\Features\SupportRedirects\Redirector
+    public function mount(PrintJob $printJob): ?Redirector
     {
         $this->printJob = $printJob;
 
@@ -71,7 +72,7 @@ class Edit extends Component
         return null;
     }
 
-    public function save(): \Livewire\Features\SupportRedirects\Redirector
+    public function save(): Redirector
     {
         // Guard: if locked, redirect to show
         $this->printJob->refresh();
@@ -121,7 +122,7 @@ class Edit extends Component
     /**
      * Lock the print job by creating a snapshot and updating status.
      */
-    public function lock(): \Livewire\Features\SupportRedirects\Redirector
+    public function lock(): ?Redirector
     {
         // Guard: if already locked, redirect to show
         $this->printJob->refresh();
@@ -188,6 +189,9 @@ class Edit extends Component
             ]);
         });
 
+        // Refresh to ensure we have the latest data
+        $this->printJob->refresh();
+
         \session()->flash('success', 'Print job locked successfully.');
 
         return $this->redirect(\route('print-jobs.show', $this->printJob));
@@ -241,7 +245,7 @@ class Edit extends Component
                 'hours_per_plate' => $this->hours_per_plate ?? 0.0,
                 'labor_hours' => $this->labor_hours ?? 0.0,
                 'is_first_time_order' => $this->is_first_time_order ?? false,
-                'avance_pct_override' => ($this->avance_pct_override !== null && $this->avance_pct_override !== '')
+                'avance_pct_override' => $this->avance_pct_override !== null
                     ? $this->avance_pct_override
                     : null,
                 'electricity_rate_dkk_per_kwh' => $settings->electricity_rate_dkk_per_kwh ?? 0,
