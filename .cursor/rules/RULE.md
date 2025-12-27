@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Project Coding Standards & Guidelines
 
 ## Technology Stack
