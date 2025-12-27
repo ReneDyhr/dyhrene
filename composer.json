@@ -49,7 +49,7 @@
     },
     "scripts": {
         "test": [
-            "./vendor/bin/phpunit"
+            "./vendor/bin/pest"
         ],
         "lint": "pint --test",
         "larastan": "./vendor/bin/phpstan analyse -v",
