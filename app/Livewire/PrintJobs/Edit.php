@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Livewire\PrintJobs;
 
+use App\Domain\Printing\PrintJobCalculator;
 use App\Models\PrintActivityLog;
 use App\Models\PrintCustomer;
 use App\Models\PrintJob;
 use App\Models\PrintMaterial;
 use App\Models\PrintMaterialType;
+use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -16,26 +18,39 @@ use Livewire\Component;
 class Edit extends Component
 {
     public PrintJob $printJob;
+
     public string $date = '';
+
     public string $description = '';
+
     public ?string $internal_notes = null;
+
     public ?int $customer_id = null;
+
     public ?int $material_id = null;
+
     public int $pieces_per_plate = 1;
+
     public int $plates = 1;
+
     public float $grams_per_plate = 0;
+
     public float $hours_per_plate = 0;
+
     public float $labor_hours = 0;
+
     public bool $is_first_time_order = false;
+
     public ?float $avance_pct_override = null;
 
-    public function mount(PrintJob $printJob): \Livewire\Features\SupportRedirects\Redirector|null
+    public function mount(PrintJob $printJob): ?\Livewire\Features\SupportRedirects\Redirector
     {
         $this->printJob = $printJob;
 
         // Guard: if locked, redirect to show
         if ($printJob->isLocked()) {
             \session()->flash('error', 'Locked jobs cannot be edited. Please unlock first.');
+
             return $this->redirect(\route('print-jobs.show', $printJob));
         }
 
@@ -47,21 +62,23 @@ class Edit extends Component
         $this->material_id = $printJob->material_id;
         $this->pieces_per_plate = $printJob->pieces_per_plate;
         $this->plates = $printJob->plates;
-        $this->grams_per_plate = (float) $printJob->grams_per_plate;
-        $this->hours_per_plate = (float) $printJob->hours_per_plate;
-        $this->labor_hours = (float) $printJob->labor_hours;
+        $this->grams_per_plate = $printJob->grams_per_plate;
+        $this->hours_per_plate = $printJob->hours_per_plate;
+        $this->labor_hours = $printJob->labor_hours;
         $this->is_first_time_order = $printJob->is_first_time_order;
         $this->avance_pct_override = $printJob->avance_pct_override;
 
         return null;
     }
 
-    public function save()
+    public function save(): \Livewire\Features\SupportRedirects\Redirector
     {
         // Guard: if locked, redirect to show
         $this->printJob->refresh();
+
         if ($this->printJob->isLocked()) {
             \session()->flash('error', 'Locked jobs cannot be edited. Please unlock first.');
+
             return $this->redirect(\route('print-jobs.show', $this->printJob));
         }
 
@@ -104,12 +121,14 @@ class Edit extends Component
     /**
      * Lock the print job by creating a snapshot and updating status.
      */
-    public function lock()
+    public function lock(): \Livewire\Features\SupportRedirects\Redirector
     {
         // Guard: if already locked, redirect to show
         $this->printJob->refresh();
+
         if ($this->printJob->isLocked()) {
             \session()->flash('error', 'This job is already locked.');
+
             return $this->redirect(\route('print-jobs.show', $this->printJob));
         }
 
@@ -156,7 +175,7 @@ class Edit extends Component
             // Update job: status='locked', locked_at=now(), calc_snapshot=<snapshot json>
             $this->printJob->update([
                 'status' => 'locked',
-                'locked_at' => now(),
+                'locked_at' => \now(),
                 'calc_snapshot' => $snapshot,
             ]);
 
@@ -164,7 +183,7 @@ class Edit extends Component
             PrintActivityLog::create([
                 'print_job_id' => $this->printJob->id,
                 'action' => 'locked',
-                'user_id' => auth()->id(),
+                'user_id' => \auth()->id(),
                 'metadata' => null,
             ]);
         });
@@ -172,26 +191,6 @@ class Edit extends Component
         \session()->flash('success', 'Print job locked successfully.');
 
         return $this->redirect(\route('print-jobs.show', $this->printJob));
-    }
-
-    /**
-     * Get a hash key for the calculation panel based on current inputs.
-     * This is a computed property that Livewire will track.
-     */
-    public function getCalculationPanelKeyProperty(): string
-    {
-        $inputs = [
-            'material_id' => $this->material_id,
-            'pieces_per_plate' => $this->pieces_per_plate,
-            'plates' => $this->plates,
-            'grams_per_plate' => $this->grams_per_plate,
-            'hours_per_plate' => $this->hours_per_plate,
-            'labor_hours' => $this->labor_hours,
-            'is_first_time_order' => $this->is_first_time_order,
-            'avance_pct_override' => $this->avance_pct_override,
-        ];
-
-        return 'calc-panel-edit-' . $this->printJob->id . '-' . md5(serialize($inputs));
     }
 
     public function render(): View
@@ -206,7 +205,63 @@ class Edit extends Component
 
         $materialTypes = PrintMaterialType::query()->orderBy('name')->get();
 
-        return \view('livewire.print-jobs.edit', \compact('customers', 'materials', 'materialTypes'));
+        // Compute calculation directly in render to ensure it's always up to date
+        $calculation = $this->computeCalculation();
+
+        return \view('livewire.print-jobs.edit', \compact('customers', 'materials', 'materialTypes', 'calculation'));
+    }
+
+    /**
+     * Compute calculation result for display.
+     * Called directly in render() to ensure it's always up to date.
+     *
+     * @return null|array<string, array<string, float>>
+     */
+    private function computeCalculation(): ?array
+    {
+        // Need material_id to compute
+        if (empty($this->material_id)) {
+            return null;
+        }
+
+        try {
+            $material = PrintMaterial::with('materialType')->find($this->material_id);
+
+            if ($material === null) {
+                return null;
+            }
+
+            $settings = PrintSetting::current();
+            $calculator = new PrintJobCalculator();
+
+            $input = [
+                'pieces_per_plate' => $this->pieces_per_plate ?? 1,
+                'plates' => $this->plates ?? 1,
+                'grams_per_plate' => $this->grams_per_plate ?? 0.0,
+                'hours_per_plate' => $this->hours_per_plate ?? 0.0,
+                'labor_hours' => $this->labor_hours ?? 0.0,
+                'is_first_time_order' => $this->is_first_time_order ?? false,
+                'avance_pct_override' => ($this->avance_pct_override !== null && $this->avance_pct_override !== '')
+                    ? $this->avance_pct_override
+                    : null,
+                'electricity_rate_dkk_per_kwh' => $settings->electricity_rate_dkk_per_kwh ?? 0,
+                'wage_rate_dkk_per_hour' => $settings->wage_rate_dkk_per_hour ?? 0,
+                'first_time_fee_dkk' => $settings->first_time_fee_dkk ?? 0,
+                'default_avance_pct' => $settings->default_avance_pct ?? 0,
+                'price_per_kg_dkk' => $material->price_per_kg_dkk ?? 0,
+                'waste_factor_pct' => $material->waste_factor_pct ?? 0,
+                'avg_kwh_per_hour' => $material->materialType->avg_kwh_per_hour ?? 0,
+            ];
+
+            return $calculator->calculate($input);
+        } catch (\Throwable $e) {
+            // Log error but don't break the page
+            \Log::error('Calculation error: ' . $e->getMessage(), [
+                'material_id' => $this->material_id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 }
-
