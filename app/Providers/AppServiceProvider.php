@@ -16,6 +16,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Fix Laravel 12 issue: Ensure console commands get Laravel instance when resolved from container
+        $this->app->resolving(\Illuminate\Console\Command::class, function (\Illuminate\Console\Command $command): void {
+            // getLaravel() can return null, but PHPStan sees it as always non-null due to type inference
+            // This is a defensive check that may be optimized away but is safe to keep
+            $laravel = $command->getLaravel();
+
+            // @phpstan-ignore-next-line
+            if ($laravel === null) {
+                $command->setLaravel($this->app);
+            }
+        });
+
         UrlGenerator::macro(
             'alternateHasCorrectSignature',
             function (Request $request, bool $absolute = true, array $ignoreQuery = []): bool {
@@ -30,7 +42,9 @@ class AppServiceProvider extends ServiceProvider
                     ->join('&');
 
                 $original = \rtrim($url . '?' . $queryString, '?');
-                $signature = \hash_hmac('sha256', $original, \Config::string('app.key'));
+                $appKeyRaw = \config('app.key', '');
+                $appKey = \is_string($appKeyRaw) ? $appKeyRaw : '';
+                $signature = \hash_hmac('sha256', $original, $appKey);
 
                 return \hash_equals($signature, (string) $request->string('signature', ''));
             },

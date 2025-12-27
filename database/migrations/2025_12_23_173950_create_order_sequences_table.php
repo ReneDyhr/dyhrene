@@ -12,8 +12,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::table('storage_items', function (Blueprint $table): void {
-            $table->integer('sort_order')->default(0)->after('unit');
+        Schema::create('print_order_sequences', function (Blueprint $table): void {
+            $table->id();
+            $table->integer('year')->unique();
+            $table->integer('last_number');
+            $table->timestamps();
         });
     }
 
@@ -22,8 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::table('storage_items', function (Blueprint $table): void {
-            $table->dropColumn('sort_order');
-        });
+        Schema::dropIfExists('print_order_sequences');
     }
 };

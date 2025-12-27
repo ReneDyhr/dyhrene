@@ -74,3 +74,43 @@ Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt): 
 
     return \response($content, 200)->header('Content-Type', $mime);
 })->name('receipts.image')->middleware(['auth']);
+
+// 3D Printing Dashboard
+Route::get('/printing', App\Livewire\Printing\Index::class)->middleware('auth')->name('printing.index');
+
+// Print Customers CRUD
+Route::get('/print-customers', App\Livewire\PrintCustomers\Index::class)->middleware('auth')->name('print-customers.index');
+Route::get('/print-customers/create', App\Livewire\PrintCustomers\Create::class)->middleware('auth')->name('print-customers.create');
+Route::post('/print-customers', [App\Livewire\PrintCustomers\Create::class, 'save'])->middleware('auth')->name('print-customers.store');
+Route::get('/print-customers/{customer}/edit', App\Livewire\PrintCustomers\Edit::class)->middleware('auth')->name('print-customers.edit');
+Route::put('/print-customers/{customer}', [App\Livewire\PrintCustomers\Edit::class, 'save'])->middleware('auth')->name('print-customers.update');
+Route::delete('/print-customers/{customer}', [App\Livewire\PrintCustomers\Index::class, 'delete'])->middleware('auth')->name('print-customers.destroy');
+
+// Print Material Types CRUD
+Route::get('/print-material-types', App\Livewire\PrintMaterialTypes\Index::class)->middleware('auth')->name('print-material-types.index');
+Route::get('/print-material-types/create', App\Livewire\PrintMaterialTypes\Create::class)->middleware('auth')->name('print-material-types.create');
+Route::post('/print-material-types', [App\Livewire\PrintMaterialTypes\Create::class, 'save'])->middleware('auth')->name('print-material-types.store');
+Route::get('/print-material-types/{materialType}/edit', App\Livewire\PrintMaterialTypes\Edit::class)->middleware('auth')->name('print-material-types.edit');
+Route::put('/print-material-types/{materialType}', [App\Livewire\PrintMaterialTypes\Edit::class, 'save'])->middleware('auth')->name('print-material-types.update');
+Route::delete('/print-material-types/{materialType}', [App\Livewire\PrintMaterialTypes\Index::class, 'delete'])->middleware('auth')->name('print-material-types.destroy');
+
+// Print Materials CRUD
+Route::get('/print-materials', App\Livewire\PrintMaterials\Index::class)->middleware('auth')->name('print-materials.index');
+Route::get('/print-materials/create', App\Livewire\PrintMaterials\Create::class)->middleware('auth')->name('print-materials.create');
+Route::post('/print-materials', [App\Livewire\PrintMaterials\Create::class, 'save'])->middleware('auth')->name('print-materials.store');
+Route::get('/print-materials/{material}/edit', App\Livewire\PrintMaterials\Edit::class)->middleware('auth')->name('print-materials.edit');
+Route::put('/print-materials/{material}', [App\Livewire\PrintMaterials\Edit::class, 'save'])->middleware('auth')->name('print-materials.update');
+Route::delete('/print-materials/{material}', [App\Livewire\PrintMaterials\Index::class, 'delete'])->middleware('auth')->name('print-materials.destroy');
+
+// Print Settings
+Route::get('/print-settings', App\Livewire\PrintSettings\Edit::class)->middleware('auth')->name('print-settings.edit');
+Route::put('/print-settings', [App\Livewire\PrintSettings\Edit::class, 'save'])->middleware('auth')->name('print-settings.update');
+
+// Print Jobs CRUD
+Route::get('/print-jobs', App\Livewire\PrintJobs\Index::class)->middleware('auth')->name('print-jobs.index');
+Route::get('/print-jobs/create', App\Livewire\PrintJobs\Create::class)->middleware('auth')->name('print-jobs.create');
+Route::post('/print-jobs', [App\Livewire\PrintJobs\Create::class, 'save'])->middleware('auth')->name('print-jobs.store');
+Route::get('/print-jobs/{printJob}', App\Livewire\PrintJobs\Show::class)->middleware('auth')->name('print-jobs.show');
+Route::get('/print-jobs/{printJob}/edit', App\Livewire\PrintJobs\Edit::class)->middleware('auth')->name('print-jobs.edit');
+Route::put('/print-jobs/{printJob}', [App\Livewire\PrintJobs\Edit::class, 'save'])->middleware('auth')->name('print-jobs.update');
+Route::delete('/print-jobs/{printJob}', [App\Livewire\PrintJobs\Index::class, 'delete'])->middleware('auth')->name('print-jobs.destroy');
