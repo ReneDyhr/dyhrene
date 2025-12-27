@@ -29,4 +29,3 @@ class PrintSettingFactory extends Factory
         ];
     }
 }
-

@@ -11,6 +11,7 @@ use Livewire\Component;
 class Create extends Component
 {
     public string $name = '';
+
     public string $avg_kwh_per_hour = '';
 
     public function save()
@@ -35,4 +36,3 @@ class Create extends Component
         return \view('livewire.material-types.create');
     }
 }
-

@@ -21,16 +21,16 @@ class PrintJobCalculator
      * Calculate all totals, costs, pricing, and profit for a print job.
      *
      * @param array<string, mixed> $input Input data containing:
-     *   - Job inputs: pieces_per_plate, plates, grams_per_plate, hours_per_plate, labor_hours, is_first_time_order, avance_pct_override
-     *   - Settings: electricity_rate_dkk_per_kwh, wage_rate_dkk_per_hour, first_time_fee_dkk, default_avance_pct
-     *   - Material: price_per_kg_dkk, waste_factor_pct
-     *   - Material type: avg_kwh_per_hour
+     *                                    - Job inputs: pieces_per_plate, plates, grams_per_plate, hours_per_plate, labor_hours, is_first_time_order, avance_pct_override
+     *                                    - Settings: electricity_rate_dkk_per_kwh, wage_rate_dkk_per_hour, first_time_fee_dkk, default_avance_pct
+     *                                    - Material: price_per_kg_dkk, waste_factor_pct
+     *                                    - Material type: avg_kwh_per_hour
      *
      * @return array<string, array<string, float>> Structured output with keys:
-     *   - totals: total_pieces, total_grams, total_print_hours, kwh
-     *   - costs: material_cost, material_cost_with_waste, power_cost, labor_cost, first_time_fee_applied, total_cost
-     *   - pricing: applied_avance_pct, sales_price, price_per_piece (cost per piece, exclusive of avance)
-     *   - profit: profit, profit_per_piece (inclusive of avance)
+     *                                             - totals: total_pieces, total_grams, total_print_hours, kwh
+     *                                             - costs: material_cost, material_cost_with_waste, power_cost, labor_cost, first_time_fee_applied, total_cost
+     *                                             - pricing: applied_avance_pct, sales_price, price_per_piece (cost per piece, exclusive of avance)
+     *                                             - profit: profit, profit_per_piece (inclusive of avance)
      */
     public function calculate(array $input): array
     {
@@ -57,7 +57,7 @@ class PrintJobCalculator
     /**
      * Calculate derived totals (pieces, grams, hours, kWh).
      *
-     * @param array<string, mixed> $input
+     * @param  array<string, mixed> $input
      * @return array<string, float>
      */
     private function calculateTotals(array $input): array
@@ -86,8 +86,8 @@ class PrintJobCalculator
     /**
      * Calculate all cost components.
      *
-     * @param array<string, mixed> $input
-     * @param array<string, float> $totals
+     * @param  array<string, mixed> $input
+     * @param  array<string, float> $totals
      * @return array<string, float>
      */
     private function calculateCosts(array $input, array $totals): array
@@ -106,20 +106,20 @@ class PrintJobCalculator
         $firstTimeFeeApplied = $this->calculateFirstTimeFee($input);
 
         // Total cost (sum of rounded components, then rounded again)
-        $totalCost = round(
-            round($materialCostWithWaste, 2) +
-            round($powerCost, 2) +
-            round($laborCost, 2) +
-            round($firstTimeFeeApplied, 2),
-            2
+        $totalCost = \round(
+            \round($materialCostWithWaste, 2)
+            + \round($powerCost, 2)
+            + \round($laborCost, 2)
+            + \round($firstTimeFeeApplied, 2),
+            2,
         );
 
         return [
-            'material_cost' => round($materialCost, 2),
-            'material_cost_with_waste' => round($materialCostWithWaste, 2),
-            'power_cost' => round($powerCost, 2),
-            'labor_cost' => round($laborCost, 2),
-            'first_time_fee_applied' => round($firstTimeFeeApplied, 2),
+            'material_cost' => \round($materialCost, 2),
+            'material_cost_with_waste' => \round($materialCostWithWaste, 2),
+            'power_cost' => \round($powerCost, 2),
+            'labor_cost' => \round($laborCost, 2),
+            'first_time_fee_applied' => \round($firstTimeFeeApplied, 2),
             'total_cost' => $totalCost,
         ];
     }
@@ -129,7 +129,6 @@ class PrintJobCalculator
      *
      * @param array<string, mixed> $input
      * @param array<string, float> $totals
-     * @return float
      */
     private function calculateMaterialCost(array $input, array $totals): float
     {
@@ -139,22 +138,20 @@ class PrintJobCalculator
         $materialPricePerG = $pricePerKgDkk / 1000;
         $materialCost = $totalGrams * $materialPricePerG;
 
-        return round($materialCost, 2);
+        return \round($materialCost, 2);
     }
 
     /**
      * Calculate material cost with waste factor applied.
      *
      * @param array<string, mixed> $input
-     * @param float $materialCost
-     * @return float
      */
     private function calculateMaterialCostWithWaste(array $input, float $materialCost): float
     {
         $wasteFactorPct = (float) ($input['waste_factor_pct'] ?? 0);
         $materialCostWithWaste = $materialCost * (1 + $wasteFactorPct / 100);
 
-        return round($materialCostWithWaste, 2);
+        return \round($materialCostWithWaste, 2);
     }
 
     /**
@@ -162,7 +159,6 @@ class PrintJobCalculator
      *
      * @param array<string, mixed> $input
      * @param array<string, float> $totals
-     * @return float
      */
     private function calculatePowerCost(array $input, array $totals): float
     {
@@ -170,14 +166,13 @@ class PrintJobCalculator
         $electricityRateDkkPerKwh = (float) ($input['electricity_rate_dkk_per_kwh'] ?? 0);
         $powerCost = $kwh * $electricityRateDkkPerKwh;
 
-        return round($powerCost, 2);
+        return \round($powerCost, 2);
     }
 
     /**
      * Calculate labor cost.
      *
      * @param array<string, mixed> $input
-     * @return float
      */
     private function calculateLaborCost(array $input): float
     {
@@ -185,14 +180,13 @@ class PrintJobCalculator
         $wageRateDkkPerHour = (float) ($input['wage_rate_dkk_per_hour'] ?? 0);
         $laborCost = $laborHours * $wageRateDkkPerHour;
 
-        return round($laborCost, 2);
+        return \round($laborCost, 2);
     }
 
     /**
      * Calculate first-time fee if applicable.
      *
      * @param array<string, mixed> $input
-     * @return float
      */
     private function calculateFirstTimeFee(array $input): float
     {
@@ -205,9 +199,9 @@ class PrintJobCalculator
     /**
      * Calculate pricing (markup and sales price).
      *
-     * @param array<string, mixed> $input
-     * @param array<string, float> $costs
-     * @param array<string, float> $totals
+     * @param  array<string, mixed> $input
+     * @param  array<string, float> $costs
+     * @param  array<string, float> $totals
      * @return array<string, float>
      */
     private function calculatePricing(array $input, array $costs, array $totals): array
@@ -221,7 +215,7 @@ class PrintJobCalculator
 
         return [
             'applied_avance_pct' => $appliedAvancePct,
-            'sales_price' => round($salesPrice, 2),
+            'sales_price' => \round($salesPrice, 2),
             'price_per_piece' => $this->calculatePricePerPiece($totalCost, $totals),
         ];
     }
@@ -230,9 +224,7 @@ class PrintJobCalculator
      * Calculate price per piece (cost per piece, exclusive of avance).
      * This shows the raw cost per piece before markup.
      *
-     * @param float $totalCost
      * @param array<string, float> $totals
-     * @return float
      */
     private function calculatePricePerPiece(float $totalCost, array $totals): float
     {
@@ -242,15 +234,15 @@ class PrintJobCalculator
             return 0.00;
         }
 
-        return round($totalCost / $totalPieces, 2);
+        return \round($totalCost / $totalPieces, 2);
     }
 
     /**
      * Calculate profit and profit per piece.
      *
-     * @param array<string, float> $costs
-     * @param array<string, float> $pricing
-     * @param array<string, float> $totals
+     * @param  array<string, float> $costs
+     * @param  array<string, float> $pricing
+     * @param  array<string, float> $totals
      * @return array<string, float>
      */
     private function calculateProfit(array $costs, array $pricing, array $totals): array
@@ -260,12 +252,11 @@ class PrintJobCalculator
         $profit = $salesPrice - $totalCost;
         $totalPieces = $totals['total_pieces'];
 
-        $profitPerPiece = $totalPieces == 0 ? 0.00 : round($profit / $totalPieces, 2);
+        $profitPerPiece = $totalPieces == 0 ? 0.00 : \round($profit / $totalPieces, 2);
 
         return [
-            'profit' => round($profit, 2),
+            'profit' => \round($profit, 2),
             'profit_per_piece' => $profitPerPiece,
         ];
     }
 }
-

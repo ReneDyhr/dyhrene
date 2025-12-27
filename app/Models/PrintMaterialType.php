@@ -38,4 +38,3 @@ class PrintMaterialType extends Model
         return $this->hasMany(PrintMaterial::class, 'material_type_id');
     }
 }
-

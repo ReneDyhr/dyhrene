@@ -11,8 +11,11 @@ use Livewire\Component;
 class Edit extends Component
 {
     public string $electricity_rate_dkk_per_kwh = '';
+
     public string $wage_rate_dkk_per_hour = '';
+
     public string $default_avance_pct = '';
+
     public string $first_time_fee_dkk = '';
 
     public function mount(): void
@@ -52,4 +55,3 @@ class Edit extends Component
         return \view('livewire.print-settings.edit');
     }
 }
-

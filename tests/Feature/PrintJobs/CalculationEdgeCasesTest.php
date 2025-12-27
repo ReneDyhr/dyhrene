@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 use App\Domain\Printing\PrintJobCalculator;
 use App\Models\PrintCustomer;
-use App\Models\PrintJob;
 use App\Models\PrintMaterial;
 use App\Models\PrintMaterialType;
 use App\Models\PrintSetting;
 use App\Models\User;
-use Livewire\Livewire;
 
 \uses()->group('feature');
 
@@ -44,7 +42,7 @@ use Livewire\Livewire;
     ];
 
     $result = $calculator->calculate($input);
-    
+
     \expect($result)->toBeArray()
         ->and($result)->toHaveKeys(['totals', 'costs', 'pricing', 'profit']);
 })->coversNothing();
@@ -68,7 +66,7 @@ use Livewire\Livewire;
     ];
 
     $result = $calculator->calculate($input);
-    
+
     \expect($result)->toBeArray()
         ->and($result['totals']['total_pieces'])->toBe(1.0)
         ->and($result['totals']['total_grams'])->toBe(1.0);
@@ -93,7 +91,7 @@ use Livewire\Livewire;
     ];
 
     $result = $calculator->calculate($input);
-    
+
     \expect($result)->toBeArray()
         ->and($result['totals']['total_grams'])->toBe(0.0)
         ->and($result['totals']['total_print_hours'])->toBe(0.0);

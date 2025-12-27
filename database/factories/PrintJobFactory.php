@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\PrintCustomer;
-use App\Models\PrintMaterial;
 use App\Models\PrintJob;
+use App\Models\PrintMaterial;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,15 +23,15 @@ class PrintJobFactory extends Factory
      */
     public function definition(): array
     {
-        $year = (int) now()->year;
+        $year = (int) \now()->year;
         $sequence = \App\Models\PrintOrderSequence::firstOrCreate(
             ['year' => $year],
-            ['last_number' => 0]
+            ['last_number' => 0],
         );
         $sequence->increment('last_number');
         $sequence->refresh();
         $orderNo = \sprintf('%d-%04d', $year, $sequence->last_number);
-        
+
         return [
             'order_no' => $orderNo,
             'date' => \fake()->date(),
@@ -57,7 +57,7 @@ class PrintJobFactory extends Factory
      */
     public function draft(): static
     {
-        return $this->state(fn (): array => [
+        return $this->state(fn(): array => [
             'status' => 'draft',
             'locked_at' => null,
             'calc_snapshot' => null,
@@ -69,7 +69,7 @@ class PrintJobFactory extends Factory
      */
     public function locked(): static
     {
-        return $this->state(fn (): array => [
+        return $this->state(fn(): array => [
             'status' => 'locked',
             'locked_at' => \now(),
             'calc_snapshot' => [

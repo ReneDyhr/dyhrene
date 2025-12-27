@@ -14,6 +14,20 @@ class PrintSetting extends Model
     use HasFactory;
 
     /**
+     * Cache key for current settings.
+     *
+     * @var string
+     */
+    public const CACHE_KEY = 'settings.current';
+
+    /**
+     * Cache TTL in seconds (1 hour).
+     *
+     * @var int
+     */
+    public const CACHE_TTL = 3600;
+
+    /**
      * The table associated with the model.
      *
      * @var string
@@ -33,46 +47,9 @@ class PrintSetting extends Model
     ];
 
     /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted(): void
-    {
-        // Clear cache when settings are saved or updated
-        static::saved(function (PrintSetting $setting) {
-            if ($setting->id === 1) {
-                self::clearCache();
-            }
-        });
-
-        static::deleted(function (PrintSetting $setting) {
-            if ($setting->id === 1) {
-                self::clearCache();
-            }
-        });
-    }
-
-    /**
-     * Cache key for current settings.
-     *
-     * @var string
-     */
-    public const CACHE_KEY = 'settings.current';
-
-    /**
-     * Cache TTL in seconds (1 hour).
-     *
-     * @var int
-     */
-    public const CACHE_TTL = 3600;
-
-    /**
      * Get or create the current settings row (id=1).
      * If it doesn't exist, create it with placeholder defaults.
      * Uses cache to improve performance.
-     *
-     * @return PrintSetting
      */
     public static function current(): self
     {
@@ -95,12 +72,28 @@ class PrintSetting extends Model
 
     /**
      * Clear the settings cache.
-     *
-     * @return void
      */
     public static function clearCache(): void
     {
         Cache::forget(self::CACHE_KEY);
     }
-}
 
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        // Clear cache when settings are saved or updated
+        static::saved(function (PrintSetting $setting) {
+            if ($setting->id === 1) {
+                self::clearCache();
+            }
+        });
+
+        static::deleted(function (PrintSetting $setting) {
+            if ($setting->id === 1) {
+                self::clearCache();
+            }
+        });
+    }
+}

@@ -21,7 +21,7 @@ class SettingSeeder extends Seeder
                 'wage_rate_dkk_per_hour' => 0.00,
                 'default_avance_pct' => 50.00,
                 'first_time_fee_dkk' => 0.00,
-            ]
+            ],
         );
     }
 }

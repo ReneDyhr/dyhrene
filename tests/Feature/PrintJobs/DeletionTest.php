@@ -34,7 +34,7 @@ use Livewire\Livewire;
     Livewire::actingAs($this->user)
         ->test(Index::class)
         ->call('delete', $draftJob->id);
-    
+
     // Just verify the job was deleted (session check might not work in Livewire tests)
 
     \expect(PrintJob::find($draftJob->id))->toBeNull()
@@ -50,7 +50,7 @@ use Livewire\Livewire;
     Livewire::actingAs($this->user)
         ->test(Index::class)
         ->call('delete', $lockedJob->id);
-    
+
     // Just verify the job was not deleted (session check might not work in Livewire tests)
 
     \expect(PrintJob::find($lockedJob->id))->not->toBeNull();

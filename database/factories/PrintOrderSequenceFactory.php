@@ -27,4 +27,3 @@ class PrintOrderSequenceFactory extends Factory
         ];
     }
 }
-

@@ -28,7 +28,7 @@ use Livewire\Livewire;
 });
 
 \test('generates sequential order numbers', function () {
-    $year = (int) now()->year;
+    $year = (int) \now()->year;
     $orderNumbers = [];
 
     // Create multiple jobs
@@ -57,6 +57,7 @@ use Livewire\Livewire;
 
     // Extract sequence numbers
     $sequences = [];
+
     foreach ($orderNumbers as $orderNo) {
         \preg_match('/' . $year . '-(\d{4})/', $orderNo, $matches);
         $sequences[] = (int) $matches[1];
@@ -69,7 +70,7 @@ use Livewire\Livewire;
 })->coversNothing();
 
 \test('order numbers reset per year', function () {
-    $currentYear = (int) now()->year;
+    $currentYear = (int) \now()->year;
     $nextYear = $currentYear + 1;
 
     // Create a job in current year
@@ -105,7 +106,7 @@ use Livewire\Livewire;
 })->coversNothing();
 
 \test('order number format is correct', function () {
-    $year = (int) now()->year;
+    $year = (int) \now()->year;
 
     Livewire::actingAs($this->user)->test(Create::class)
         ->set('date', '2025-01-15')
@@ -124,7 +125,7 @@ use Livewire\Livewire;
 })->coversNothing();
 
 \test('order numbers continue after soft delete', function () {
-    $year = (int) now()->year;
+    $year = (int) \now()->year;
 
     // Create and delete a job
     Livewire::actingAs($this->user)->test(Create::class)
@@ -157,13 +158,13 @@ use Livewire\Livewire;
         ->call('save');
 
     $newJob = PrintJob::where('description', 'Job After Delete')->first();
-    
+
     // Extract sequence numbers
     \preg_match('/' . $year . '-(\d{4})/', $deletedOrderNo, $deletedMatches);
     \preg_match('/' . $year . '-(\d{4})/', $newJob->order_no, $newMatches);
-    
+
     $deletedSeq = (int) $deletedMatches[1];
     $newSeq = (int) $newMatches[1];
-    
+
     \expect($newSeq)->toBe($deletedSeq + 1);
 })->coversNothing();

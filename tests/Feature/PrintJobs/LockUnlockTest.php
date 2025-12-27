@@ -58,7 +58,7 @@ use Livewire\Livewire;
 
     $this->printJob->refresh();
     $snapshot = $this->printJob->calc_snapshot;
-    
+
     \expect($snapshot)->toBeArray()
         ->and($snapshot)->toHaveKeys(['totals', 'costs', 'pricing', 'profit']);
 })->coversNothing();
@@ -82,7 +82,7 @@ use Livewire\Livewire;
     Livewire::actingAs($this->user)
         ->test(Edit::class, ['printJob' => $this->printJob])
         ->call('lock');
-    
+
     $this->printJob->refresh();
     \expect($this->printJob->calc_snapshot)->not->toBeNull();
 
@@ -150,7 +150,7 @@ use Livewire\Livewire;
 
     // Refresh the job to get the locked state
     $this->printJob->refresh();
-    
+
     // Try to access edit page - should redirect to show
     $response = Livewire::actingAs($this->user)
         ->test(Edit::class, ['printJob' => $this->printJob]);

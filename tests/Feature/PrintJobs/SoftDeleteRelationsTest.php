@@ -3,14 +3,12 @@
 declare(strict_types=1);
 
 use App\Livewire\PrintJobs\Create;
-use App\Livewire\PrintJobs\Edit;
 use App\Models\PrintCustomer;
 use App\Models\PrintJob;
 use App\Models\PrintMaterial;
 use App\Models\PrintMaterialType;
 use App\Models\PrintSetting;
 use App\Models\User;
-use Livewire\Livewire;
 
 \uses()->group('feature');
 
@@ -33,7 +31,7 @@ use Livewire\Livewire;
     // Test that active() scope excludes soft-deleted customers
     $activeCustomers = PrintCustomer::query()->active()->get();
     $activeCustomerIds = $activeCustomers->pluck('id')->toArray();
-    
+
     \expect(\in_array($deletedCustomer->id, $activeCustomerIds, true))->toBeFalse();
 })->coversNothing();
 
@@ -46,7 +44,7 @@ use Livewire\Livewire;
     // Test that active() scope excludes soft-deleted materials
     $activeMaterials = PrintMaterial::query()->active()->get();
     $activeMaterialIds = $activeMaterials->pluck('id')->toArray();
-    
+
     \expect(\in_array($deletedMaterial->id, $activeMaterialIds, true))->toBeFalse();
 })->coversNothing();
 
@@ -81,7 +79,7 @@ use Livewire\Livewire;
     $this->material->delete();
 
     $job->refresh();
-    
+
     // Locked jobs use snapshot, so material data should be in snapshot
     \expect($job->calc_snapshot)->not->toBeNull()
         ->and($job->calc_snapshot)->toBeArray();

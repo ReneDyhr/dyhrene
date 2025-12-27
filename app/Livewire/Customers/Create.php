@@ -11,8 +11,11 @@ use Livewire\Component;
 class Create extends Component
 {
     public string $name = '';
+
     public ?string $email = null;
+
     public ?string $phone = null;
+
     public ?string $notes = null;
 
     public function save()
@@ -41,4 +44,3 @@ class Create extends Component
         return \view('livewire.customers.create');
     }
 }
-

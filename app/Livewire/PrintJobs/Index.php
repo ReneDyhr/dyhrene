@@ -7,13 +7,12 @@ namespace App\Livewire\PrintJobs;
 use App\Domain\Printing\PrintJobCalculator;
 use App\Models\PrintCustomer;
 use App\Models\PrintJob;
-use App\Models\PrintMaterial;
 use App\Models\PrintMaterialType;
 use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\Url;
 
 class Index extends Component
 {
@@ -40,6 +39,7 @@ class Index extends Component
 
         if (!$printJob->isDraft()) {
             \session()->flash('error', 'Only draft jobs can be deleted.');
+
             return;
         }
 
@@ -98,7 +98,8 @@ class Index extends Component
             } else {
                 // Use snapshot for locked jobs
                 $snapshot = $job->calc_snapshot;
-                if ($snapshot !== null && is_array($snapshot)) {
+
+                if ($snapshot !== null && \is_array($snapshot)) {
                     // Extract calculation data from snapshot (snapshot has totals, costs, pricing, profit at root)
                     $job->calculation = [
                         'totals' => $snapshot['totals'] ?? [],
@@ -128,8 +129,6 @@ class Index extends Component
     /**
      * Build calculator input array from print job and settings.
      *
-     * @param PrintJob $job
-     * @param PrintSetting $settings
      * @return array<string, mixed>
      */
     private function buildCalculatorInput(PrintJob $job, PrintSetting $settings): array
@@ -152,4 +151,3 @@ class Index extends Component
         ];
     }
 }
-

@@ -15,6 +15,7 @@ class Index extends Component
     use WithPagination;
 
     public string $search = '';
+
     public ?int $materialTypeFilter = null;
 
     public function delete(int $id): void
@@ -44,5 +45,3 @@ class Index extends Component
         return \view('livewire.materials.index', \compact('materials', 'materialTypes'));
     }
 }
-
-

@@ -11,7 +11,7 @@ class PrintOrderSequence extends Model
 {
     /** @use HasFactory<\Database\Factories\PrintOrderSequenceFactory> */
     use HasFactory;
-    
+
     /**
      * Indicates if the model should be timestamped.
      *
@@ -38,16 +38,12 @@ class PrintOrderSequence extends Model
 
     /**
      * Get or create the order sequence for a given year.
-     *
-     * @param  int  $year
-     * @return PrintOrderSequence
      */
     public static function getOrCreateForYear(int $year): self
     {
         return self::firstOrCreate(
             ['year' => $year],
-            ['last_number' => 0]
+            ['last_number' => 0],
         );
     }
 }
-

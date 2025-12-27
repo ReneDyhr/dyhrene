@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Cache;
     Cache::flush();
 
     $setting = PrintSetting::current();
-    
+
     \expect($setting)->not->toBeNull()
         ->and($setting->id)->toBe(1);
 })->coversNothing();
@@ -28,26 +28,26 @@ use Illuminate\Support\Facades\Cache;
 
     // Update setting
     $setting->update(['electricity_rate_dkk_per_kwh' => 3.0]);
-    
+
     // Clear cache and get fresh
     Cache::flush();
     $newSetting = PrintSetting::current();
-    
+
     \expect($newSetting->electricity_rate_dkk_per_kwh)->toBe(3);
 })->coversNothing();
 
 \test('settings update clears cache', function () {
     $setting = PrintSetting::current();
-    
+
     // Get cached version
     $cached = PrintSetting::current();
-    
+
     // Update
     $setting->update(['electricity_rate_dkk_per_kwh' => 4.0]);
-    
+
     // Get fresh (should reflect update after cache clear)
     Cache::flush();
     $fresh = PrintSetting::current();
-    
+
     \expect($fresh->electricity_rate_dkk_per_kwh)->toBe(4);
 })->coversNothing();

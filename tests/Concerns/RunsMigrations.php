@@ -12,14 +12,12 @@ trait RunsMigrations
     protected function runMigrations(): void
     {
         $migrator = $this->app->make('migrator');
-        $paths = [database_path('migrations')];
-        
+        $paths = [\database_path('migrations')];
+
         if (!$migrator->repositoryExists()) {
             $migrator->getRepository()->createRepository();
         }
-        
+
         $migrator->run($paths);
     }
 }
-
-

@@ -11,9 +11,13 @@ use Livewire\Component;
 class Edit extends Component
 {
     public PrintCustomer $customer;
+
     public string $name = '';
+
     public ?string $email = null;
+
     public ?string $phone = null;
+
     public ?string $notes = null;
 
     public function mount(PrintCustomer $customer): void
@@ -51,4 +55,3 @@ class Edit extends Component
         return \view('livewire.customers.edit');
     }
 }
-

@@ -18,23 +18,36 @@ use Livewire\Component;
 class Create extends Component
 {
     public string $date = '';
+
     public string $description = '';
+
     public ?string $internal_notes = null;
+
     public ?int $customer_id = null;
+
     public ?int $material_id = null;
+
     public int $pieces_per_plate = 1;
+
     public int $plates = 1;
+
     public float $grams_per_plate = 0;
+
     public float $hours_per_plate = 0;
+
     public int $hours_per_plate_hours = 0;
+
     public int $hours_per_plate_minutes = 0;
+
     public float $labor_hours = 0;
+
     public bool $is_first_time_order = false;
+
     public ?float $avance_pct_override = null;
 
     public function mount(): void
     {
-        $this->date = now()->format('Y-m-d');
+        $this->date = \now()->format('Y-m-d');
     }
 
     /**
@@ -53,31 +66,11 @@ class Create extends Component
         $this->updateHoursPerPlateFromTime();
     }
 
-    /**
-     * Update hours_per_plate float from hours and minutes inputs.
-     */
-    private function updateHoursPerPlateFromTime(): void
-    {
-        $hours = $this->hours_per_plate_hours ?? 0;
-        $minutes = $this->hours_per_plate_minutes ?? 0;
-        
-        // Ensure minutes are between 0 and 59
-        if ($minutes < 0) {
-            $minutes = 0;
-        } elseif ($minutes > 59) {
-            $minutes = 59;
-        }
-        
-        // Convert to float: hours + (minutes / 60)
-        $this->hours_per_plate = $hours + ($minutes / 60.0);
-    }
-
-
     public function save()
     {
         // Ensure hours_per_plate is updated from time inputs before validation
         $this->updateHoursPerPlateFromTime();
-        
+
         $this->validate([
             'date' => 'required|date',
             'description' => 'required|string',
@@ -101,10 +94,10 @@ class Create extends Component
         } catch (\Throwable $e) {
             throw new \RuntimeException('Error generating order number: ' . $e->getMessage(), 0, $e);
         }
-        
+
         // Ensure order number was generated
         if ($orderNo === null || $orderNo === '') {
-            throw new \RuntimeException('Failed to generate order number. Got: ' . var_export($orderNo, true));
+            throw new \RuntimeException('Failed to generate order number. Got: ' . \var_export($orderNo, true));
         }
 
         // Create print job as draft
@@ -131,24 +124,59 @@ class Create extends Component
         return $this->redirect(\route('print-jobs.show', $printJob));
     }
 
+    public function render(): View
+    {
+        $customers = PrintCustomer::query()->active()->orderBy('name')->get();
+        $materials = PrintMaterial::query()
+            ->active()
+            ->with('materialType')
+            ->orderBy('name')
+            ->get()
+            ->groupBy('material_type_id');
+
+        $materialTypes = PrintMaterialType::query()->orderBy('name')->get();
+
+        // Compute calculation directly in render to ensure it's always up to date
+        $calculation = $this->computeCalculation();
+
+        return \view('livewire.print-jobs.create', \compact('customers', 'materials', 'materialTypes', 'calculation'));
+    }
+
+    /**
+     * Update hours_per_plate float from hours and minutes inputs.
+     */
+    private function updateHoursPerPlateFromTime(): void
+    {
+        $hours = $this->hours_per_plate_hours ?? 0;
+        $minutes = $this->hours_per_plate_minutes ?? 0;
+
+        // Ensure minutes are between 0 and 59
+        if ($minutes < 0) {
+            $minutes = 0;
+        } elseif ($minutes > 59) {
+            $minutes = 59;
+        }
+
+        // Convert to float: hours + (minutes / 60)
+        $this->hours_per_plate = $hours + ($minutes / 60.0);
+    }
+
     /**
      * Generate order number transaction-safely.
-     *
-     * @return string
      */
     private function generateOrderNumber(): string
     {
         $result = DB::transaction(function () {
-            $year = (int) now()->year;
+            $year = (int) \now()->year;
 
             // SELECT ... FOR UPDATE to lock the row (SQLite doesn't support lockForUpdate, but transaction still works)
             $query = PrintOrderSequence::query()->where('year', $year);
-            
+
             // Only use lockForUpdate for databases that support it
             if (DB::getDriverName() !== 'sqlite') {
                 $query->lockForUpdate();
             }
-            
+
             $sequence = $query->first();
 
             // If row doesn't exist, create it
@@ -165,18 +193,18 @@ class Create extends Component
 
             // Format order number
             $orderNo = \sprintf('%d-%04d', $year, $sequence->last_number);
-            
+
             if (empty($orderNo)) {
                 throw new \RuntimeException('Generated order number is empty');
             }
-            
+
             return $orderNo;
         });
-        
+
         if ($result === null || $result === '') {
-            throw new \RuntimeException('Failed to generate order number. Transaction returned: ' . var_export($result, true));
+            throw new \RuntimeException('Failed to generate order number. Transaction returned: ' . \var_export($result, true));
         }
-        
+
         return $result;
     }
 
@@ -193,13 +221,14 @@ class Create extends Component
 
         try {
             $material = PrintMaterial::with('materialType')->find($this->material_id);
+
             if ($material === null) {
                 return null;
             }
 
             $settings = PrintSetting::current();
             $calculator = new PrintJobCalculator();
-            
+
             $input = [
                 'pieces_per_plate' => (int) ($this->pieces_per_plate ?? 1),
                 'plates' => (int) ($this->plates ?? 1),
@@ -226,26 +255,8 @@ class Create extends Component
                 'material_id' => $this->material_id,
                 'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
-
-    public function render(): View
-    {
-        $customers = PrintCustomer::query()->active()->orderBy('name')->get();
-        $materials = PrintMaterial::query()
-            ->active()
-            ->with('materialType')
-            ->orderBy('name')
-            ->get()
-            ->groupBy('material_type_id');
-
-        $materialTypes = PrintMaterialType::query()->orderBy('name')->get();
-        
-        // Compute calculation directly in render to ensure it's always up to date
-        $calculation = $this->computeCalculation();
-
-        return \view('livewire.print-jobs.create', \compact('customers', 'materials', 'materialTypes', 'calculation'));
-    }
 }
-

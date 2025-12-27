@@ -27,4 +27,3 @@ class PrintMaterialTypeFactory extends Factory
         ];
     }
 }
-

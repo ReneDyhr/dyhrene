@@ -16,13 +16,17 @@ use Livewire\Component;
 class Show extends Component
 {
     public PrintJob $printJob;
+
     public string $date = '';
+
     public ?int $customer_id = null;
+
     public string $description = '';
+
     public ?string $internal_notes = null;
 
     /**
-     * @var array<string, mixed>|null
+     * @var null|array<string, mixed>
      */
     public ?array $calculation = null;
 
@@ -40,7 +44,8 @@ class Show extends Component
         if ($printJob->isLocked()) {
             // Use snapshot for locked jobs
             $snapshot = $printJob->calc_snapshot;
-            if ($snapshot !== null && is_array($snapshot)) {
+
+            if ($snapshot !== null && \is_array($snapshot)) {
                 // Extract calculation data from snapshot (snapshot has totals, costs, pricing, profit at root)
                 $this->calculation = [
                     'totals' => $snapshot['totals'] ?? [],
@@ -66,6 +71,7 @@ class Show extends Component
         // Only allow editing admin fields for locked jobs
         if (!$this->printJob->isLocked()) {
             \session()->flash('error', 'Admin fields can only be edited for locked jobs.');
+
             return;
         }
 
@@ -93,8 +99,10 @@ class Show extends Component
     {
         // Guard: if not locked, redirect to edit
         $this->printJob->refresh();
+
         if (!$this->printJob->isLocked()) {
             \session()->flash('error', 'This job is not locked.');
+
             return $this->redirect(\route('print-jobs.edit', $this->printJob));
         }
 
@@ -112,7 +120,7 @@ class Show extends Component
             PrintActivityLog::create([
                 'print_job_id' => $this->printJob->id,
                 'action' => 'unlocked',
-                'user_id' => auth()->id(),
+                'user_id' => \auth()->id(),
                 'metadata' => null,
             ]);
         });
@@ -122,11 +130,23 @@ class Show extends Component
         return $this->redirect(\route('print-jobs.edit', $this->printJob));
     }
 
+    public function render(): View
+    {
+        $customers = PrintCustomer::query()->active()->orderBy('name')->get();
+
+        // Load recent activity logs for this job
+        $activityLogs = $this->printJob->activityLogs()
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return \view('livewire.print-jobs.show', \compact('customers', 'activityLogs'));
+    }
+
     /**
      * Build calculator input array from print job and settings.
      *
-     * @param PrintJob $job
-     * @param PrintSetting $settings
      * @return array<string, mixed>
      */
     private function buildCalculatorInput(PrintJob $job, PrintSetting $settings): array
@@ -148,19 +168,4 @@ class Show extends Component
             'avg_kwh_per_hour' => $job->material->materialType->avg_kwh_per_hour ?? 0,
         ];
     }
-
-    public function render(): View
-    {
-        $customers = PrintCustomer::query()->active()->orderBy('name')->get();
-        
-        // Load recent activity logs for this job
-        $activityLogs = $this->printJob->activityLogs()
-            ->with('user')
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
-
-        return \view('livewire.print-jobs.show', \compact('customers', 'activityLogs'));
-    }
 }
-

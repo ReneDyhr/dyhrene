@@ -41,4 +41,3 @@ class Index extends Component
         return \view('livewire.print-customers.index', \compact('customers'));
     }
 }
-

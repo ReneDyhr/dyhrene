@@ -14,5 +14,3 @@ class Index extends Component
         return \view('livewire.printing.index');
     }
 }
-
-

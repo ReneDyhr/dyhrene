@@ -17,6 +17,7 @@ class Index extends Component
         // Check if any materials reference this material type
         if ($materialType->materials()->count() > 0) {
             \session()->flash('error', 'Cannot delete material type because it is referenced by materials.');
+
             return;
         }
 
@@ -33,4 +34,3 @@ class Index extends Component
         return \view('livewire.print-material-types.index', \compact('materialTypes'));
     }
 }
-

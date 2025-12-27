@@ -12,14 +12,19 @@ use Livewire\Component;
 class Create extends Component
 {
     public int $material_type_id = 0;
+
     public string $name = '';
+
     public string $price_per_kg_dkk = '';
+
     public string $waste_factor_pct = '0';
+
     public ?string $notes = null;
 
     public function mount(): void
     {
         $firstType = PrintMaterialType::query()->first();
+
         if ($firstType !== null) {
             $this->material_type_id = $firstType->id;
         }
@@ -45,6 +50,7 @@ class Create extends Component
 
         if ($exists) {
             $this->addError('name', 'A material with this name already exists for the selected material type.');
+
             return;
         }
 
@@ -68,4 +74,3 @@ class Create extends Component
         return \view('livewire.materials.create', \compact('materialTypes'));
     }
 }
-

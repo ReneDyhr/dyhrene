@@ -56,7 +56,7 @@ class PrintMaterial extends Model
     /**
      * Scope a query to only include active (non-deleted) materials.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<PrintMaterial>  $query
+     * @param  Builder<PrintMaterial>                               $query
      * @return \Illuminate\Database\Eloquent\Builder<PrintMaterial>
      */
     public function scopeActive(Builder $query): Builder
@@ -64,4 +64,3 @@ class PrintMaterial extends Model
         return $query->whereNull('deleted_at');
     }
 }
-

@@ -12,10 +12,15 @@ use Livewire\Component;
 class Edit extends Component
 {
     public PrintMaterial $material;
+
     public int $material_type_id = 0;
+
     public string $name = '';
+
     public string $price_per_kg_dkk = '';
+
     public string $waste_factor_pct = '0';
+
     public ?string $notes = null;
 
     public function mount(PrintMaterial $material): void
@@ -49,6 +54,7 @@ class Edit extends Component
 
         if ($exists) {
             $this->addError('name', 'A material with this name already exists for the selected material type.');
+
             return;
         }
 
@@ -72,4 +78,3 @@ class Edit extends Component
         return \view('livewire.materials.edit', \compact('materialTypes'));
     }
 }
-

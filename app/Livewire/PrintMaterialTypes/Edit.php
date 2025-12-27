@@ -11,7 +11,9 @@ use Livewire\Component;
 class Edit extends Component
 {
     public PrintMaterialType $materialType;
+
     public string $name = '';
+
     public string $avg_kwh_per_hour = '';
 
     public function mount(PrintMaterialType $materialType): void
@@ -43,4 +45,3 @@ class Edit extends Component
         return \view('livewire.print-material-types.edit');
     }
 }
-
