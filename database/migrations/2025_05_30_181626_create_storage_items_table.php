@@ -14,7 +14,7 @@ return new class extends Migration {
     {
         Schema::create('storage_items', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('storage_id')->constrained()->onDelete('cascade');
+            $table->foreignId('storage_id')->constrained('storage')->onDelete('cascade');
             $table->string('name'); // Item name (e.g., fries, ice cream)
             $table->integer('quantity'); // Quantity of the item
             $table->string('unit')->nullable(); // Unit (e.g., bag, tub)
