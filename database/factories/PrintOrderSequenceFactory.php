@@ -22,7 +22,7 @@ class PrintOrderSequenceFactory extends Factory
     public function definition(): array
     {
         return [
-            'year' => \fake()->unique()->numberBetween(2020, 2030),
+            'year' => \fake()->numberBetween(2020, 2030),
             'last_number' => \fake()->numberBetween(0, 1000),
         ];
     }
