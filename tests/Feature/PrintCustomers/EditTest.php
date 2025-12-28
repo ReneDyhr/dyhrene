@@ -145,8 +145,8 @@ use Livewire\Livewire;
     $component = Livewire::actingAs($this->user)
         ->test(Edit::class, ['customer' => $this->customer]);
 
-    $this->assertEquals('Original Name', $component->get('name'));
-    $this->assertEquals('original@example.com', $component->get('email'));
-    $this->assertEquals('1234567890', $component->get('phone'));
-    $this->assertEquals('Original notes', $component->get('notes'));
+    $this->assertSame('Original Name', $component->get('name'));
+    $this->assertSame('original@example.com', $component->get('email'));
+    $this->assertSame('1234567890', $component->get('phone'));
+    $this->assertSame('Original notes', $component->get('notes'));
 })->covers(Edit::class);

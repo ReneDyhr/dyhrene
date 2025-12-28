@@ -124,6 +124,6 @@ use Livewire\Livewire;
     $component = Livewire::actingAs($this->user)
         ->test(Edit::class, ['materialType' => $this->materialType]);
 
-    $this->assertEquals('Original Type', $component->get('name'));
-    $this->assertEquals('0.1', $component->get('avg_kwh_per_hour'));
+    $this->assertSame('Original Type', $component->get('name'));
+    $this->assertSame('0.1', $component->get('avg_kwh_per_hour'));
 })->covers(Edit::class);

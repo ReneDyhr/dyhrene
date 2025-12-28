@@ -228,11 +228,11 @@ use Livewire\Livewire;
     $component = Livewire::actingAs($this->user)
         ->test(Edit::class, ['material' => $this->material]);
 
-    $this->assertEquals($this->materialType->id, $component->get('material_type_id'));
-    $this->assertEquals('Original Material', $component->get('name'));
-    $this->assertEquals('100', $component->get('price_per_kg_dkk'));
-    $this->assertEquals('5', $component->get('waste_factor_pct'));
-    $this->assertEquals('Original notes', $component->get('notes'));
+    $this->assertSame($this->materialType->id, $component->get('material_type_id'));
+    $this->assertSame('Original Material', $component->get('name'));
+    $this->assertSame('100', $component->get('price_per_kg_dkk'));
+    $this->assertSame('5', $component->get('waste_factor_pct'));
+    $this->assertSame('Original notes', $component->get('notes'));
 })->covers(Edit::class);
 
 \test('returns null when duplicate name exists for same material type', function () {
