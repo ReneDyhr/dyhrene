@@ -24,7 +24,7 @@ class Edit extends Component
         $this->avg_kwh_per_hour = (string) $materialType->avg_kwh_per_hour;
     }
 
-    public function save(): Redirector
+    public function save(): ?Redirector
     {
         $this->validate([
             'name' => 'required|string|max:255|unique:print_material_types,name,' . $this->materialType->id,

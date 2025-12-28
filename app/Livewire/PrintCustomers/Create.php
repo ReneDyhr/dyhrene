@@ -19,7 +19,7 @@ class Create extends Component
 
     public ?string $notes = null;
 
-    public function save(): Redirector
+    public function save(): ?Redirector
     {
         $this->validate([
             'name' => 'required|string|max:255',

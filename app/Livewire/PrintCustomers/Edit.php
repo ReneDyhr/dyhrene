@@ -30,7 +30,7 @@ class Edit extends Component
         $this->notes = $customer->notes;
     }
 
-    public function save(): Redirector
+    public function save(): ?Redirector
     {
         $this->validate([
             'name' => 'required|string|max:255',
