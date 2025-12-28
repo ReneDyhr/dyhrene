@@ -19,17 +19,23 @@ use Livewire\Livewire;
     $this->user = User::factory()->create();
 
     // Create required test data
-    $this->customer = PrintCustomer::factory()->create();
-    $this->materialType = PrintMaterialType::factory()->create();
-    $this->material = PrintMaterial::factory()->create([
-        'material_type_id' => $this->materialType->id,
+    $customer = PrintCustomer::factory()->create();
+    $this->customer = $customer;
+
+    $materialType = PrintMaterialType::factory()->create();
+    $this->materialType = $materialType;
+
+    $material = PrintMaterial::factory()->create([
+        'material_type_id' => $materialType->id,
     ]);
+    $this->material = $material;
+
     PrintSetting::factory()->create(['id' => 1]);
 
     // Create a draft job
     $this->printJob = PrintJob::factory()->draft()->create([
-        'customer_id' => $this->customer->id,
-        'material_id' => $this->material->id,
+        'customer_id' => $customer->id,
+        'material_id' => $material->id,
         'pieces_per_plate' => 10,
         'plates' => 2,
         'grams_per_plate' => 100,

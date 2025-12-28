@@ -213,4 +213,24 @@ class PrintJob extends Model
             'profit' => $calculation['profit'],
         ];
     }
+
+    /**
+     * Lock the print job by creating a snapshot and updating status.
+     * This is a convenience method for testing and direct model manipulation.
+     */
+    public function lock(): void
+    {
+        // Ensure relationships are loaded
+        $this->loadMissing(['material', 'material.materialType']);
+
+        // Build snapshot
+        $snapshot = $this->buildSnapshot();
+
+        // Update job: status='locked', locked_at=now(), calc_snapshot=<snapshot json>
+        $this->update([
+            'status' => 'locked',
+            'locked_at' => \now(),
+            'calc_snapshot' => $snapshot,
+        ]);
+    }
 }

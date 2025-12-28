@@ -11,6 +11,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int                             $id
+ * @property int                             $material_type_id
+ * @property string                          $name
+ * @property float                           $price_per_kg_dkk
+ * @property float                           $waste_factor_pct
+ * @property string                          $notes
+ * @property null|\Illuminate\Support\Carbon $deleted_at
+ * @property null|\Illuminate\Support\Carbon $created_at
+ * @property null|\Illuminate\Support\Carbon $updated_at
+ */
 class PrintMaterial extends Model
 {
     /** @use HasFactory<\Database\Factories\PrintMaterialFactory> */

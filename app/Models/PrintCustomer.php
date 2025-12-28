@@ -10,6 +10,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int                             $id
+ * @property string                          $name
+ * @property string                          $email
+ * @property string                          $phone
+ * @property string                          $notes
+ * @property null|\Illuminate\Support\Carbon $deleted_at
+ * @property null|\Illuminate\Support\Carbon $created_at
+ * @property null|\Illuminate\Support\Carbon $updated_at
+ */
 class PrintCustomer extends Model
 {
     /** @use HasFactory<\Database\Factories\PrintCustomerFactory> */
