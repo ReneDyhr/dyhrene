@@ -75,7 +75,7 @@ use Livewire\Livewire;
 \test('validates material_type_id is required', function () {
     Livewire::actingAs($this->user)
         ->test(Edit::class, ['material' => $this->material])
-        ->set('material_type_id', 0)
+        ->set('material_type_id', null)
         ->set('name', 'Test Material')
         ->set('price_per_kg_dkk', '150.50')
         ->call('save')
