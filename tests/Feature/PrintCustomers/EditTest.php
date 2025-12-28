@@ -150,4 +150,3 @@ use Livewire\Livewire;
     $this->assertEquals('1234567890', $component->get('phone'));
     $this->assertEquals('Original notes', $component->get('notes'));
 })->covers(Edit::class);
-

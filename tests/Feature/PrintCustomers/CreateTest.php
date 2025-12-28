@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Livewire\PrintCustomers\Create;
-use App\Models\PrintCustomer;
 use App\Models\User;
 use Livewire\Livewire;
 
@@ -130,4 +129,3 @@ use Livewire\Livewire;
         ->call('save')
         ->assertRedirect(\route('print-customers.index'));
 })->covers(Create::class);
-
