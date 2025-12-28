@@ -208,10 +208,12 @@ class Create extends Component
         });
 
         // Transaction always returns a string from sprintf, but validate as safety check
-        // @phpstan-ignore-next-line
         if ($result === '') {
             throw new \RuntimeException('Failed to generate order number. Transaction returned: ' . \var_export($result, true));
         }
+
+        // Type assertion: transaction callback returns string
+        \assert(\is_string($result));
 
         return $result;
     }

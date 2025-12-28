@@ -197,6 +197,7 @@ class Edit extends Component
         ]);
 
         // Wrap in database transaction
+        $connection = $this->printJob->getConnection();
         $connection->transaction(function (): void {
             // Refresh to get latest data
             $this->printJob->refresh();
