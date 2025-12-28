@@ -12,7 +12,6 @@ use App\Models\PrintMaterial;
 use App\Models\PrintMaterialType;
 use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
@@ -198,7 +197,7 @@ class Edit extends Component
         ]);
 
         // Wrap in database transaction
-        DB::transaction(function (): void {
+        $connection->transaction(function (): void {
             // Refresh to get latest data
             $this->printJob->refresh();
             $this->printJob->loadMissing(['material', 'material.materialType']);

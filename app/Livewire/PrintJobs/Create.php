@@ -12,7 +12,6 @@ use App\Models\PrintMaterialType;
 use App\Models\PrintOrderSequence;
 use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
@@ -167,14 +166,18 @@ class Create extends Component
      */
     private function generateOrderNumber(): string
     {
-        $result = DB::transaction(function (): string {
+        $connection = PrintOrderSequence::query()->getConnection();
+        // @phpstan-ignore-next-line
+        $driverName = $connection->getConfig('driver');
+
+        $result = $connection->transaction(function () use ($driverName): string {
             $year = \now()->year;
 
             // SELECT ... FOR UPDATE to lock the row (SQLite doesn't support lockForUpdate, but transaction still works)
             $query = PrintOrderSequence::query()->where('year', $year);
 
             // Only use lockForUpdate for databases that support it
-            if (DB::getDriverName() !== 'sqlite') {
+            if ($driverName !== 'sqlite') {
                 $query->lockForUpdate();
             }
 

@@ -10,7 +10,6 @@ use App\Models\PrintCustomer;
 use App\Models\PrintJob;
 use App\Models\PrintSetting;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
@@ -108,7 +107,8 @@ class Show extends Component
         }
 
         // Wrap in database transaction
-        DB::transaction(function (): void {
+        $connection = PrintJob::query()->getConnection();
+        $connection->transaction(function (): void {
             // Update job: status='draft', locked_at=null, calc_snapshot=null
             // Preserve current field values (do not restore from snapshot)
             $this->printJob->update([
