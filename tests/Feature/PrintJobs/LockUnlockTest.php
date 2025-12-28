@@ -55,7 +55,7 @@ use Livewire\Livewire;
     \expect($this->printJob->status)->toBe('locked')
         ->and($this->printJob->locked_at)->not->toBeNull()
         ->and($this->printJob->calc_snapshot)->not->toBeNull();
-})->coversNothing();
+})->covers([Edit::class, PrintJob::class]);
 
 \test('creates snapshot when locking', function () {
     Livewire::actingAs($this->user)
@@ -67,7 +67,7 @@ use Livewire\Livewire;
 
     \expect($snapshot)->toBeArray()
         ->and($snapshot)->toHaveKeys(['totals', 'costs', 'pricing', 'profit']);
-})->coversNothing();
+})->covers([Edit::class, PrintJob::class]);
 
 \test('can unlock a locked job', function () {
     $this->printJob->lock();
@@ -81,7 +81,7 @@ use Livewire\Livewire;
     \expect($this->printJob->status)->toBe('draft')
         ->and($this->printJob->locked_at)->toBeNull()
         ->and($this->printJob->calc_snapshot)->toBeNull();
-})->coversNothing();
+})->covers([Show::class, PrintJob::class]);
 
 \test('clears snapshot when unlocking', function () {
     // Lock the job first
@@ -98,7 +98,7 @@ use Livewire\Livewire;
 
     $this->printJob->refresh();
     \expect($this->printJob->calc_snapshot)->toBeNull();
-})->coversNothing();
+})->covers([Show::class, PrintJob::class]);
 
 \test('preserves field values on unlock', function () {
     $originalPieces = $this->printJob->pieces_per_plate;
@@ -115,7 +115,7 @@ use Livewire\Livewire;
     \expect($this->printJob->pieces_per_plate)->toBe($originalPieces)
         ->and($this->printJob->plates)->toBe($originalPlates)
         ->and($this->printJob->grams_per_plate)->toBe($originalGrams);
-})->coversNothing();
+})->covers([Show::class, PrintJob::class]);
 
 \test('logs activity when locking', function () {
     Livewire::actingAs($this->user)
@@ -128,7 +128,7 @@ use Livewire\Livewire;
 
     \expect($activityLog)->not->toBeNull()
         ->and($activityLog->user_id)->toBe($this->user->id);
-})->coversNothing();
+})->covers([Edit::class, PrintActivityLog::class]);
 
 \test('logs activity when unlocking', function () {
     // Lock the job first
@@ -146,7 +146,7 @@ use Livewire\Livewire;
 
     \expect($activityLog)->not->toBeNull()
         ->and($activityLog->user_id)->toBe($this->user->id);
-})->coversNothing();
+})->covers([Show::class, PrintActivityLog::class]);
 
 \test('locked jobs cannot be edited', function () {
     // Lock the job first
@@ -163,4 +163,4 @@ use Livewire\Livewire;
 
     // The mount method should redirect locked jobs to show page
     $response->assertRedirect(\route('print-jobs.show', $this->printJob));
-})->coversNothing();
+})->covers(Edit::class);

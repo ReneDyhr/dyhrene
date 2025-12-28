@@ -7,4 +7,4 @@ declare(strict_types=1);
 
     $response->assertStatus(302);
     $response->assertRedirect(\route('login'));
-})->coversNothing();
+});

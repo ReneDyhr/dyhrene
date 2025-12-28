@@ -67,7 +67,7 @@ use Livewire\Livewire;
     for ($i = 1; $i < \count($sequences); $i++) {
         \expect($sequences[$i])->toBe($sequences[$i - 1] + 1);
     }
-})->coversNothing();
+})->covers([Create::class, PrintOrderSequence::class]);
 
 \test('order numbers reset per year', function () {
     $currentYear = (int) \now()->year;
@@ -103,7 +103,7 @@ use Livewire\Livewire;
     // The order number should start from 1 for the new year
     // (This test verifies the format, actual year reset would require time manipulation)
     \expect($currentYearJob->order_no)->toMatch('/^' . $currentYear . '-\d{4}$/');
-})->coversNothing();
+})->covers([Create::class, PrintOrderSequence::class]);
 
 \test('order number format is correct', function () {
     $year = (int) \now()->year;
@@ -122,7 +122,7 @@ use Livewire\Livewire;
 
     $job = PrintJob::where('description', 'Format Test Job')->first();
     \expect($job->order_no)->toMatch('/^' . $year . '-\d{4}$/');
-})->coversNothing();
+})->covers([Create::class, PrintOrderSequence::class]);
 
 \test('order numbers continue after soft delete', function () {
     $year = (int) \now()->year;
@@ -167,4 +167,4 @@ use Livewire\Livewire;
     $newSeq = (int) $newMatches[1];
 
     \expect($newSeq)->toBe($deletedSeq + 1);
-})->coversNothing();
+})->covers([Create::class, PrintOrderSequence::class]);

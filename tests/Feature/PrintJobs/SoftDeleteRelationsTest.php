@@ -33,7 +33,7 @@ use App\Models\User;
     $activeCustomerIds = $activeCustomers->pluck('id')->toArray();
 
     \expect(\in_array($deletedCustomer->id, $activeCustomerIds, true))->toBeFalse();
-})->coversNothing();
+})->covers(PrintCustomer::class);
 
 \test('soft-deleted materials do not appear in dropdowns', function () {
     $deletedMaterial = PrintMaterial::factory()->create([
@@ -46,7 +46,7 @@ use App\Models\User;
     $activeMaterialIds = $activeMaterials->pluck('id')->toArray();
 
     \expect(\in_array($deletedMaterial->id, $activeMaterialIds, true))->toBeFalse();
-})->coversNothing();
+})->covers(PrintMaterial::class);
 
 \test('existing jobs with soft-deleted relations still display', function () {
     $job = PrintJob::factory()->create([
@@ -68,7 +68,7 @@ use App\Models\User;
     // Should still be able to access via withTrashed
     \expect($job->customer)->not->toBeNull()
         ->and($job->material)->not->toBeNull();
-})->coversNothing();
+})->covers(PrintJob::class);
 
 \test('locked jobs with soft-deleted material display from snapshot', function () {
     $job = PrintJob::factory()->locked()->create([
@@ -83,4 +83,4 @@ use App\Models\User;
     // Locked jobs use snapshot, so material data should be in snapshot
     \expect($job->calc_snapshot)->not->toBeNull()
         ->and($job->calc_snapshot)->toBeArray();
-})->coversNothing();
+})->covers(PrintJob::class);

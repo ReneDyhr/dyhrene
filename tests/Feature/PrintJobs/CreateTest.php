@@ -56,7 +56,7 @@ use Livewire\Livewire;
         'is_first_time_order' => 0, // Database stores as 0/1, not boolean
         'calc_snapshot' => null,
     ]);
-})->coversNothing();
+})->covers(Create::class);
 
 \test('generates order number on creation', function () {
     $year = (int) \now()->year;
@@ -77,7 +77,7 @@ use Livewire\Livewire;
 
     $printJob = PrintJob::latest()->first();
     \expect($printJob->order_no)->toMatch('/^' . $year . '-\d{4}$/');
-})->coversNothing();
+})->covers([Create::class, PrintOrderSequence::class]);
 
 \test('generates sequential order numbers', function () {
     $year = (int) \now()->year;
@@ -121,7 +121,7 @@ use Livewire\Livewire;
     for ($i = 1; $i < \count($sequences); $i++) {
         \expect($sequences[$i])->toBe($sequences[$i - 1] + 1);
     }
-})->coversNothing();
+})->covers([Create::class, PrintOrderSequence::class]);
 
 \test('validates required fields', function () {
     $component = Livewire::actingAs($this->user)
@@ -146,7 +146,7 @@ use Livewire\Livewire;
         'pieces_per_plate',
         'plates',
     ]);
-})->coversNothing();
+})->covers(Create::class);
 
 \test('validates field constraints', function () {
     Livewire::actingAs($this->user)
@@ -170,7 +170,7 @@ use Livewire\Livewire;
             'hours_per_plate_minutes',
             'labor_hours',
         ]);
-})->coversNothing();
+})->covers(Create::class);
 
 \test('validates customer exists', function () {
     Livewire::actingAs($this->user)
@@ -187,7 +187,7 @@ use Livewire\Livewire;
         ->set('labor_hours', 1.0)
         ->call('save')
         ->assertHasErrors(['customer_id']);
-})->coversNothing();
+})->covers(Create::class);
 
 \test('validates material exists', function () {
     Livewire::actingAs($this->user)
@@ -204,7 +204,7 @@ use Livewire\Livewire;
         ->set('labor_hours', 1.0)
         ->call('save')
         ->assertHasErrors(['material_id']);
-})->coversNothing();
+})->covers(Create::class);
 
 \test('redirects to show page after creation', function () {
     $response = Livewire::actingAs($this->user)
@@ -223,7 +223,7 @@ use Livewire\Livewire;
 
     $printJob = PrintJob::latest()->first();
     $response->assertRedirect(\route('print-jobs.show', $printJob));
-})->coversNothing();
+})->covers(Create::class);
 
 \test('creates order sequence if missing', function () {
     $year = (int) \now()->year;
@@ -249,7 +249,7 @@ use Livewire\Livewire;
     $sequence = PrintOrderSequence::where('year', $year)->first();
     \expect($sequence)->not->toBeNull()
         ->and($sequence->last_number)->toBe(1);
-})->coversNothing();
+})->covers([Create::class, PrintOrderSequence::class]);
 
 \test('order number format is correct', function () {
     $year = (int) \now()->year;
@@ -270,4 +270,4 @@ use Livewire\Livewire;
 
     $printJob = PrintJob::latest()->first();
     \expect($printJob->order_no)->toMatch('/^' . $year . '-\d{4}$/');
-})->coversNothing();
+})->covers([Create::class, PrintOrderSequence::class]);

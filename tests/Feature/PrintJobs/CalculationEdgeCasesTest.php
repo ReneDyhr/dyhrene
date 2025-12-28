@@ -45,7 +45,7 @@ use App\Models\User;
 
     \expect($result)->toBeArray()
         ->and($result)->toHaveKeys(['totals', 'costs', 'pricing', 'profit']);
-})->coversNothing();
+})->covers(PrintJobCalculator::class);
 
 \test('handles minimum values', function () {
     $calculator = new PrintJobCalculator();
@@ -70,7 +70,7 @@ use App\Models\User;
     \expect($result)->toBeArray()
         ->and($result['totals']['total_pieces'])->toBe(1.0)
         ->and($result['totals']['total_grams'])->toBe(1.0);
-})->coversNothing();
+})->covers(PrintJobCalculator::class);
 
 \test('handles zero values where allowed', function () {
     $calculator = new PrintJobCalculator();
@@ -95,4 +95,4 @@ use App\Models\User;
     \expect($result)->toBeArray()
         ->and($result['totals']['total_grams'])->toBe(0.0)
         ->and($result['totals']['total_print_hours'])->toBe(0.0);
-})->coversNothing();
+})->covers(PrintJobCalculator::class);

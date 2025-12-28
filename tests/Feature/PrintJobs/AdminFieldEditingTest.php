@@ -48,7 +48,7 @@ use Livewire\Livewire;
 
     $this->printJob->refresh();
     \expect($this->printJob->date->format('Y-m-d'))->toBe('2025-02-20');
-})->coversNothing();
+})->covers(Show::class);
 
 \test('can edit customer_id on locked job', function () {
     Livewire::actingAs($this->user)
@@ -58,7 +58,7 @@ use Livewire\Livewire;
 
     $this->printJob->refresh();
     \expect($this->printJob->customer_id)->toBe($this->customer2->id);
-})->coversNothing();
+})->covers(Show::class);
 
 \test('can edit description on locked job', function () {
     Livewire::actingAs($this->user)
@@ -68,7 +68,7 @@ use Livewire\Livewire;
 
     $this->printJob->refresh();
     \expect($this->printJob->description)->toBe('Updated Description');
-})->coversNothing();
+})->covers(Show::class);
 
 \test('can edit internal_notes on locked job', function () {
     Livewire::actingAs($this->user)
@@ -78,7 +78,7 @@ use Livewire\Livewire;
 
     $this->printJob->refresh();
     \expect($this->printJob->internal_notes)->toBe('Updated Notes');
-})->coversNothing();
+})->covers(Show::class);
 
 \test('calculation inputs cannot be edited on locked job', function () {
     $originalPieces = $this->printJob->pieces_per_plate;
@@ -97,7 +97,7 @@ use Livewire\Livewire;
     \expect($this->printJob->pieces_per_plate)->toBe($originalPieces)
         ->and($this->printJob->plates)->toBe($originalPlates)
         ->and($this->printJob->grams_per_plate)->toBe($originalGrams);
-})->coversNothing();
+})->covers(App\Livewire\PrintJobs\Edit::class);
 
 \test('admin fields cannot be edited on draft job', function () {
     $draftJob = PrintJob::factory()->draft()->create([
@@ -114,4 +114,4 @@ use Livewire\Livewire;
 
     $draftJob->refresh();
     \expect($draftJob->description)->not->toBe('Updated Description');
-})->coversNothing();
+})->covers(Show::class);

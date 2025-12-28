@@ -39,7 +39,7 @@ use Livewire\Livewire;
 
     \expect(PrintJob::find($draftJob->id))->toBeNull()
         ->and(PrintJob::withTrashed()->find($draftJob->id))->not->toBeNull();
-})->coversNothing();
+})->covers(Index::class);
 
 \test('cannot delete locked jobs', function () {
     $lockedJob = PrintJob::factory()->locked()->create([
@@ -54,7 +54,7 @@ use Livewire\Livewire;
     // Just verify the job was not deleted (session check might not work in Livewire tests)
 
     \expect(PrintJob::find($lockedJob->id))->not->toBeNull();
-})->coversNothing();
+})->covers(Index::class);
 
 \test('soft delete works correctly', function () {
     $draftJob = PrintJob::factory()->draft()->create([
@@ -67,4 +67,4 @@ use Livewire\Livewire;
     \expect(PrintJob::find($draftJob->id))->toBeNull()
         ->and(PrintJob::withTrashed()->find($draftJob->id))->not->toBeNull()
         ->and(PrintJob::withTrashed()->find($draftJob->id)->trashed())->toBeTrue();
-})->coversNothing();
+})->covers(PrintJob::class);

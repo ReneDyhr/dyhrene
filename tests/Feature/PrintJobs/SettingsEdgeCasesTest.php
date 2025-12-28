@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Cache;
 
     \expect($setting)->not->toBeNull()
         ->and($setting->id)->toBe(1);
-})->coversNothing();
+})->covers(PrintSetting::class);
 
 \test('settings cache invalidation', function () {
     $setting = PrintSetting::current();
@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Cache;
     $newSetting = PrintSetting::current();
 
     \expect($newSetting->electricity_rate_dkk_per_kwh)->toBe(3);
-})->coversNothing();
+})->covers(PrintSetting::class);
 
 \test('settings update clears cache', function () {
     $setting = PrintSetting::current();
@@ -50,4 +50,4 @@ use Illuminate\Support\Facades\Cache;
     $fresh = PrintSetting::current();
 
     \expect($fresh->electricity_rate_dkk_per_kwh)->toBe(4);
-})->coversNothing();
+})->covers(PrintSetting::class);

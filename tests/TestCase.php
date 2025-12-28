@@ -13,11 +13,11 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Tests\Concerns\RunsMigrations;
 
 /**
- * @property User $user
- * @property PrintCustomer $customer
+ * @property User              $user
+ * @property PrintCustomer     $customer
  * @property PrintMaterialType $materialType
- * @property PrintMaterial $material
- * @property PrintJob $printJob
+ * @property PrintMaterial     $material
+ * @property PrintJob          $printJob
  * @phpstan-property User $user
  * @phpstan-property PrintCustomer $customer
  * @phpstan-property PrintMaterialType $materialType
