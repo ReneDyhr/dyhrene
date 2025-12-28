@@ -104,4 +104,3 @@ use Livewire\Livewire;
         ->call('save')
         ->assertRedirect(\route('print-material-types.index'));
 })->covers(Create::class);
-

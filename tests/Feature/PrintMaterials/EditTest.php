@@ -251,4 +251,3 @@ use Livewire\Livewire;
     $component->assertHasErrors(['name']);
     // The method returns null in this case, which is correct for ?Redirector
 })->covers(Edit::class);
-

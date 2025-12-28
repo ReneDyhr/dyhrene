@@ -112,7 +112,7 @@ use Livewire\Livewire;
 
 \test('allows same name for different material types', function () {
     $otherType = PrintMaterialType::factory()->create();
-    
+
     // Create material with name in one type
     PrintMaterial::factory()->create([
         'material_type_id' => $this->materialType->id,
@@ -235,4 +235,3 @@ use Livewire\Livewire;
     $component->assertHasErrors(['name']);
     // The method returns null in this case, which is correct for ?Redirector
 })->covers(Create::class);
-

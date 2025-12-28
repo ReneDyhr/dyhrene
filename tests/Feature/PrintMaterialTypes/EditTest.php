@@ -127,4 +127,3 @@ use Livewire\Livewire;
     $this->assertEquals('Original Type', $component->get('name'));
     $this->assertEquals('0.1', $component->get('avg_kwh_per_hour'));
 })->covers(Edit::class);
-
