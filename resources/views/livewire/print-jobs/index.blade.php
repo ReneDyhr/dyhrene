@@ -57,6 +57,7 @@
                                         <th style="padding: 8px; border-bottom: 1px solid #ddd;">Date</th>
                                         <th style="padding: 8px; border-bottom: 1px solid #ddd;">Customer</th>
                                         <th style="padding: 8px; border-bottom: 1px solid #ddd;">Material</th>
+                                        <th style="padding: 8px; border-bottom: 1px solid #ddd;">Description</th>
                                         <th style="padding: 8px; border-bottom: 1px solid #ddd;">Type</th>
                                         <th style="padding: 8px; border-bottom: 1px solid #ddd;">Status</th>
                                         <th style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">
@@ -67,8 +68,6 @@
                                             Sales Price</th>
                                         <th style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">
                                             Profit</th>
-                                        <th style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">
-                                            Profit/Piece</th>
                                         <th style="padding: 8px; border-bottom: 1px solid #ddd;">Actions</th>
                                     </tr>
                                 </thead>
@@ -79,6 +78,7 @@
                                             <td style="padding: 8px;">{{ $job->date->format('Y-m-d') }}</td>
                                             <td style="padding: 8px;">{{ $job->customer->name ?? '-' }}</td>
                                             <td style="padding: 8px;">{{ $job->material->name ?? '-' }}</td>
+                                            <td style="padding: 8px;">{{ $job->description ?? '-' }}</td>
                                             <td style="padding: 8px;">{{ $job->material->materialType->name ?? '-' }}</td>
                                             <td style="padding: 8px;">
                                                 @if($job->status === 'draft')
@@ -100,9 +100,6 @@
                                             </td>
                                             <td style="padding: 8px; text-align: right;">
                                                 {{ \App\Support\Format::dkk($job->calculation['profit']['profit'] ?? 0) }}
-                                            </td>
-                                            <td style="padding: 8px; text-align: right;">
-                                                {{ \App\Support\Format::dkk($job->calculation['profit']['profit_per_piece'] ?? 0) }}
                                             </td>
                                             <td style="padding: 8px;">
                                                 <a href="{{ route('print-jobs.show', $job) }}" class="btn btn-info btn-sm"
