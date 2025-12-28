@@ -30,7 +30,7 @@
                             </div>
 
                             <div class="form-group" style="margin-bottom: 15px;">
-                                <label for="name">Name (Plastnavn) <span style="color: red;">*</span></label>
+                                <label for="name">Name <span style="color: red;">*</span></label>
                                 <input type="text" id="name" wire:model="name" class="form-control"
                                     placeholder="Material name">
                                 @error('name')
@@ -39,7 +39,8 @@
                             </div>
 
                             <div class="form-group" style="margin-bottom: 15px;">
-                                <label for="price_per_kg_dkk">Price per kg (DKK) <span style="color: red;">*</span></label>
+                                <label for="price_per_kg_dkk">Price per kg (DKK) <span
+                                        style="color: red;">*</span></label>
                                 <input type="number" id="price_per_kg_dkk" wire:model="price_per_kg_dkk"
                                     class="form-control" step="0.01" min="0.01" placeholder="0.00">
                                 @error('price_per_kg_dkk')
@@ -79,4 +80,3 @@
         </div>
     </div>
 </div>
-

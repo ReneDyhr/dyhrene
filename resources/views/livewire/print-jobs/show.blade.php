@@ -127,7 +127,7 @@
                             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
                                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
                                     <div>
-                                        <strong>Material (Plastnavn):</strong> {{ $printJob->material->name ?? '-' }}
+                                        <strong>Material:</strong> {{ $printJob->material->name ?? '-' }}
                                     </div>
                                     <div>
                                         <strong>Type:</strong> {{ $printJob->material->materialType->name ?? '-' }}

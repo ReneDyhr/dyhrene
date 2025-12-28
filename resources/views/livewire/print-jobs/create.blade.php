@@ -154,7 +154,7 @@
                                     @this.set('material_id', value, true);
                                 }
                             })">
-                                <label for="material_id">Material (Plastnavn) <span style="color: red;">*</span></label>
+                                <label for="material_id">Material <span style="color: red;">*</span></label>
                                 <div style="position: relative;">
                                     <input type="text" x-model="searchTerm" @focus="open = true" @click="open = true"
                                         @keydown.escape="open = false" :value="displayValue"
