@@ -53,6 +53,9 @@
             <li>
                 <a href="/admin/base/list">Admin</a>
             </li>
+            <li>
+                <a href="{{ route('settings.mcp') }}" title="MCP / Claude OAuth connection info for AI assistants">MCP / OAuth (AI)</a>
+            </li>
         </ul>
     </nav>
     <div class="divider"></div>

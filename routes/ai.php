@@ -1,5 +1,13 @@
 <?php
 
-use Laravel\Mcp\Facades\Mcp;
+declare(strict_types=1);
 
-// Mcp::web('/mcp/demo', \App\Mcp\Servers\PublicServer::class);
+use App\Mcp\Servers\ShoppingListServer;
+use App\Mcp\ShoppingList\ShoppingListMcpRoute;
+use Laravel\Mcp\Facades\Mcp;
+use Laravel\Passport\Http\Middleware\CheckToken;
+
+Mcp::oauthRoutes();
+
+Mcp::web(ShoppingListMcpRoute::PATH, ShoppingListServer::class)
+    ->middleware(['auth:api', CheckToken::using('mcp:use')]);
