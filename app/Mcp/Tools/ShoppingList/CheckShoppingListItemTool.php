@@ -14,7 +14,7 @@ use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
 
 #[Name(value: 'shopping_list_check_item')]
-#[Description(value: 'Mark a shopping list item as checked (completed).')]
+#[Description(value: 'Mark a shopping list item as checked (completed). Names starting with `#` are section headers and cannot be checked.')]
 class CheckShoppingListItemTool extends Tool
 {
     public function handle(Request $request): Response
@@ -28,6 +28,10 @@ class CheckShoppingListItemTool extends Tool
 
         if ($item === null) {
             return Response::json(['updated' => false, 'reason' => 'not_found']);
+        }
+
+        if ($item->isSectionHeader()) {
+            return Response::json(['updated' => false, 'reason' => 'section_header']);
         }
 
         $item->status = 'checked';
