@@ -253,8 +253,8 @@ class Edit extends Component
      */
     private function updateHoursPerPlateFromTime(): void
     {
-        $hours = $this->hours_per_plate_hours ?? 0;
-        $minutes = $this->hours_per_plate_minutes ?? 0;
+        $hours = $this->hours_per_plate_hours;
+        $minutes = $this->hours_per_plate_minutes;
 
         // Ensure minutes are between 0 and 59
         if ($minutes < 0) {
@@ -272,7 +272,7 @@ class Edit extends Component
      */
     private function updateTimeFromHoursPerPlate(): void
     {
-        $totalHours = (float) ($this->hours_per_plate ?? 0);
+        $totalHours = $this->hours_per_plate;
         $this->hours_per_plate_hours = (int) \floor($totalHours);
         $this->hours_per_plate_minutes = (int) \round(($totalHours - $this->hours_per_plate_hours) * 60);
 
@@ -307,12 +307,12 @@ class Edit extends Component
             $calculator = new PrintJobCalculator();
 
             $input = [
-                'pieces_per_plate' => $this->pieces_per_plate ?? 1,
-                'plates' => $this->plates ?? 1,
-                'grams_per_plate' => $this->grams_per_plate ?? 0.0,
-                'hours_per_plate' => $this->hours_per_plate ?? 0.0,
-                'labor_hours' => $this->labor_hours ?? 0.0,
-                'is_first_time_order' => $this->is_first_time_order ?? false,
+                'pieces_per_plate' => $this->pieces_per_plate,
+                'plates' => $this->plates,
+                'grams_per_plate' => $this->grams_per_plate,
+                'hours_per_plate' => $this->hours_per_plate,
+                'labor_hours' => $this->labor_hours,
+                'is_first_time_order' => $this->is_first_time_order,
                 'avance_pct_override' => $this->avance_pct_override !== null
                     ? $this->avance_pct_override
                     : null,

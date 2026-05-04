@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @property int    $id
+ * @property int    $user_id
+ * @property string $name
+ * @property int    $order
+ * @property string $status
+ */
 class ShoppingList extends Model
 {
     use SoftDeletes;

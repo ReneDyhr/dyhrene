@@ -52,6 +52,8 @@ Route::get('shopping/list', ShoppingList::class)->middleware('auth')->name('shop
 
 Route::get('settings/categories', App\Livewire\Settings\Categories::class)->middleware('auth')->name('settings.categories');
 
+Route::get('settings/mcp', App\Livewire\Settings\McpConnection::class)->middleware('auth')->name('settings.mcp');
+
 // Route::get('debug', function () {
 //     \broadcast(new App\Events\ShoppingList(App\Models\User::find(1), 'Test', ['Test']));
 // })->middleware('auth')->name('profile');
