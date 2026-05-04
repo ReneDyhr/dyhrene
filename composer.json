@@ -11,6 +11,7 @@
         "php": "^8.5",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^13.00",
+        "laravel/mcp": "^0.7.0",
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
