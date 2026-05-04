@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Receipt extends Model
 {
@@ -55,5 +57,14 @@ class Receipt extends Model
     public function items(): HasMany
     {
         return $this->hasMany(ReceiptItem::class);
+    }
+
+    /**
+     * @param  Builder<$this> $query
+     * @return Builder<$this>
+     */
+    public function scopeForAuthUser(Builder $query): Builder
+    {
+        return $query->where('user_id', Auth::id());
     }
 }

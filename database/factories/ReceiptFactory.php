@@ -22,8 +22,7 @@ class ReceiptFactory extends Factory
             'vendor' => $this->faker->company(),
             'description' => $this->faker->sentence(),
             'currency' => 'USD',
-            'total' => $this->faker->randomFloat(2, 1, 1000),
-            'date' => $this->faker->date(),
+            'date' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'user_id' => User::factory(),
             'file_path' => $this->faker->optional()->lexify('receipts/??????.pdf'),
         ];
