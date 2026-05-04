@@ -107,6 +107,11 @@ class ShoppingList extends Component
         if ($item === null) {
             return;
         }
+
+        if ($item->isSectionHeader()) {
+            return;
+        }
+
         $item->status = 'checked';
         $item->save();
 
@@ -122,6 +127,10 @@ class ShoppingList extends Component
         $item = \App\Models\ShoppingList::forAuthUser()->find($id);
 
         if ($item === null) {
+            return;
+        }
+
+        if ($item->isSectionHeader()) {
             return;
         }
 

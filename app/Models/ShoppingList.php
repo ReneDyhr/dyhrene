@@ -44,4 +44,9 @@ class ShoppingList extends Model
     {
         return $query->where('user_id', Auth::id());
     }
+
+    public function isSectionHeader(): bool
+    {
+        return \str_starts_with($this->name, '#');
+    }
 }
