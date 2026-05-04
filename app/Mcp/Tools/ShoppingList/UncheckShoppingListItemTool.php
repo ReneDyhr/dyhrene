@@ -9,6 +9,7 @@ use App\Models\ShoppingList;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
@@ -17,7 +18,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description(value: 'Mark a shopping list item as active (unchecked). Names starting with `#` are section headers and cannot be toggled this way (remove them with shopping_list_remove_item instead).')]
 class UncheckShoppingListItemTool extends Tool
 {
-    public function handle(Request $request): Response
+    public function handle(Request $request): Response | ResponseFactory
     {
         /** @var array{id: int} $validated */
         $validated = $request->validate([
@@ -27,11 +28,11 @@ class UncheckShoppingListItemTool extends Tool
         $item = ShoppingList::forAuthUser()->whereKey($validated['id'])->first();
 
         if ($item === null) {
-            return Response::json(['updated' => false, 'reason' => 'not_found']);
+            return Response::structured(['updated' => false, 'reason' => 'not_found']);
         }
 
         if ($item->isSectionHeader()) {
-            return Response::json(['updated' => false, 'reason' => 'section_header']);
+            return Response::structured(['updated' => false, 'reason' => 'section_header']);
         }
 
         $item->status = 'active';
@@ -39,7 +40,7 @@ class UncheckShoppingListItemTool extends Tool
 
         ShoppingListMcpNotifier::notifyUpdated();
 
-        return Response::json(['updated' => true, 'id' => $item->id, 'status' => $item->status]);
+        return Response::structured(['updated' => true, 'id' => $item->id, 'status' => $item->status]);
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mcp;
 
+use App\Mcp\Receipts\ReceiptsMcpRoute;
 use App\Mcp\ShoppingList\ShoppingListMcpRoute;
 
 /**
@@ -24,13 +25,12 @@ final class McpServerRegistry
                 'description' => 'AI clients can list, add, remove, check, uncheck, and reorder items for the signed-in user.',
                 'path' => ShoppingListMcpRoute::PATH,
             ],
-            // Example for a future server (also register `Mcp::web(...)` in routes/ai.php):
-            // [
-            //     'id' => 'recipes',
-            //     'title' => 'Recipes',
-            //     'description' => '…',
-            //     'path' => 'mcp/recipes',
-            // ],
+            [
+                'id' => 'receipts',
+                'title' => 'Receipts',
+                'description' => 'AI clients can list receipts, fetch line items, create receipts with images, and update metadata or line items.',
+                'path' => ReceiptsMcpRoute::PATH,
+            ],
         ];
     }
 

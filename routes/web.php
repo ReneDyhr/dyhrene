@@ -68,6 +68,10 @@ Route::get('receipts/{receipt}/edit', App\Livewire\Receipts\Edit::class)->middle
 // Route::resource('receipts', ReceiptController::class);
 
 Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt): Illuminate\Http\Response {
+    if ($receipt->user_id !== \auth()->id()) {
+        \abort(403);
+    }
+
     if (empty($receipt->file_path) || !\Storage::disk('wasabi')->exists($receipt->file_path)) {
         \abort(404);
     }
@@ -75,7 +79,7 @@ Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt): 
     $content = \Storage::disk('wasabi')->get($receipt->file_path);
 
     return \response($content, 200)->header('Content-Type', $mime);
-})->name('receipts.image')->middleware(['auth']);
+})->name('receipts.image')->middleware('auth:web,api');
 
 // 3D Printing Dashboard
 Route::get('/printing', App\Livewire\Printing\Index::class)->middleware('auth')->name('printing.index');

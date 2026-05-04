@@ -217,5 +217,6 @@ use Laravel\Passport\Passport;
         ->assertStatus(200)
         ->assertSeeText('MCP & OAuth (AI assistants)', false)
         ->assertSeeText('Shopping List', false)
+        ->assertSeeText('Receipts', false)
         ->assertSeeText('Shared OAuth (all MCP servers)', false);
 })->covers(McpConnection::class);
