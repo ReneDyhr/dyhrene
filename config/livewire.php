@@ -31,13 +31,14 @@ return [
 
     /*
     |---------------------------------------------------------------------------
-    | Layout
+    | Page layout (Livewire 4)
     |---------------------------------------------------------------------------
-    | The view that will be used as the layout when rendering a single component
-    | as an entire page via `Route::get('/post/create', CreatePost::class);`.
-    | In this case, the view returned by CreatePost will render into $slot.
+    | Must set `component_layout` explicitly: the package default is
+    | layouts::app (views/layouts), which this app does not use.
     |
      */
+
+    'component_layout' => 'components.layouts.app',
 
     'layout' => 'components.layouts.app',
 

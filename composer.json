@@ -15,7 +15,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "livewire/livewire": "^3.5",
+        "livewire/livewire": "^4.3",
         "openai-php/laravel": "^0.19",
         "sentry/sentry-laravel": "^4.18",
         "spatie/pdf-to-image": "^3.1"
