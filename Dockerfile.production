@@ -1,5 +1,5 @@
 # Stage 1: Base Image with PHP and Required Extensions
-FROM php:8.4-apache as base
+FROM php:8.5-apache as base
 
 ARG PHP_EXTS="bcmath ctype fileinfo mbstring pdo pdo_mysql intl dom pcntl zip gd sodium"
 
