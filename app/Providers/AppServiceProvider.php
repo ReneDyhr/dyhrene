@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -66,5 +68,8 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production') === true) {
             URL::forceScheme('https');
         }
+        Passport::authorizationView(function (array $parameters): Response {
+            return \response()->view('mcp.authorize', $parameters);
+        });
     }
 }
