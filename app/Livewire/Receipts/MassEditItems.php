@@ -83,8 +83,14 @@ class MassEditItems extends Component
                 continue;
             }
 
+            $categoryId = $itemData['category_id'];
+
+            if ($categoryId < 1) {
+                continue;
+            }
+
             $item->name = $itemData['name'];
-            $item->category_id = $itemData['category_id'];
+            $item->category_id = $categoryId;
             $item->save();
             $updated++;
         }

@@ -147,8 +147,8 @@ class Create extends Component
      */
     private function updateHoursPerPlateFromTime(): void
     {
-        $hours = $this->hours_per_plate_hours ?? 0;
-        $minutes = $this->hours_per_plate_minutes ?? 0;
+        $hours = $this->hours_per_plate_hours;
+        $minutes = $this->hours_per_plate_minutes;
 
         // Ensure minutes are between 0 and 59
         if ($minutes < 0) {

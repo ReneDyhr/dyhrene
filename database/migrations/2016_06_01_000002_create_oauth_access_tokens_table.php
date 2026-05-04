@@ -12,7 +12,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('oauth_access_tokens', function (Blueprint $table) {
+        Schema::create('oauth_access_tokens', function (Blueprint $table): void {
             $table->char('id', 80)->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->foreignUuid('client_id');
@@ -37,6 +37,12 @@ return new class extends Migration {
      */
     public function getConnection(): ?string
     {
-        return $this->connection ?? \config('passport.connection');
+        if (\is_string($this->connection)) {
+            return $this->connection;
+        }
+
+        $fromConfig = \config('passport.connection');
+
+        return \is_string($fromConfig) ? $fromConfig : null;
     }
 };
