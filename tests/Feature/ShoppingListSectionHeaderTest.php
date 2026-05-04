@@ -22,7 +22,7 @@ use Livewire\Livewire;
         ->test(ShoppingList::class)
         ->call('check', $row->id);
 
-    expect($row->fresh()->status)->toBe('active');
+    \expect($row->fresh()->status)->toBe('active');
 });
 
 \test('shopping list uncheck ignores section header row', function (): void {
@@ -38,5 +38,5 @@ use Livewire\Livewire;
         ->test(ShoppingList::class)
         ->call('uncheck', $row->id);
 
-    expect($row->fresh()->status)->toBe('checked');
+    \expect($row->fresh()->status)->toBe('checked');
 });

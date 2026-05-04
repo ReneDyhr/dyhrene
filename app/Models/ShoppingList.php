@@ -47,6 +47,6 @@ class ShoppingList extends Model
 
     public function isSectionHeader(): bool
     {
-        return str_starts_with($this->name, '#');
+        return \str_starts_with($this->name, '#');
     }
 }
