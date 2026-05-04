@@ -17,7 +17,7 @@
                 <div id="check-list">
                     <ul id="shopping-list" class="shopping-list ui-sortable">
                         @foreach ($sortedItems as $item)
-                            <li id="shopping-list-row_{{$item->id}}" wire:click="check({{ $item->id }})" data-id="{{$item->id}}">{{$item->name}}<span class="handle"><i class="fa fa-arrows-v"></i></span><span wire:confirm="Are you sure?" wire:click="delete({{ $item->id }})" class="close">×</span></li>
+                            <li id="shopping-list-row_{{$item->id}}" @if (! $item->isSectionHeader()) wire:click="check({{ $item->id }})" @endif data-id="{{$item->id}}">@if ($item->isSectionHeader())<b>{{substr($item->name, 1)}}</b>@else{{$item->name}}@endif<span class="handle"><i class="fa fa-arrows-v"></i></span><span wire:confirm="Are you sure?" wire:click.stop="delete({{ $item->id }})" class="close">×</span></li>
                         @endforeach
                     </ul>
                     @if($sortedCheckedItems->count())
@@ -26,7 +26,7 @@
                         </h2>
                             <ul id="shopping-checked" class="shopping-list">
                                 @foreach ($sortedCheckedItems as $item)
-                                    <li class="checked" wire:click="uncheck({{ $item->id }})" data-id="{{$item->id}}">{{$item->name}}<span wire:confirm="Are you sure?" wire:click="delete({{ $item->id }})" class="close">×</span></li>
+                                    <li class="checked" @if (! $item->isSectionHeader()) wire:click="uncheck({{ $item->id }})" @endif data-id="{{$item->id}}">@if ($item->isSectionHeader())<b>{{substr($item->name, 1)}}</b>@else{{$item->name}}@endif<span wire:confirm="Are you sure?" wire:click.stop="delete({{ $item->id }})" class="close">×</span></li>
                                 @endforeach
                             </ul>
                         </div>
