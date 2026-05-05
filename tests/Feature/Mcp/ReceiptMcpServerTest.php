@@ -180,6 +180,43 @@ function receiptMcpSessionId(TestCase $test, User $user): string
     $call->assertJsonPath('result.structuredContent.items.0.category_name', 'Food');
 })->covers(ReceiptServer::class);
 
+\test('mcp receipt_get_items_batch returns items for multiple receipts', function (): void {
+    Storage::fake('wasabi');
+    $user = User::factory()->create();
+    $cat = ReceiptCategory::factory()->for($user)->create();
+
+    $r1 = Receipt::factory()->for($user)->create();
+    ReceiptItem::factory()->for($r1)->create(['name' => 'A', 'quantity' => 1, 'amount' => 1.0, 'category_id' => $cat->id]);
+
+    $r2 = Receipt::factory()->for($user)->create();
+    ReceiptItem::factory()->for($r2)->create(['name' => 'B', 'quantity' => 2, 'amount' => 3.0, 'category_id' => $cat->id]);
+
+    $sessionId = \receiptMcpSessionId($this, $user);
+    $ghostId = 9_999_999;
+
+    $call = $this->postJson('/mcp/receipts', [
+        'jsonrpc' => '2.0',
+        'id' => 2,
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'receipt_get_items_batch',
+            'arguments' => [
+                'receipt_ids' => [$r2->id, $r1->id, $ghostId],
+            ],
+        ],
+    ], [
+        'MCP-Session-Id' => $sessionId,
+    ]);
+
+    $call->assertStatus(200);
+    $call->assertJsonPath('result.isError', false);
+    $call->assertJsonPath('result.structuredContent.receipts.0.receipt_id', $r2->id);
+    $call->assertJsonPath('result.structuredContent.receipts.0.items.0.name', 'B');
+    $call->assertJsonPath('result.structuredContent.receipts.1.receipt_id', $r1->id);
+    $call->assertJsonPath('result.structuredContent.receipts.1.items.0.name', 'A');
+    $call->assertJsonPath('result.structuredContent.missing_receipt_ids.0', $ghostId);
+})->covers(ReceiptServer::class);
+
 \test('mcp receipt_create stores receipt image and items', function (): void {
     Storage::fake('wasabi');
     $user = User::factory()->create();

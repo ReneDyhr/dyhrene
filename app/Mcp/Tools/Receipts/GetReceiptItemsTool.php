@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mcp\Tools\Receipts;
 
+use App\Mcp\Receipts\ReceiptMcpItemPayload;
 use App\Models\Receipt;
 use App\Models\ReceiptItem;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -43,16 +44,7 @@ class GetReceiptItemsTool extends Tool
 
         return Response::structured([
             'receipt_id' => $receipt->id,
-            'items' => $items->map(static function (ReceiptItem $item): array {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'quantity' => $item->quantity,
-                    'amount' => $item->amount,
-                    'category_id' => $item->category_id,
-                    'category_name' => $item->category?->name,
-                ];
-            })->values()->all(),
+            'items' => $items->map(static fn(ReceiptItem $item) => ReceiptMcpItemPayload::row($item))->values()->all(),
         ]);
     }
 
