@@ -211,6 +211,7 @@ use Laravel\Passport\Passport;
 
 \test('settings mcp page is reachable when authenticated', function (): void {
     $user = User::factory()->create();
+    $this->withoutVite();
 
     $this->actingAs($user)
         ->get(\route('settings.mcp'))

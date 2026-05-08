@@ -94,6 +94,21 @@ final class RecipeToolSupport
             ->count() === \count($uniqueIds);
     }
 
+    /**
+     * @return array{
+     *   id: int,
+     *   name: string,
+     *   description: string,
+     *   note: string,
+     *   public: bool,
+     *   favourite: bool,
+     *   category_names: list<string>,
+     *   tags: list<string>,
+     *   ingredient_count: int,
+     *   ingredient_header_count: int,
+     *   updated_at: null|string
+     * }
+     */
     public static function summarizeRecipe(Recipe $recipe): array
     {
         /** @var list<string> $ingredientNames */
@@ -101,41 +116,66 @@ final class RecipeToolSupport
         $ingredientItems = self::mapIngredientsWithHeaders($ingredientNames);
         $headerCount = \count(\array_filter($ingredientItems, static fn(array $item): bool => $item['is_header'] === true));
 
+        /** @var list<string> $categoryNames */
+        $categoryNames = \array_values($recipe->categories->pluck('name')->filter(static fn(mixed $name): bool => \is_string($name))->values()->all());
+
+        /** @var list<string> $tagNames */
+        $tagNames = \array_values($recipe->tags->pluck('name')->filter(static fn(mixed $name): bool => \is_string($name))->values()->all());
+
         return [
             'id' => $recipe->id,
             'name' => $recipe->name,
             'description' => $recipe->description,
             'note' => $recipe->note,
-            'public' => (bool) $recipe->public,
-            'favourite' => (bool) $recipe->favourite,
-            'category_names' => $recipe->categories->pluck('name')->values()->all(),
-            'tags' => $recipe->tags->pluck('name')->values()->all(),
+            'public' => $recipe->public,
+            'favourite' => $recipe->favourite,
+            'category_names' => $categoryNames,
+            'tags' => $tagNames,
             'ingredient_count' => \count($ingredientNames),
             'ingredient_header_count' => $headerCount,
             'updated_at' => $recipe->updated_at?->toIso8601String(),
         ];
     }
 
+    /**
+     * @return array{
+     *   id: int,
+     *   name: string,
+     *   description: string,
+     *   note: string,
+     *   public: bool,
+     *   favourite: bool,
+     *   categories: list<array{id: int, name: string, slug: string}>,
+     *   ingredients: list<string>,
+     *   ingredients_structured: list<array{name: string, is_header: bool, header_title: null|string}>,
+     *   tags: list<string>,
+     *   created_at: null|string,
+     *   updated_at: null|string
+     * }
+     */
     public static function detailRecipe(Recipe $recipe): array
     {
         /** @var list<string> $ingredientNames */
         $ingredientNames = $recipe->ingredients->pluck('name')->values()->all();
+
+        /** @var list<string> $tagNames */
+        $tagNames = \array_values($recipe->tags->pluck('name')->filter(static fn(mixed $name): bool => \is_string($name))->values()->all());
 
         return [
             'id' => $recipe->id,
             'name' => $recipe->name,
             'description' => $recipe->description,
             'note' => $recipe->note,
-            'public' => (bool) $recipe->public,
-            'favourite' => (bool) $recipe->favourite,
-            'categories' => $recipe->categories->map(static fn(Category $category): array => [
+            'public' => $recipe->public,
+            'favourite' => $recipe->favourite,
+            'categories' => \array_values($recipe->categories->map(static fn(Category $category): array => [
                 'id' => $category->id,
                 'name' => $category->name,
                 'slug' => $category->slug,
-            ])->values()->all(),
+            ])->all()),
             'ingredients' => $ingredientNames,
             'ingredients_structured' => self::mapIngredientsWithHeaders($ingredientNames),
-            'tags' => $recipe->tags->pluck('name')->values()->all(),
+            'tags' => $tagNames,
             'created_at' => $recipe->created_at?->toIso8601String(),
             'updated_at' => $recipe->updated_at?->toIso8601String(),
         ];

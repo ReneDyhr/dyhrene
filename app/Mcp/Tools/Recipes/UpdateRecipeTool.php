@@ -26,7 +26,16 @@ class UpdateRecipeTool extends Tool
             return Response::error('Unauthenticated.');
         }
 
-        /** @var array<string, mixed> $validated */
+        /** @var array{
+         *   recipe_id: int,
+         *   name?: string,
+         *   description?: string,
+         *   note?: string,
+         *   public?: bool,
+         *   category_ids?: list<int>,
+         *   ingredients?: list<string>,
+         *   tags?: list<string>
+         * } $validated */
         $validated = $request->validate([
             'recipe_id' => 'required|integer|min:1',
             'name' => 'sometimes|string|max:255',
@@ -41,7 +50,7 @@ class UpdateRecipeTool extends Tool
             'tags.*' => 'string|min:1|max:100',
         ]);
 
-        $recipeId = (int) $validated['recipe_id'];
+        $recipeId = $validated['recipe_id'];
 
         $recipe = Recipe::forAuthUser()
             ->with(['categories:id,name,slug', 'ingredients:id,recipe_id,name', 'tags:id,recipe_id,name'])
@@ -53,8 +62,7 @@ class UpdateRecipeTool extends Tool
         }
 
         if (\array_key_exists('category_ids', $validated)) {
-            /** @var list<int> $categoryIds */
-            $categoryIds = \array_values(\array_unique((array) $validated['category_ids']));
+            $categoryIds = \array_values(\array_unique($validated['category_ids']));
 
             if (!RecipeToolSupport::userOwnsAllCategories($userId, $categoryIds)) {
                 return Response::error('One or more category_ids do not belong to the authenticated user.');
@@ -64,7 +72,7 @@ class UpdateRecipeTool extends Tool
         }
 
         if (\array_key_exists('ingredients', $validated)) {
-            $ingredients = RecipeToolSupport::sanitizeCollection((array) $validated['ingredients']);
+            $ingredients = RecipeToolSupport::sanitizeCollection($validated['ingredients']);
 
             if ($ingredients === []) {
                 return Response::error('At least one non-empty ingredient is required when updating ingredients.');
@@ -74,7 +82,7 @@ class UpdateRecipeTool extends Tool
         }
 
         if (\array_key_exists('tags', $validated)) {
-            $validated['tags'] = RecipeToolSupport::sanitizeCollection((array) $validated['tags']);
+            $validated['tags'] = RecipeToolSupport::sanitizeCollection($validated['tags']);
         }
 
         DB::transaction(function () use ($recipe, $validated): void {

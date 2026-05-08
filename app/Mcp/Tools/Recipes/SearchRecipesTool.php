@@ -173,7 +173,7 @@ class SearchRecipesTool extends Tool
         $query = \mb_strtolower($query);
         $query = (string) \preg_replace('/[^\\pL\\pN\\s]+/u', ' ', $query);
 
-        /** @var array<int, string> $parts */
+        /** @var list<non-empty-string> $parts */
         $parts = \preg_split('/\\s+/u', $query, -1, \PREG_SPLIT_NO_EMPTY) ?: [];
         $parts = \array_values(\array_unique($parts));
 

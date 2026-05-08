@@ -6,6 +6,7 @@ namespace App\Mcp\Tools\Recipes;
 
 use App\Models\Recipe;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Database\Eloquent\Builder;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
 use Laravel\Mcp\ResponseFactory;
@@ -51,13 +52,13 @@ class ListRecipesTool extends Tool
             ->orderByDesc('id');
 
         if ($categoryIds !== []) {
-            $query->whereHas('categories', static function ($categoryQuery) use ($categoryIds): void {
+            $query->whereHas('categories', static function (Builder $categoryQuery) use ($categoryIds): void {
                 $categoryQuery->whereIn('categories.id', $categoryIds);
             });
         }
 
         if ($tags !== []) {
-            $query->whereHas('tags', static function ($tagQuery) use ($tags): void {
+            $query->whereHas('tags', static function (Builder $tagQuery) use ($tags): void {
                 foreach ($tags as $index => $tag) {
                     if ($index === 0) {
                         $tagQuery->whereRaw('LOWER(recipe_tags.name) = ?', [\mb_strtolower($tag)]);
