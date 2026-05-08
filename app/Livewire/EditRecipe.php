@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Models\Recipe;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class EditRecipe extends Component
 {
@@ -58,7 +58,7 @@ class EditRecipe extends Component
         return \view('livewire.recipes.edit', ['title' => 'Edit: ' . $recipe->name, 'recipe' => $recipe]);
     }
 
-    public function save(): RedirectResponse
+    public function save(): ?Redirector
     {
         $validate = $this->validate([
             'name' => 'required|string',
@@ -83,7 +83,7 @@ class EditRecipe extends Component
             $recipe->tags()->create(['name' => \trim($tag)]);
         }
 
-        return \redirect()->route('single', ['id' => $recipe->id]);
+        return $this->redirect(\route('single', ['id' => $recipe->id]));
     }
 
     public function addIngredient(): void
