@@ -120,6 +120,7 @@ class SearchRecipesTool extends Tool
 
                 /** @var Recipe $leftRecipe */
                 $leftRecipe = $left['recipe'];
+
                 /** @var Recipe $rightRecipe */
                 $rightRecipe = $right['recipe'];
 
@@ -151,12 +152,27 @@ class SearchRecipesTool extends Tool
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function schema(JsonSchema $schema): array
+    {
+        return [
+            'query' => $schema->string()->required()->description('Search phrase.'),
+            'category_ids' => $schema->array()->items($schema->integer())->description('Optional category filter applied before scoring.'),
+            'tags' => $schema->array()->items($schema->string())->description('Optional tag filter applied before scoring.'),
+            'limit' => $schema->integer()->description('Optional page size (default 25, max 100).'),
+            'offset' => $schema->integer()->description('Optional page offset (default 0).'),
+        ];
+    }
+
+    /**
      * @return list<string>
      */
     private function tokenize(string $query): array
     {
         $query = \mb_strtolower($query);
         $query = (string) \preg_replace('/[^\\pL\\pN\\s]+/u', ' ', $query);
+
         /** @var array<int, string> $parts */
         $parts = \preg_split('/\\s+/u', $query, -1, \PREG_SPLIT_NO_EMPTY) ?: [];
         $parts = \array_values(\array_unique($parts));
@@ -165,7 +181,7 @@ class SearchRecipesTool extends Tool
     }
 
     /**
-     * @param  list<string> $tokens
+     * @param list<string> $tokens
      */
     private function scoreRecipe(Recipe $recipe, string $query, array $tokens): int
     {
@@ -198,37 +214,28 @@ class SearchRecipesTool extends Tool
             if (\str_contains($name, $token)) {
                 $score += 24;
             }
+
             if (\str_contains($description, $token)) {
                 $score += 12;
             }
+
             if (\str_contains($note, $token)) {
                 $score += 8;
             }
+
             if (\str_contains($ingredients, $token)) {
                 $score += 14;
             }
+
             if (\str_contains($tags, $token)) {
                 $score += 14;
             }
+
             if (\str_contains($categories, $token)) {
                 $score += 10;
             }
         }
 
         return $score;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function schema(JsonSchema $schema): array
-    {
-        return [
-            'query' => $schema->string()->required()->description('Search phrase.'),
-            'category_ids' => $schema->array()->items($schema->integer())->description('Optional category filter applied before scoring.'),
-            'tags' => $schema->array()->items($schema->string())->description('Optional tag filter applied before scoring.'),
-            'limit' => $schema->integer()->description('Optional page size (default 25, max 100).'),
-            'offset' => $schema->integer()->description('Optional page offset (default 0).'),
-        ];
     }
 }

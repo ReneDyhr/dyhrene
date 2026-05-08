@@ -29,8 +29,8 @@ final class RecipeToolSupport
     }
 
     /**
-     * @param  list<string> $ingredients
-     * @return list<array{name: string, is_header: bool, header_title: string|null}>
+     * @param  list<string>                                                          $ingredients
+     * @return list<array{name: string, is_header: bool, header_title: null|string}>
      */
     public static function mapIngredientsWithHeaders(array $ingredients): array
     {
@@ -67,7 +67,6 @@ final class RecipeToolSupport
     }
 
     /**
-     * @param  string $tagsCsv
      * @return list<string>
      */
     public static function tagsFromCsv(string $tagsCsv): array
@@ -79,7 +78,7 @@ final class RecipeToolSupport
     }
 
     /**
-     * @param  list<int> $categoryIds
+     * @param list<int> $categoryIds
      */
     public static function userOwnsAllCategories(int $userId, array $categoryIds): bool
     {
