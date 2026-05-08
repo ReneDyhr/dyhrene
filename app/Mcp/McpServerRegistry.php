@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Mcp;
 
 use App\Mcp\Receipts\ReceiptsMcpRoute;
+use App\Mcp\Recipes\RecipesMcpRoute;
 use App\Mcp\ShoppingList\ShoppingListMcpRoute;
 
 /**
@@ -30,6 +31,12 @@ final class McpServerRegistry
                 'title' => 'Receipts',
                 'description' => 'AI clients can list receipts, fetch line items, create receipts with images, and update metadata or line items.',
                 'path' => ReceiptsMcpRoute::PATH,
+            ],
+            [
+                'id' => 'recipes',
+                'title' => 'Recipes',
+                'description' => 'AI clients can list, filter, search, create, edit, and delete recipes for the signed-in user.',
+                'path' => RecipesMcpRoute::PATH,
             ],
         ];
     }
