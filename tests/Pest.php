@@ -17,6 +17,9 @@ declare(strict_types=1);
     ->use(Illuminate\Foundation\Testing\DatabaseTransactions::class)
     ->in('Feature');
 
+\pest()->extend(Tests\TestCase::class)
+    ->in('Unit/Services/Fastmail');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations
@@ -43,7 +46,126 @@ declare(strict_types=1);
 |
  */
 
-function something()
+/**
+ * @param array{
+ *     emailQueryIds?: list<string>,
+ *     emailList?: list<array<string, mixed>>,
+ *     mailboxes?: list<array<string, mixed>>
+ * } $options
+ */
+function fakeFastmailJmapApi(array $options = []): void
 {
-    // ..
+    $mailboxes = $options['mailboxes'] ?? [
+        [
+            'id' => 'mbox-inbox',
+            'name' => 'Inbox',
+            'role' => 'inbox',
+            'totalEmails' => 1,
+            'unreadEmails' => 0,
+        ],
+    ];
+
+    $emailQueryIds = $options['emailQueryIds'] ?? [];
+    $emailList = $options['emailList'] ?? [];
+
+    Illuminate\Support\Facades\Http::fake(function (Illuminate\Http\Client\Request $request) use ($mailboxes, $emailQueryIds, $emailList) {
+        if (\str_contains($request->url(), '/jmap/session')) {
+            return Illuminate\Support\Facades\Http::response([
+                'apiUrl' => 'https://api.fastmail.com/jmap/api/',
+                'username' => 'user@fastmail.com',
+                'accounts' => [
+                    'account-abc' => [
+                        'name' => 'user@fastmail.com',
+                        'isPersonal' => true,
+                        'isReadOnly' => false,
+                    ],
+                ],
+                'primaryAccounts' => [
+                    'urn:ietf:params:jmap:core' => 'account-abc',
+                    'urn:ietf:params:jmap:mail' => 'account-abc',
+                ],
+            ]);
+        }
+
+        if (!\str_contains($request->url(), '/jmap/api')) {
+            return Illuminate\Support\Facades\Http::response([], 404);
+        }
+
+        $methodCalls = $request->data()['methodCalls'] ?? [];
+        $methods = \array_map(
+            static fn(array $call): string => (string) ($call[0] ?? ''),
+            $methodCalls,
+        );
+
+        if (\in_array('Email/query', $methods, true)) {
+            $responses = [
+                [
+                    'Email/query',
+                    [
+                        'ids' => $emailQueryIds,
+                        'total' => \count($emailQueryIds),
+                        'position' => 0,
+                    ],
+                    'c0',
+                ],
+            ];
+
+            if (\in_array('Email/get', $methods, true)) {
+                $responses[] = [
+                    'Email/get',
+                    ['list' => $emailList],
+                    'c1',
+                ];
+            }
+
+            return Illuminate\Support\Facades\Http::response([
+                'methodResponses' => $responses,
+            ]);
+        }
+
+        if (\in_array('Email/get', $methods, true)) {
+            return Illuminate\Support\Facades\Http::response([
+                'methodResponses' => [
+                    [
+                        'Email/get',
+                        ['list' => $emailList],
+                        'c0',
+                    ],
+                ],
+            ]);
+        }
+
+        if (\in_array('Mailbox/get', $methods, true)) {
+            return Illuminate\Support\Facades\Http::response([
+                'methodResponses' => [
+                    [
+                        'Mailbox/get',
+                        ['list' => $mailboxes],
+                        'c0',
+                    ],
+                ],
+            ]);
+        }
+
+        if (\in_array('Blob/get', $methods, true)) {
+            return Illuminate\Support\Facades\Http::response([
+                'methodResponses' => [
+                    [
+                        'Blob/get',
+                        [
+                            'blobs' => [
+                                'blob-1' => [
+                                    'data' => \base64_encode('pdf-bytes'),
+                                    'type' => 'application/pdf',
+                                ],
+                            ],
+                        ],
+                        'c0',
+                    ],
+                ],
+            ]);
+        }
+
+        return Illuminate\Support\Facades\Http::response(['methodResponses' => []], 400);
+    });
 }

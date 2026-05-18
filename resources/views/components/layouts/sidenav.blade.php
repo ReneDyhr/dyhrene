@@ -45,6 +45,9 @@
                 <a href="/receipts">Receipts</a>
             </li>
             <li>
+                <a href="{{ route('mail.inbox') }}">Mail</a>
+            </li>
+            <li>
                 <a href="/printing">3D Printing</a>
             </li>
             <!-- <li>

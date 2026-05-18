@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Services\Fastmail\FastmailJmapClient;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\UrlGenerator;
@@ -18,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(FastmailJmapClient::class);
+
         // Fix Laravel 12 issue: Ensure console commands get Laravel instance when resolved from container
         $this->app->resolving(\Illuminate\Console\Command::class, function (\Illuminate\Console\Command $command): void {
             // getLaravel() can return null, but PHPStan sees it as always non-null due to type inference
