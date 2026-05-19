@@ -6,6 +6,7 @@ namespace App\Livewire\Mail;
 
 use App\Enums\MailDocumentTypeEnum;
 use App\Models\MailMessageClassification;
+use App\Models\User;
 use App\Services\Fastmail\DTOs\EmailMessage;
 use App\Services\Fastmail\DTOs\EmailSummary;
 use App\Services\Fastmail\EmailQuery;
@@ -15,7 +16,11 @@ use App\Services\Fastmail\FastmailEmailService;
 use App\Services\Fastmail\FastmailIdentityService;
 use App\Services\Fastmail\FastmailMailboxService;
 use App\Services\Mail\MailDocumentClassificationService;
+use App\Services\Mail\MailReceiptImportService;
+use App\Services\Receipts\Exceptions\ReceiptExtractionException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -39,6 +44,8 @@ class Inbox extends Component
 
     public ?string $queryState = null;
 
+    public bool $processingReceipt = false;
+
     /**
      * @var list<array{
      *     id: string,
@@ -48,7 +55,10 @@ class Inbox extends Component
      *     preview: ?string,
      *     hasAttachment: bool,
      *     documentType: ?string,
-     *     documentTypeLabel: ?string
+     *     documentTypeLabel: ?string,
+     *     receiptId: ?int,
+     *     receiptImportLabel: ?string,
+     *     receiptImportStatus: ?string
      * }>
      */
     public array $emails = [];
@@ -93,6 +103,48 @@ class Inbox extends Component
     public function clearSelection(): void
     {
         $this->selectedEmailId = null;
+    }
+
+    public function processReceipt(
+        MailReceiptImportService $importService,
+        string $emailId,
+    ): void {
+        $user = \Auth::user();
+
+        if (!$user instanceof User) {
+            Session::flash('error', 'Unauthorized.');
+
+            return;
+        }
+
+        $this->processingReceipt = true;
+
+        try {
+            $receipt = $importService->import($user, $emailId);
+            $this->refreshRowClassification(
+                $emailId,
+                \app(MailDocumentClassificationService::class),
+            );
+            Session::flash(
+                'success',
+                'Receipt created. <a href="' . \route('receipts.show', ['receipt' => $receipt->id]) . '">View receipt</a>',
+            );
+        } catch (ReceiptExtractionException $e) {
+            Log::warning('Mail receipt import failed', [
+                'email_id' => $emailId,
+                'message' => $e->getMessage(),
+            ]);
+            Session::flash('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('Mail receipt import error', [
+                'email_id' => $emailId,
+                'message' => $e->getMessage(),
+                'exception' => $e,
+            ]);
+            Session::flash('error', 'Failed to create receipt: ' . $e->getMessage());
+        } finally {
+            $this->processingReceipt = false;
+        }
     }
 
     public function setDocumentType(
@@ -258,7 +310,10 @@ class Inbox extends Component
      *     preview: ?string,
      *     hasAttachment: bool,
      *     documentType: ?string,
-     *     documentTypeLabel: ?string
+     *     documentTypeLabel: ?string,
+     *     receiptId: ?int,
+     *     receiptImportLabel: ?string,
+     *     receiptImportStatus: ?string
      * } $row
      *
      * @return array{
@@ -269,7 +324,10 @@ class Inbox extends Component
      *     preview: ?string,
      *     hasAttachment: bool,
      *     documentType: ?string,
-     *     documentTypeLabel: ?string
+     *     documentTypeLabel: ?string,
+     *     receiptId: ?int,
+     *     receiptImportLabel: ?string,
+     *     receiptImportStatus: ?string
      * }
      */
     private static function applyClassificationToRow(array $row, ?MailMessageClassification $classification): array
@@ -277,14 +335,38 @@ class Inbox extends Component
         if ($classification === null) {
             $row['documentType'] = null;
             $row['documentTypeLabel'] = null;
+            $row['receiptId'] = null;
+            $row['receiptImportLabel'] = null;
+            $row['receiptImportStatus'] = null;
 
             return $row;
         }
 
         $row['documentType'] = $classification->document_type->value;
         $row['documentTypeLabel'] = $classification->document_type->label();
+        $row['receiptId'] = $classification->receipt_id;
+        [$row['receiptImportLabel'], $row['receiptImportStatus']] = self::receiptImportDisplay(
+            $classification->document_type,
+            $classification->receipt_id,
+        );
 
         return $row;
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string} label and status key (created|pending|null)
+     */
+    private static function receiptImportDisplay(MailDocumentTypeEnum $type, ?int $receiptId): array
+    {
+        if ($type !== MailDocumentTypeEnum::Receipt) {
+            return [null, null];
+        }
+
+        if ($receiptId !== null) {
+            return ['Created', 'created'];
+        }
+
+        return ['Not created', 'pending'];
     }
 
     /**
@@ -296,7 +378,10 @@ class Inbox extends Component
      *     preview: ?string,
      *     hasAttachment: bool,
      *     documentType: ?string,
-     *     documentTypeLabel: ?string
+     *     documentTypeLabel: ?string,
+     *     receiptId: ?int,
+     *     receiptImportLabel: ?string,
+     *     receiptImportStatus: ?string
      * }
      */
     private static function summaryToRow(EmailSummary $summary): array
@@ -310,6 +395,9 @@ class Inbox extends Component
             'hasAttachment' => $summary->hasAttachment,
             'documentType' => null,
             'documentTypeLabel' => null,
+            'receiptId' => null,
+            'receiptImportLabel' => null,
+            'receiptImportStatus' => null,
         ];
     }
 

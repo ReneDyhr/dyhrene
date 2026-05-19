@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\MailClassificationSourceEnum;
 use App\Enums\MailDocumentTypeEnum;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MailMessageClassification extends Model
 {
@@ -16,6 +17,8 @@ class MailMessageClassification extends Model
         'confidence',
         'source',
         'classified_at',
+        'receipt_id',
+        'processed_at',
     ];
 
     protected $casts = [
@@ -23,5 +26,14 @@ class MailMessageClassification extends Model
         'source' => MailClassificationSourceEnum::class,
         'confidence' => 'float',
         'classified_at' => 'datetime',
+        'processed_at' => 'datetime',
     ];
+
+    /**
+     * @return BelongsTo<Receipt, $this>
+     */
+    public function receipt(): BelongsTo
+    {
+        return $this->belongsTo(Receipt::class);
+    }
 }

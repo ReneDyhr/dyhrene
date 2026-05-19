@@ -14,6 +14,7 @@ use App\Services\Mail\MailDocumentClassificationService;
 use App\Services\Mail\MailDocumentKeywordScorer;
 use App\Services\Mail\MetadataMailDocumentClassifier;
 use App\Services\Mail\N8nMailDocumentClassifier;
+use App\Services\Receipts\ReceiptExtractionFilePreparer;
 use Carbon\CarbonImmutable;
 
 \beforeEach(function (): void {
@@ -45,7 +46,7 @@ use Carbon\CarbonImmutable;
             new MailAttachmentTextExtractor(),
             new MailDocumentKeywordScorer(),
         ),
-        new N8nMailDocumentClassifier($emailService),
+        new N8nMailDocumentClassifier($emailService, new ReceiptExtractionFilePreparer()),
     );
 
     $result = $service->classifyAndPersist('cached-email');
@@ -86,7 +87,7 @@ use Carbon\CarbonImmutable;
             new MailAttachmentTextExtractor(),
             new MailDocumentKeywordScorer(),
         ),
-        new N8nMailDocumentClassifier($emailService),
+        new N8nMailDocumentClassifier($emailService, new ReceiptExtractionFilePreparer()),
     );
 
     $stored = $service->classifyAndPersist('email-new');

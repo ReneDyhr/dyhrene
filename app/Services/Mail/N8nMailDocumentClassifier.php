@@ -6,27 +6,17 @@ namespace App\Services\Mail;
 
 use App\Enums\MailClassificationSourceEnum;
 use App\Enums\MailDocumentTypeEnum;
-use App\Livewire\Receipts\PdfConverter;
-use App\Services\Fastmail\DTOs\EmailAttachment;
 use App\Services\Fastmail\DTOs\EmailMessage;
 use App\Services\Fastmail\FastmailEmailService;
 use App\Services\Mail\DTOs\MailDocumentClassificationResult;
-use Illuminate\Http\File;
-use Illuminate\Http\UploadedFile;
+use App\Services\Receipts\ReceiptExtractionFilePreparer;
 use Illuminate\Support\Facades\Http;
 
 final class N8nMailDocumentClassifier
 {
-    private const IMAGE_MIMES = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
-        'image/webp',
-    ];
-
     public function __construct(
         private readonly FastmailEmailService $emailService,
+        private readonly ReceiptExtractionFilePreparer $filePreparer,
     ) {}
 
     public function classify(EmailMessage $message): MailDocumentClassificationResult
@@ -37,7 +27,7 @@ final class N8nMailDocumentClassifier
             return MailDocumentClassificationResult::unknown(MailClassificationSourceEnum::N8n);
         }
 
-        $attachment = $this->firstClassifiableAttachment($message);
+        $attachment = ClassifiableMailAttachment::firstFromMessage($message);
 
         if ($attachment === null) {
             return MailDocumentClassificationResult::unknown(MailClassificationSourceEnum::N8n);
@@ -49,13 +39,8 @@ final class N8nMailDocumentClassifier
                 $attachment->name,
                 $attachment->type,
             );
+            $uploadPayload = $this->filePreparer->fromAttachmentBytes($attachment, $bytes);
         } catch (\Throwable) {
-            return MailDocumentClassificationResult::unknown(MailClassificationSourceEnum::N8n);
-        }
-
-        $uploadPayload = $this->prepareUploadPayload($attachment, $bytes);
-
-        if ($uploadPayload === null) {
             return MailDocumentClassificationResult::unknown(MailClassificationSourceEnum::N8n);
         }
 
@@ -64,9 +49,7 @@ final class N8nMailDocumentClassifier
                 ->attach('File', $uploadPayload['contents'], $uploadPayload['filename'])
                 ->post($webhookUrl);
 
-            if ($uploadPayload['cleanup']) {
-                @\unlink($uploadPayload['path']);
-            }
+            ($uploadPayload['cleanup'])();
 
             if (!$response->successful()) {
                 return MailDocumentClassificationResult::unknown(MailClassificationSourceEnum::N8n);
@@ -80,98 +63,9 @@ final class N8nMailDocumentClassifier
 
             return $this->parseResponse($normalized);
         } catch (\Throwable) {
-            if ($uploadPayload['cleanup'] && $uploadPayload['path'] !== '') {
-                @\unlink($uploadPayload['path']);
-            }
+            ($uploadPayload['cleanup'])();
 
             return MailDocumentClassificationResult::unknown(MailClassificationSourceEnum::N8n);
-        }
-    }
-
-    private function firstClassifiableAttachment(EmailMessage $message): ?EmailAttachment
-    {
-        foreach ($message->attachments as $attachment) {
-            if ($this->isClassifiableAttachment($attachment)) {
-                return $attachment;
-            }
-        }
-
-        return null;
-    }
-
-    private function isClassifiableAttachment(EmailAttachment $attachment): bool
-    {
-        $mime = \mb_strtolower($attachment->type);
-        $name = \mb_strtolower($attachment->name);
-
-        if (\in_array($mime, self::IMAGE_MIMES, true)) {
-            return true;
-        }
-
-        if (\str_contains($mime, 'pdf') || \str_ends_with($name, '.pdf')) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return null|array{contents: string, filename: string, path: string, cleanup: bool}
-     */
-    private function prepareUploadPayload(EmailAttachment $attachment, string $bytes): ?array
-    {
-        $mime = \mb_strtolower($attachment->type);
-        $filename = $attachment->name !== '' ? $attachment->name : 'attachment';
-
-        if (\in_array($mime, self::IMAGE_MIMES, true) || \str_starts_with($mime, 'image/')) {
-            return [
-                'contents' => $bytes,
-                'filename' => $filename,
-                'path' => '',
-                'cleanup' => false,
-            ];
-        }
-
-        $tmpPdf = \sys_get_temp_dir() . '/' . \uniqid('mail_n8n_', true) . '.pdf';
-
-        if (\file_put_contents($tmpPdf, $bytes) === false) {
-            return null;
-        }
-
-        try {
-            $uploaded = new UploadedFile(
-                $tmpPdf,
-                $filename,
-                'application/pdf',
-                null,
-                true,
-            );
-            $converted = PdfConverter::convertToJpg($uploaded);
-            $path = $converted->getRealPath();
-
-            if ($path === false) {
-                return null;
-            }
-
-            $contents = \file_get_contents($path);
-
-            if ($contents === false || $contents === '') {
-                return null;
-            }
-
-            $jpgName = \pathinfo($filename, \PATHINFO_FILENAME) . '.jpg';
-            $cleanup = $converted instanceof File;
-
-            return [
-                'contents' => $contents,
-                'filename' => $jpgName,
-                'path' => $path,
-                'cleanup' => $cleanup,
-            ];
-        } catch (\Throwable) {
-            @\unlink($tmpPdf);
-
-            return null;
         }
     }
 

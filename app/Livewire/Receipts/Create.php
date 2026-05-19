@@ -7,11 +7,14 @@ namespace App\Livewire\Receipts;
 use App\Actions\CreateReceiptAction;
 use App\Models\Receipt;
 use App\Models\ReceiptCategory;
+use App\Models\User;
+use App\Services\Receipts\Exceptions\ReceiptExtractionException;
+use App\Services\Receipts\N8nReceiptExtractor;
+use App\Services\Receipts\ReceiptExtractedDataMapper;
 use App\Support\ReceiptDuplicateGuard;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -102,7 +105,7 @@ class Create extends Component
     /**
      * Extract receipt data from uploaded image using n8n webhook.
      */
-    public function extractFromImage(): void
+    public function extractFromImage(N8nReceiptExtractor $extractor, ReceiptExtractedDataMapper $mapper): void
     {
         if (!$this->receiptImage instanceof UploadedFile) {
             Session::flash('error', 'No image uploaded.');
@@ -110,33 +113,28 @@ class Create extends Component
             return;
         }
 
-        $webhookUrl = \config('n8n.webhook_url');
+        $user = \Auth::user();
 
-        if (!\is_string($webhookUrl) || \trim($webhookUrl) === '') {
-            Session::flash('error', 'n8n webhook URL is not configured.');
+        if (!$user instanceof User) {
+            Session::flash('error', 'Unauthorized.');
 
             return;
         }
 
         $image = PdfConverter::convertToJpg($this->receiptImage);
         $imagePath = $image->getRealPath();
-        $mimeType = $image instanceof UploadedFile ? $image->getMimeType() : 'image/jpeg';
         $isTemporaryFile = $image instanceof \Illuminate\Http\File;
         $filename = $image instanceof UploadedFile ? $image->getClientOriginalName() : 'receipt.jpg';
-
-        // Read file contents for multipart upload - handle both local and Wasabi storage
         $fileContents = false;
 
         if ($image instanceof UploadedFile) {
-            // Try to get file contents directly from UploadedFile
             $fileContents = $image->get();
 
-            // If that fails, try to get from Wasabi storage using pathname
             if ($fileContents === false || $fileContents === '') {
                 $pathname = $image->getPathname();
 
-                if (\Storage::disk('wasabi')->exists($pathname)) {
-                    $storageContents = \Storage::disk('wasabi')->get($pathname);
+                if (Storage::disk('wasabi')->exists($pathname)) {
+                    $storageContents = Storage::disk('wasabi')->get($pathname);
 
                     if (!empty($storageContents)) {
                         $fileContents = $storageContents;
@@ -144,58 +142,35 @@ class Create extends Component
                 }
             }
         } elseif ($imagePath !== false && \file_exists($imagePath)) {
-            // File is local, read it normally
             $fileContents = \file_get_contents($imagePath);
         }
 
         if ($fileContents === false || $fileContents === '') {
+            if ($isTemporaryFile && \is_string($imagePath) && \file_exists($imagePath)) {
+                @\unlink($imagePath);
+            }
             Session::flash('error', 'Failed to read image file.');
 
             return;
         }
 
         try {
-            $response = Http::timeout(120)
-                ->attach('File', $fileContents, $filename)
-                ->post($webhookUrl);
-
-            // Clean up temporary file if it was created by PdfConverter
-            if ($isTemporaryFile) {
-                @\unlink($imagePath);
-            }
-
-            if (!$response->successful()) {
-                Session::flash('error', 'Failed to extract receipt data from webhook.');
-
-                return;
-            }
-
-            $responseData = $response->json();
-
-            if (!\is_array($responseData)) {
-                Session::flash('error', 'Invalid response from webhook.');
-
-                return;
-            }
-
-            // Extract data from the "output" wrapper
-            $outputData = $responseData['output'] ?? null;
-
-            if (!\is_array($outputData)) {
-                Session::flash('error', 'No output data in webhook response.');
-
-                return;
-            }
-
-            /** @var array<string, mixed> $outputData */
-            $this->mapExtractedDataToForm($outputData);
+            $output = $extractor->extract($fileContents, $filename);
+            $mapped = $mapper->map(
+                $user,
+                $output,
+                defaultCurrency: $this->data['currency'] ?? 'kr.',
+            );
+            $this->applyMappedDataToForm($mapped);
             Session::flash('success', 'Receipt data extracted!');
+        } catch (ReceiptExtractionException $e) {
+            Session::flash('error', $e->getMessage());
         } catch (\Throwable $e) {
-            // Clean up temporary file in case of error
-            if ($isTemporaryFile && \file_exists($imagePath)) {
+            Session::flash('error', 'Error calling webhook: ' . $e->getMessage());
+        } finally {
+            if ($isTemporaryFile && \is_string($imagePath) && \file_exists($imagePath)) {
                 @\unlink($imagePath);
             }
-            Session::flash('error', 'Error calling webhook: ' . $e->getMessage());
         }
     }
 
@@ -215,7 +190,7 @@ class Create extends Component
 
         $user = \Auth::user();
 
-        if (!$user instanceof \App\Models\User) {
+        if (!$user instanceof User) {
             \abort(403, 'Unauthorized');
         }
 
@@ -303,52 +278,23 @@ class Create extends Component
         // No-op: total is calculated in the Blade for now, but this allows wire:change to work without error.
     }
 
-    /**
-     * Maps extracted data to Livewire properties.
-     *
-     * @param null|array<string, mixed> $data
-     */
-    private function mapExtractedDataToForm(?array $data): void
+    private function applyMappedDataToForm(\App\Services\Receipts\DTOs\MappedReceiptData $mapped): void
     {
-        if (!\is_array($data) || !isset($data['items']) || !\is_array($data['items'])) {
-            Session::flash('error', 'Could not extract items from receipt.');
+        $this->data['name'] = $mapped->header['name'];
+        $this->data['vendor'] = $mapped->header['vendor'] ?? null;
+        $this->data['currency'] = $mapped->header['currency'];
+        $this->data['date'] = $mapped->header['date'];
 
-            return;
-        }
-        // Set date and vendor
-        $date = isset($data['date']) && \is_string($data['date']) ? $data['date'] : null;
-        $time = isset($data['time']) && \is_string($data['time']) ? $data['time'] : null;
-
-        if ($date !== null && $time !== null) {
-            $this->data['date'] = $date . 'T' . \substr($time, 0, 5);
-        } elseif ($date !== null) {
-            $this->data['date'] = $date;
+        if (isset($mapped->header['description'])) {
+            $this->data['description'] = $mapped->header['description'];
         }
 
-        if (isset($data['vendor']) && \is_string($data['vendor'])) {
-            $this->data['vendor'] = $data['vendor'];
-            $this->data['name'] = $data['vendor'];
-        }
-        // Map categories to IDs
-        $categoryMap = \collect($this->categories)->mapWithKeys(fn(array $cat): array => [\strtolower($cat['name']) => $cat['id']]);
         $itemEdits = [];
 
-        foreach ($data['items'] as $itemRaw) {
-            if (!\is_array($itemRaw)) {
-                continue;
-            }
-            $name = isset($itemRaw['description']) && \is_string($itemRaw['description']) ? $itemRaw['description'] : '';
-            $quantity = isset($itemRaw['quantity']) && \is_int($itemRaw['quantity']) ? $itemRaw['quantity'] : 1;
-            $amount = isset($itemRaw['price']) && (\is_float($itemRaw['price']) || \is_int($itemRaw['price'])) ? (float) $itemRaw['price'] : 0.0;
-            $catName = isset($itemRaw['category']) && \is_string($itemRaw['category']) ? \strtolower($itemRaw['category']) : '';
-            $categoryId = $categoryMap[$catName] ?? ($this->categories[0]['id'] ?? 0);
-            $itemEdits[\uniqid('ai_', false)] = [
-                'name' => $name,
-                'quantity' => $quantity,
-                'amount' => $amount / $quantity,
-                'category_id' => $categoryId,
-            ];
+        foreach ($mapped->items as $item) {
+            $itemEdits[\uniqid('ai_', false)] = $item;
         }
+
         $this->itemEdits = $itemEdits;
     }
 }
