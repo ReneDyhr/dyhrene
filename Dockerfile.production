@@ -4,7 +4,7 @@ FROM php:8.5-apache as base
 ARG PHP_EXTS="bcmath ctype fileinfo mbstring pdo pdo_mysql intl pcntl zip gd sodium"
 
 RUN apt update \
-    && apt install -y libonig-dev libicu-dev libsodium-dev libxml2-dev libzip-dev zip libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev cron curl supervisor imagemagick libmagickwand-dev \
+    && apt install -y libonig-dev libicu-dev libsodium-dev libxml2-dev libzip-dev zip libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev cron curl supervisor imagemagick libmagickwand-dev fontconfig fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && docker-php-ext-install -j$(nproc) ${PHP_EXTS} \
     && pecl install imagick \
@@ -60,9 +60,18 @@ COPY --from=app-builder /var/www/html/ /var/www/html/
 COPY docker/production/supervisor.conf /etc/supervisor/conf.d/worker.conf
 COPY docker/production/php.ini /usr/local/etc/php/conf.d/production-upload-limits.ini
 COPY docker/production/policy.xml /etc/ImageMagick-6/policy.xml
+COPY docker/production/fontconfig-docker.conf /etc/fonts/fontconfig-docker.conf
+COPY docker/production/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-RUN chown -R www-data:www-data /var/www/html/
+ENV FONTCONFIG_FILE=/etc/fonts/fontconfig-docker.conf \
+    HOME=/var/www
+
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
+    && mkdir -p /var/www/html/storage/app/fontconfig-cache \
+    && fc-cache -f \
+    && chown -R www-data:www-data /var/www/html/
 
 USER www-data
 
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/worker.conf"]
