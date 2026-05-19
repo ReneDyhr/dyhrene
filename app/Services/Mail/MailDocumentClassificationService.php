@@ -16,6 +16,7 @@ final class MailDocumentClassificationService
 {
     public function __construct(
         private readonly FastmailEmailService $emailService,
+        private readonly MobilePayMailDocumentClassifier $mobilePayClassifier,
         private readonly MetadataMailDocumentClassifier $metadataClassifier,
         private readonly AttachmentTextMailDocumentClassifier $attachmentTextClassifier,
         private readonly N8nMailDocumentClassifier $n8nClassifier,
@@ -100,6 +101,12 @@ final class MailDocumentClassificationService
 
     public function classifyMessage(EmailMessage $message): MailDocumentClassificationResult
     {
+        $mobilePay = $this->mobilePayClassifier->classify($message);
+
+        if ($mobilePay->confident) {
+            return $mobilePay;
+        }
+
         $metadata = $this->metadataClassifier->classifyMessage($message);
 
         if ($metadata->confident) {

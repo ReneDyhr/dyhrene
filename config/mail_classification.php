@@ -68,4 +68,33 @@ return [
         'faktura',
         'invoice',
     ],
+
+    /*
+    | MobilePay screenshot PDFs (numeric filename, e.g. 4527847806.pdf).
+    | Sent/Paid layouts are larger than Received; used when PDF text is not extractable.
+     */
+    // | Thresholds apply to the first PDF page as rendered by Imagick (not raw PDF image pixels).
+    'mobilepay_sent_min_width' => (int) \env('MAIL_CLASSIFICATION_MOBILEPAY_SENT_MIN_WIDTH', 500),
+    'mobilepay_sent_min_height' => (int) \env('MAIL_CLASSIFICATION_MOBILEPAY_SENT_MIN_HEIGHT', 650),
+
+    'mobilepay_incoming_keywords' => [
+        'received',
+        'modtaget',
+        'du har modtaget',
+        'you have received',
+        'you received',
+    ],
+
+    'mobilepay_outgoing_keywords' => [
+        'sent',
+        'sendt',
+        'du har sendt',
+        'du har betalt',
+        'paid by',
+        'betalt af',
+        'withdrawn from',
+        'trukket fra',
+        'your total',
+        'dit total',
+    ],
 ];
