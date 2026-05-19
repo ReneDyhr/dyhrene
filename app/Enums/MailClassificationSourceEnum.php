@@ -8,6 +8,7 @@ enum MailClassificationSourceEnum: string
 {
     case Metadata = 'metadata';
     case AttachmentText = 'attachment_text';
+    case MobilePay = 'mobilepay';
     case N8n = 'n8n';
     case Manual = 'manual';
 }

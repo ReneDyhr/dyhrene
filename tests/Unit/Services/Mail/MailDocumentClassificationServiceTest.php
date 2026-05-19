@@ -13,6 +13,7 @@ use App\Services\Mail\MailAttachmentTextExtractor;
 use App\Services\Mail\MailDocumentClassificationService;
 use App\Services\Mail\MailDocumentKeywordScorer;
 use App\Services\Mail\MetadataMailDocumentClassifier;
+use App\Services\Mail\MobilePayMailDocumentClassifier;
 use App\Services\Mail\N8nMailDocumentClassifier;
 use App\Services\Receipts\ReceiptExtractionFilePreparer;
 use Carbon\CarbonImmutable;
@@ -40,6 +41,7 @@ use Carbon\CarbonImmutable;
 
     $service = new MailDocumentClassificationService(
         $emailService,
+        new MobilePayMailDocumentClassifier($emailService, new MailAttachmentTextExtractor()),
         new MetadataMailDocumentClassifier(new MailDocumentKeywordScorer()),
         new AttachmentTextMailDocumentClassifier(
             $emailService,
@@ -81,6 +83,7 @@ use Carbon\CarbonImmutable;
 
     $service = new MailDocumentClassificationService(
         $emailService,
+        new MobilePayMailDocumentClassifier($emailService, new MailAttachmentTextExtractor()),
         new MetadataMailDocumentClassifier(new MailDocumentKeywordScorer()),
         new AttachmentTextMailDocumentClassifier(
             $emailService,
