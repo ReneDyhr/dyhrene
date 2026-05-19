@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Fastmail\DTOs;
 
+use App\Services\Fastmail\Support\JmapCasts;
 use Carbon\CarbonImmutable;
 
 final readonly class EmailSummary
@@ -42,8 +43,8 @@ final readonly class EmailSummary
                     continue;
                 }
                 $from[] = [
-                    'name' => isset($entry['name']) ? (string) $entry['name'] : null,
-                    'email' => isset($entry['email']) ? (string) $entry['email'] : null,
+                    'name' => JmapCasts::nullableString($entry['name'] ?? null),
+                    'email' => JmapCasts::nullableString($entry['email'] ?? null),
                 ];
             }
         }
@@ -60,11 +61,11 @@ final readonly class EmailSummary
         }
 
         return new self(
-            id: (string) ($data['id'] ?? ''),
-            subject: (string) ($data['subject'] ?? ''),
+            id: JmapCasts::string($data['id'] ?? null),
+            subject: JmapCasts::string($data['subject'] ?? null),
             from: $from,
             receivedAt: $receivedAt,
-            preview: isset($data['preview']) ? (string) $data['preview'] : null,
+            preview: JmapCasts::nullableString($data['preview'] ?? null),
             hasAttachment: (bool) ($data['hasAttachment'] ?? false),
             mailboxIds: $mailboxIds,
         );

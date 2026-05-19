@@ -4,35 +4,26 @@ declare(strict_types=1);
 
 namespace App\Livewire\Mail;
 
+use App\Enums\MailDocumentTypeEnum;
+use App\Models\MailMessageClassification;
 use App\Services\Fastmail\DTOs\EmailMessage;
 use App\Services\Fastmail\DTOs\EmailSummary;
-use App\Services\Fastmail\DTOs\Mailbox;
 use App\Services\Fastmail\EmailQuery;
 use App\Services\Fastmail\Exceptions\FastmailApiException;
 use App\Services\Fastmail\Exceptions\FastmailConfigurationException;
 use App\Services\Fastmail\FastmailEmailService;
 use App\Services\Fastmail\FastmailIdentityService;
 use App\Services\Fastmail\FastmailMailboxService;
-use Carbon\Carbon;
+use App\Services\Mail\MailDocumentClassificationService;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class Inbox extends Component
 {
-    public string $mailboxId = '';
+    private const PAGE_SIZE = 25;
 
-    public string $from = '';
-
-    public string $subject = '';
-
-    public string $since = '';
-
-    public bool $hasAttachment = false;
-
-    public bool $showAllAccountMail = false;
-
-    public string $searchText = '';
+    public string $archiveMailboxId = '';
 
     public string $recipientEmail = '';
 
@@ -49,66 +40,37 @@ class Inbox extends Component
     public ?string $queryState = null;
 
     /**
-     * @var list<array{id: string, name: string, role: ?string, unreadEmails: int}>
-     */
-    public array $mailboxes = [];
-
-    /**
      * @var list<array{
      *     id: string,
      *     subject: string,
      *     fromDisplay: string,
      *     receivedAt: ?string,
      *     preview: ?string,
-     *     hasAttachment: bool
+     *     hasAttachment: bool,
+     *     documentType: ?string,
+     *     documentTypeLabel: ?string
      * }>
      */
     public array $emails = [];
-
-    /**
-     * @var list<string>
-     */
-    public array $accountAddresses = [];
 
     public function mount(
         FastmailMailboxService $mailboxService,
         FastmailEmailService $emailService,
         FastmailIdentityService $identityService,
+        MailDocumentClassificationService $classificationService,
     ): void {
         try {
             $this->recipientEmail = $identityService->configuredRecipient();
+            $archive = $mailboxService->findDefaultMailbox();
 
-            try {
-                $this->accountAddresses = $identityService->listIdentities()
-                    ->pluck('email')
-                    ->all();
-            } catch (FastmailApiException) {
-                $this->accountAddresses = [$this->recipientEmail];
+            if ($archive === null) {
+                $this->error = 'Archive mailbox not found.';
+
+                return;
             }
 
-            $mailboxList = $mailboxService->listMailboxes();
-
-            $this->mailboxes = $mailboxList
-                ->map(static fn(Mailbox $mailbox): array => [
-                    'id' => $mailbox->id,
-                    'name' => $mailbox->name,
-                    'role' => $mailbox->role,
-                    'unreadEmails' => $mailbox->unreadEmails,
-                ])
-                ->values()
-                ->all();
-
-            $inbox = $mailboxList->first(
-                static fn(Mailbox $mailbox): bool => $mailbox->role === 'inbox',
-            );
-
-            if ($inbox !== null) {
-                $this->mailboxId = $inbox->id;
-            } elseif ($this->mailboxes !== []) {
-                $this->mailboxId = $this->mailboxes[0]['id'];
-            }
-
-            $this->fetchEmails($emailService, reset: true);
+            $this->archiveMailboxId = $archive->id;
+            $this->fetchEmails($emailService, $classificationService, reset: true);
         } catch (FastmailConfigurationException $e) {
             $this->error = $e->getMessage();
         } catch (FastmailApiException $e) {
@@ -116,15 +78,11 @@ class Inbox extends Component
         }
     }
 
-    public function applyFilters(FastmailEmailService $emailService): void
-    {
-        $this->selectedEmailId = null;
-        $this->fetchEmails($emailService, reset: true);
-    }
-
-    public function loadMore(FastmailEmailService $emailService): void
-    {
-        $this->fetchEmails($emailService, reset: false);
+    public function loadMore(
+        FastmailEmailService $emailService,
+        MailDocumentClassificationService $classificationService,
+    ): void {
+        $this->fetchEmails($emailService, $classificationService, reset: false);
     }
 
     public function selectEmail(string $id): void
@@ -137,18 +95,40 @@ class Inbox extends Component
         $this->selectedEmailId = null;
     }
 
+    public function setDocumentType(
+        MailDocumentClassificationService $classificationService,
+        string $emailId,
+        string $type,
+    ): void {
+        $documentType = MailDocumentTypeEnum::tryFrom($type);
+
+        if ($documentType === null) {
+            return;
+        }
+
+        $classificationService->applyManualType($emailId, $documentType);
+        $this->refreshRowClassification($emailId, $classificationService);
+    }
+
     public function downloadAttachment(
         FastmailEmailService $emailService,
         string $blobId,
         string $filename,
         string $mimeType,
     ): StreamedResponse {
-        $bytes = $emailService->downloadBlob($blobId);
+        $bytes = $emailService->downloadBlob($blobId, $filename, $mimeType);
         $safeName = $filename !== '' ? $filename : 'attachment';
 
         return \response()->streamDownload(
             static function () use ($bytes): void {
-                echo $bytes;
+                $stream = \fopen('php://output', 'wb');
+
+                if ($stream === false) {
+                    return;
+                }
+
+                \fwrite($stream, $bytes);
+                \fclose($stream);
             },
             $safeName,
             [
@@ -160,12 +140,18 @@ class Inbox extends Component
     public function render(FastmailEmailService $emailService): View
     {
         $selectedMessage = $this->resolveSelectedMessage($emailService);
+        $selectedClassification = null;
+
+        if ($this->selectedEmailId !== null && $this->selectedEmailId !== '') {
+            $selectedClassification = MailMessageClassification::query()
+                ->where('fastmail_email_id', $this->selectedEmailId)
+                ->first();
+        }
 
         return \view('mail.inbox', [
             'title' => 'Mail',
             'selectedMessage' => $selectedMessage,
-            'recipientEmail' => $this->recipientEmail,
-            'accountAddresses' => $this->accountAddresses,
+            'selectedClassification' => $selectedClassification,
         ]);
     }
 
@@ -184,24 +170,32 @@ class Inbox extends Component
         }
     }
 
-    private function fetchEmails(FastmailEmailService $emailService, bool $reset): void
-    {
+    private function fetchEmails(
+        FastmailEmailService $emailService,
+        MailDocumentClassificationService $classificationService,
+        bool $reset,
+    ): void {
+        if ($this->archiveMailboxId === '') {
+            return;
+        }
+
         $this->loading = true;
         $this->error = '';
 
         try {
-            $query = $this->buildQuery($emailService, $reset);
-            $search = $emailService->search($query);
+            $search = $emailService->search($this->buildQuery($emailService, $reset));
             $rows = $search['summaries']
                 ->map(static fn(EmailSummary $summary): array => self::summaryToRow($summary))
                 ->values()
                 ->all();
 
             if ($reset) {
-                $this->emails = $rows;
+                $this->emails = \array_values($rows);
             } else {
                 $this->emails = \array_merge($this->emails, $rows);
             }
+
+            $this->enrichWithClassifications($classificationService);
 
             $result = $search['result'];
             $this->total = $result->total;
@@ -218,6 +212,81 @@ class Inbox extends Component
         }
     }
 
+    private function enrichWithClassifications(MailDocumentClassificationService $classificationService): void
+    {
+        $ids = \array_map(
+            static fn(array $row): string => $row['id'],
+            $this->emails,
+        );
+
+        if ($ids === []) {
+            return;
+        }
+
+        $classificationService->classifyMissing($ids);
+        $classifications = $classificationService->getForEmailIds($ids);
+
+        foreach ($this->emails as $index => $row) {
+            $classification = $classifications->get($row['id']);
+            $this->emails[$index] = self::applyClassificationToRow($row, $classification);
+        }
+    }
+
+    private function refreshRowClassification(
+        string $emailId,
+        MailDocumentClassificationService $classificationService,
+    ): void {
+        $classification = $classificationService->getForEmailIds([$emailId])->get($emailId);
+
+        foreach ($this->emails as $index => $row) {
+            if ($row['id'] !== $emailId) {
+                continue;
+            }
+
+            $this->emails[$index] = self::applyClassificationToRow($row, $classification);
+
+            break;
+        }
+    }
+
+    /**
+     * @param array{
+     *     id: string,
+     *     subject: string,
+     *     fromDisplay: string,
+     *     receivedAt: ?string,
+     *     preview: ?string,
+     *     hasAttachment: bool,
+     *     documentType: ?string,
+     *     documentTypeLabel: ?string
+     * } $row
+     *
+     * @return array{
+     *     id: string,
+     *     subject: string,
+     *     fromDisplay: string,
+     *     receivedAt: ?string,
+     *     preview: ?string,
+     *     hasAttachment: bool,
+     *     documentType: ?string,
+     *     documentTypeLabel: ?string
+     * }
+     */
+    private static function applyClassificationToRow(array $row, ?MailMessageClassification $classification): array
+    {
+        if ($classification === null) {
+            $row['documentType'] = null;
+            $row['documentTypeLabel'] = null;
+
+            return $row;
+        }
+
+        $row['documentType'] = $classification->document_type->value;
+        $row['documentTypeLabel'] = $classification->document_type->label();
+
+        return $row;
+    }
+
     /**
      * @return array{
      *     id: string,
@@ -225,7 +294,9 @@ class Inbox extends Component
      *     fromDisplay: string,
      *     receivedAt: ?string,
      *     preview: ?string,
-     *     hasAttachment: bool
+     *     hasAttachment: bool,
+     *     documentType: ?string,
+     *     documentTypeLabel: ?string
      * }
      */
     private static function summaryToRow(EmailSummary $summary): array
@@ -237,50 +308,25 @@ class Inbox extends Component
             'receivedAt' => $summary->receivedAt?->format('Y-m-d H:i'),
             'preview' => $summary->preview,
             'hasAttachment' => $summary->hasAttachment,
+            'documentType' => null,
+            'documentTypeLabel' => null,
         ];
     }
 
     private function buildQuery(FastmailEmailService $emailService, bool $reset): EmailQuery
     {
-        $query = $this->showAllAccountMail
-            ? new EmailQuery()
-            : $emailService->defaultQuery();
-
-        $query = $query->limit(25);
+        $query = $emailService->defaultQuery()
+            ->inMailbox($this->archiveMailboxId)
+            ->limit(self::PAGE_SIZE);
 
         if ($reset) {
-            $query = $query->position(0)->queryState(null);
-        } else {
-            $position = \count($this->emails);
-            $query = $query->position($position);
-
-            if ($this->queryState !== null && $this->queryState !== '') {
-                $query = $query->queryState($this->queryState);
-            }
+            return $query->position(0)->queryState(null);
         }
 
-        if ($this->mailboxId !== '') {
-            $query = $query->inMailbox($this->mailboxId);
-        }
+        $query = $query->position(\count($this->emails));
 
-        if ($this->from !== '') {
-            $query = $query->from($this->from);
-        }
-
-        if ($this->subject !== '') {
-            $query = $query->subject($this->subject);
-        }
-
-        if ($this->since !== '') {
-            $query = $query->receivedAfter(Carbon::parse($this->since)->startOfDay());
-        }
-
-        if ($this->hasAttachment) {
-            $query = $query->hasAttachment(true);
-        }
-
-        if ($this->searchText !== '') {
-            $query = $query->text($this->searchText);
+        if ($this->queryState !== null && $this->queryState !== '') {
+            $query = $query->queryState($this->queryState);
         }
 
         return $query;

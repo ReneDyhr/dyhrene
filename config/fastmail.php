@@ -23,6 +23,9 @@ return [
      */
     'filter_to_recipient' => \env('FASTMAIL_FILTER_TO_RECIPIENT', true),
 
+    // | JMAP mailbox role to open by default in the Mail UI (e.g. archive, inbox).
+    'default_mailbox_role' => \env('FASTMAIL_DEFAULT_MAILBOX_ROLE', 'archive'),
+
     'session_url' => \env('FASTMAIL_SESSION_URL', 'https://api.fastmail.com/jmap/session'),
 
     'session_cache_ttl' => (int) \env('FASTMAIL_SESSION_CACHE_TTL', 3600),

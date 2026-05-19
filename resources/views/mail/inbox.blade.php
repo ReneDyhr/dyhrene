@@ -7,78 +7,21 @@
             <div class="col-12 recipe">
                 <h1>{{ $title }}</h1>
                 <p class="text-muted">
-                    Reading mail for <strong>{{ $recipientEmail }}</strong> (To/Cc).
-                    @if ($accountAddresses !== [])
-                        Other addresses on this account:
-                        {{ implode(', ', $accountAddresses) }}.
-                    @endif
+                    Archive · messages to <strong>{{ $recipientEmail }}</strong> (To/Cc)
                 </p>
 
                 @if ($error !== '')
                     <div class="alert alert-danger" role="alert">{{ $error }}</div>
-                @endif
-
-                @if ($mailboxes === [] && $error === '')
-                    <p class="text-muted">No mailboxes available.</p>
                 @else
-                    <form wire:submit="applyFilters" style="margin-bottom: 1.5rem; max-width: 56rem;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0.75rem; align-items: end;">
-                            <div>
-                                <label for="mailboxId" class="control-label">Mailbox</label>
-                                <select id="mailboxId" wire:model="mailboxId" class="form-control">
-                                    @foreach ($mailboxes as $mailbox)
-                                        <option value="{{ $mailbox['id'] }}">
-                                            {{ $mailbox['name'] }}
-                                            @if ($mailbox['unreadEmails'] > 0)
-                                                ({{ $mailbox['unreadEmails'] }} unread)
-                                            @endif
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label for="from" class="control-label">From</label>
-                                <input type="text" id="from" wire:model="from" class="form-control" placeholder="sender@example.com">
-                            </div>
-                            <div>
-                                <label for="subject" class="control-label">Subject</label>
-                                <input type="text" id="subject" wire:model="subject" class="form-control" placeholder="Contains…">
-                            </div>
-                            <div>
-                                <label for="since" class="control-label">Received after</label>
-                                <input type="date" id="since" wire:model="since" class="form-control">
-                            </div>
-                            <div>
-                                <label for="searchText" class="control-label">Search text</label>
-                                <input type="text" id="searchText" wire:model="searchText" class="form-control" placeholder="Full-text search">
-                            </div>
-                            <div>
-                                <label class="control-label" style="display: block;">
-                                    <input type="checkbox" wire:model.boolean="hasAttachment"> Has attachment
-                                </label>
-                            </div>
-                            <div>
-                                <label class="control-label" style="display: block;">
-                                    <input type="checkbox" wire:model.boolean="showAllAccountMail"> All account mail
-                                </label>
-                            </div>
-                            <div>
-                                <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
-                                    <span wire:loading.remove wire:target="applyFilters,mount">Apply filters</span>
-                                    <span wire:loading wire:target="applyFilters,mount">Loading…</span>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
                     <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
                         <div style="flex: 1; min-width: 20rem;">
-                            <p class="text-muted">
+                            <p class="text-muted" wire:loading.remove wire:target="mount,loadMore">
                                 Showing {{ count($emails) }} of {{ $total }} message(s)
                             </p>
+                            <p class="text-muted" wire:loading wire:target="mount,loadMore">Loading…</p>
 
                             @if ($emails === [] && !$loading)
-                                <p>No messages match your filters.</p>
+                                <p>No messages in archive.</p>
                             @endif
 
                             <table class="table table-striped receipts-table" style="width: 100%;">
@@ -87,6 +30,7 @@
                                         <th>Received</th>
                                         <th>From</th>
                                         <th>Subject</th>
+                                        <th>Type</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -102,6 +46,13 @@
                                             </td>
                                             <td>{{ \Illuminate\Support\Str::limit($email['fromDisplay'], 40) }}</td>
                                             <td>{{ \Illuminate\Support\Str::limit($email['subject'] ?: '(no subject)', 60) }}</td>
+                                            <td style="white-space: nowrap;">
+                                                @if ($email['documentTypeLabel'] !== null)
+                                                    <span class="label label-default">{{ $email['documentTypeLabel'] }}</span>
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if ($email['hasAttachment'])
                                                     <span title="Has attachment">📎</span>
@@ -128,20 +79,22 @@
                                 <p><strong>From:</strong> {{ $selectedMessage->summary->fromDisplay() }}</p>
                                 <p><strong>Received:</strong> {{ $selectedMessage->summary->receivedAt?->format('Y-m-d H:i:s') ?? '—' }}</p>
 
+                                @if ($selectedClassification !== null)
+                                    <p><strong>Type:</strong> {{ $selectedClassification->document_type->label() }}</p>
+                                    <p style="margin-bottom: 0.75rem;">
+                                        <button type="button" class="btn btn-default btn-sm" wire:click="setDocumentType('{{ $selectedMessage->summary->id }}', 'receipt')">Mark as receipt</button>
+                                        <button type="button" class="btn btn-default btn-sm" wire:click="setDocumentType('{{ $selectedMessage->summary->id }}', 'payslip')">Mark as payslip</button>
+                                        <button type="button" class="btn btn-default btn-sm" wire:click="setDocumentType('{{ $selectedMessage->summary->id }}', 'unknown')">Mark as unknown</button>
+                                    </p>
+                                @endif
+
                                 @if ($selectedMessage->attachments->isNotEmpty())
                                     <h3 style="font-size: 1rem;">Attachments</h3>
                                     <ul>
                                         @foreach ($selectedMessage->attachments as $attachment)
                                             <li>
-                                                {{ $attachment->name }}
-                                                ({{ number_format($attachment->size / 1024, 1) }} KB)
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-link btn-sm"
-                                                    wire:click="downloadAttachment(@js($attachment->blobId), @js($attachment->name), @js($attachment->type))"
-                                                >
-                                                    Download
-                                                </button>
+                                                {{ $attachment->name }} ({{ number_format($attachment->size / 1024, 1) }} KB)
+                                                <button type="button" class="btn btn-link btn-sm" wire:click="downloadAttachment(@js($attachment->blobId), @js($attachment->name), @js($attachment->type))">Download</button>
                                             </li>
                                         @endforeach
                                     </ul>

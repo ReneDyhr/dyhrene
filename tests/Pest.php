@@ -20,6 +20,10 @@ declare(strict_types=1);
 \pest()->extend(Tests\TestCase::class)
     ->in('Unit/Services/Fastmail');
 
+\pest()->extend(Tests\TestCase::class)
+    ->use(Illuminate\Foundation\Testing\DatabaseTransactions::class)
+    ->in('Unit/Services/Mail');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations
@@ -60,6 +64,13 @@ function fakeFastmailJmapApi(array $options = []): void
             'id' => 'mbox-inbox',
             'name' => 'Inbox',
             'role' => 'inbox',
+            'totalEmails' => 0,
+            'unreadEmails' => 0,
+        ],
+        [
+            'id' => 'mbox-archive',
+            'name' => 'Archive',
+            'role' => 'archive',
             'totalEmails' => 1,
             'unreadEmails' => 0,
         ],

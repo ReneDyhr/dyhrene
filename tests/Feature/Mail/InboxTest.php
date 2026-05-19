@@ -13,6 +13,11 @@ use Livewire\Livewire;
         'fastmail.token' => 'test-token',
         'fastmail.email' => 'user@fastmail.com',
         'fastmail.session_url' => 'https://api.fastmail.com/jmap/session',
+        'fastmail.default_mailbox_role' => 'archive',
+        'n8n.classify_webhook_url' => null,
+        'mail_classification.min_score' => 1,
+        'mail_classification.receipt_keywords' => ['receipt'],
+        'mail_classification.payslip_keywords' => ['payslip'],
     ]);
 });
 
@@ -21,7 +26,7 @@ use Livewire\Livewire;
         ->assertRedirect(\route('login'));
 });
 
-\it('renders the mail inbox for authenticated users', function () {
+\it('renders archive mail for authenticated users', function () {
     $user = User::factory()->create();
 
     \fakeFastmailJmapApi([
@@ -34,33 +39,45 @@ use Livewire\Livewire;
                 'receivedAt' => '2026-05-01T12:00:00Z',
                 'preview' => 'Hello',
                 'hasAttachment' => false,
-                'mailboxIds' => ['mbox-inbox'],
+                'mailboxIds' => ['mbox-archive'],
             ],
         ],
     ]);
 
     Livewire::actingAs($user)
         ->test(App\Livewire\Mail\Inbox::class)
-        ->assertSet('mailboxId', 'mbox-inbox')
+        ->assertSet('archiveMailboxId', 'mbox-archive')
         ->assertCount('emails', 1)
-        ->assertSee('Mail')
+        ->assertSee('Archive')
         ->assertSee('Test message');
 });
 
-\it('applies filters via livewire', function () {
+\it('classifies new messages from metadata on load', function () {
     $user = User::factory()->create();
 
     \fakeFastmailJmapApi([
-        'emailQueryIds' => [],
-        'emailList' => [],
+        'emailQueryIds' => ['email-receipt'],
+        'emailList' => [
+            [
+                'id' => 'email-receipt',
+                'subject' => 'Your receipt from Shop',
+                'from' => [['email' => 'shop@example.com']],
+                'receivedAt' => '2026-05-01T12:00:00Z',
+                'preview' => 'Thanks for your purchase',
+                'hasAttachment' => false,
+                'mailboxIds' => ['mbox-archive'],
+                'bodyStructure' => ['type' => 'text/plain'],
+                'bodyValues' => [],
+            ],
+        ],
     ]);
 
     Livewire::actingAs($user)
         ->test(App\Livewire\Mail\Inbox::class)
-        ->set('from', 'receipts@store.com')
-        ->set('hasAttachment', true)
-        ->call('applyFilters')
-        ->assertSet('from', 'receipts@store.com')
-        ->assertSet('hasAttachment', true)
-        ->assertCount('emails', 0);
+        ->assertSee('Receipt');
+
+    $this->assertDatabaseHas('mail_message_classifications', [
+        'fastmail_email_id' => 'email-receipt',
+        'document_type' => 'receipt',
+    ]);
 });

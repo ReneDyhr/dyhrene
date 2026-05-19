@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Fastmail\DTOs;
 
+use App\Services\Fastmail\Support\JmapCasts;
+
 final readonly class EmailIdentity
 {
     public function __construct(
@@ -18,9 +20,9 @@ final readonly class EmailIdentity
     public static function fromJmap(array $data): self
     {
         return new self(
-            id: (string) ($data['id'] ?? ''),
-            email: (string) ($data['email'] ?? ''),
-            name: isset($data['name']) ? (string) $data['name'] : null,
+            id: JmapCasts::string($data['id'] ?? null),
+            email: JmapCasts::string($data['email'] ?? null),
+            name: JmapCasts::nullableString($data['name'] ?? null),
         );
     }
 }

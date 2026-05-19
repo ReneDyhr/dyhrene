@@ -6,6 +6,7 @@ namespace App\Services\Fastmail;
 
 use App\Services\Fastmail\Exceptions\FastmailApiException;
 use App\Services\Fastmail\Exceptions\FastmailConfigurationException;
+use App\Services\Fastmail\Support\JmapCasts;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
@@ -20,6 +21,8 @@ class FastmailJmapClient
     private ?FastmailSession $session = null;
 
     /**
+     * @param array<string, mixed> $arguments
+     *
      * @return array<string, mixed>
      */
     public function call(string $method, array $arguments): array
@@ -81,12 +84,9 @@ class FastmailJmapClient
             }
 
             if ($status === 'error') {
-                $errorType = \is_array($methodResponse[1] ?? null)
-                    ? ($methodResponse[1]['type'] ?? 'unknown')
-                    : 'unknown';
-                $description = \is_array($methodResponse[1] ?? null)
-                    ? ($methodResponse[1]['description'] ?? '')
-                    : '';
+                $errorPayload = JmapCasts::associativeArray($methodResponse[1] ?? null);
+                $errorType = JmapCasts::string($errorPayload['type'] ?? null, 'unknown');
+                $description = JmapCasts::string($errorPayload['description'] ?? null);
 
                 throw new FastmailApiException(
                     'Fastmail JMAP error: ' . $errorType . ($description !== '' ? ' — ' . $description : ''),
@@ -101,8 +101,7 @@ class FastmailJmapClient
         $results = [];
 
         foreach ($calls as $index => $call) {
-            $expectedMethod = $call[0];
-            $callId = $call[2] ?? 'c' . $index;
+            $callId = $call[2];
 
             if (!isset($resultsByCallId[$callId])) {
                 throw new FastmailApiException(
@@ -124,18 +123,19 @@ class FastmailJmapClient
 
         $email = $this->requireEmail();
         $cacheKey = 'fastmail.session.' . \md5($email);
-        $ttl = (int) \config('fastmail.session_cache_ttl', 3600);
+        $ttlConfig = \config('fastmail.session_cache_ttl', 3600);
+        $ttl = \is_int($ttlConfig) ? $ttlConfig : 3600;
 
-        /** @var null|array{accountId: string, apiUrl: string, email: string} $cached */
         $cached = Cache::get($cacheKey);
 
-        if (\is_array($cached) && isset($cached['accountId'], $cached['apiUrl'])) {
-            $this->session = FastmailSession::fromArray($cached);
+        if (\is_array($cached)) {
+            $this->session = FastmailSession::fromArray(JmapCasts::associativeArray($cached));
 
             return $this->session;
         }
 
-        $sessionUrl = (string) \config('fastmail.session_url', 'https://api.fastmail.com/jmap/session');
+        $sessionUrlConfig = \config('fastmail.session_url', 'https://api.fastmail.com/jmap/session');
+        $sessionUrl = \is_string($sessionUrlConfig) ? $sessionUrlConfig : 'https://api.fastmail.com/jmap/session';
 
         $response = Http::withToken($this->requireToken())
             ->acceptJson()
@@ -147,7 +147,7 @@ class FastmailJmapClient
             );
         }
 
-        /** @var array{apiUrl?: string, primaryAccounts?: array<string, string>} $data */
+        /** @var array{apiUrl?: string, downloadUrl?: string, primaryAccounts?: array<string, string>} $data */
         $data = $response->json();
 
         $apiUrl = $data['apiUrl'] ?? null;
@@ -164,15 +164,51 @@ class FastmailJmapClient
             );
         }
 
+        $downloadUrl = JmapCasts::string($data['downloadUrl'] ?? null);
+
         $this->session = new FastmailSession(
             accountId: $accountId,
             apiUrl: $apiUrl,
             email: $email,
+            downloadUrl: $downloadUrl,
         );
 
         Cache::put($cacheKey, $this->session->toArray(), $ttl);
 
         return $this->session;
+    }
+
+    public function downloadBlob(string $blobId, string $filename, string $mimeType): string
+    {
+        $session = $this->resolveSession();
+
+        if ($session->downloadUrl === '') {
+            throw new FastmailApiException(
+                'Fastmail session has no downloadUrl; cannot download attachment.',
+            );
+        }
+
+        $url = \str_replace(
+            ['{accountId}', '{blobId}', '{name}', '{type}'],
+            [
+                $session->accountId,
+                $blobId,
+                \rawurlencode($filename),
+                \rawurlencode($mimeType),
+            ],
+            $session->downloadUrl,
+        );
+
+        $response = Http::withToken($this->requireToken())
+            ->get($url);
+
+        if (!$response->successful()) {
+            throw new FastmailApiException(
+                'Failed to download Fastmail blob: HTTP ' . $response->status(),
+            );
+        }
+
+        return $response->body();
     }
 
     public function clearSessionCache(): void
@@ -256,14 +292,10 @@ class FastmailJmapClient
         $accounts = $sessionData['accounts'] ?? [];
 
         foreach ($accounts as $accountId => $account) {
-            if (!\is_array($account)) {
-                continue;
-            }
-
             $name = $account['name'] ?? null;
 
             if (\is_string($name) && \strcasecmp($name, $configuredEmail) === 0) {
-                return (string) $accountId;
+                return $accountId;
             }
         }
 
@@ -285,9 +317,7 @@ class FastmailJmapClient
 
         // Single-account tokens: use that account (aliases may differ from FASTMAIL_EMAIL).
         if (\count($accounts) === 1) {
-            $onlyAccountId = (string) \array_key_first($accounts);
-
-            if ($onlyAccountId !== '') {
+            foreach ($accounts as $onlyAccountId => $account) {
                 return $onlyAccountId;
             }
         }
@@ -302,9 +332,8 @@ class FastmailJmapClient
     {
         /** @var array<string, string> $primaryAccounts */
         $primaryAccounts = $sessionData['primaryAccounts'] ?? [];
-        $accountId = $primaryAccounts['urn:ietf:params:jmap:mail'] ?? '';
 
-        return \is_string($accountId) ? $accountId : '';
+        return JmapCasts::string($primaryAccounts['urn:ietf:params:jmap:mail'] ?? null);
     }
 
     /**
@@ -317,8 +346,10 @@ class FastmailJmapClient
         $available = [];
 
         foreach ($accounts as $account) {
-            if (\is_array($account) && isset($account['name']) && \is_string($account['name'])) {
-                $available[] = $account['name'];
+            $name = $account['name'] ?? null;
+
+            if (\is_string($name) && $name !== '') {
+                $available[] = $name;
             }
         }
 

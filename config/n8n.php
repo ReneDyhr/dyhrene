@@ -13,4 +13,10 @@ return [
      */
 
     'webhook_url' => \env('N8N_WEBHOOK_URL'),
+
+    /*
+    | Classify-only webhook: POST a file, receive document_type + confidence
+    | (receipt | payslip | unknown). Separate from receipt line-item extraction.
+     */
+    'classify_webhook_url' => \env('N8N_CLASSIFY_WEBHOOK_URL'),
 ];

@@ -8,6 +8,7 @@ use App\Services\Fastmail\DTOs\EmailAttachment;
 use App\Services\Fastmail\DTOs\EmailMessage;
 use App\Services\Fastmail\DTOs\EmailQueryResult;
 use App\Services\Fastmail\DTOs\EmailSummary;
+use App\Services\Fastmail\Support\JmapCasts;
 use Illuminate\Support\Collection;
 
 class FastmailEmailService
@@ -70,9 +71,9 @@ class FastmailEmailService
 
         return new EmailQueryResult(
             ids: $ids,
-            total: (int) ($result['total'] ?? 0),
-            position: (int) ($result['position'] ?? $query->getPosition()),
-            queryState: isset($result['queryState']) ? (string) $result['queryState'] : null,
+            total: JmapCasts::int($result['total'] ?? null),
+            position: JmapCasts::int($result['position'] ?? null, $query->getPosition()),
+            queryState: JmapCasts::nullableString($result['queryState'] ?? null),
         );
     }
 
@@ -168,7 +169,21 @@ class FastmailEmailService
         return $this->extractAttachments($list[0]);
     }
 
-    public function downloadBlob(string $blobId): string
+    public function downloadBlob(
+        string $blobId,
+        string $filename = 'attachment',
+        string $mimeType = 'application/octet-stream',
+    ): string {
+        $session = $this->client->resolveSession();
+
+        if ($session->downloadUrl !== '') {
+            return $this->client->downloadBlob($blobId, $filename, $mimeType);
+        }
+
+        return $this->downloadBlobViaJmap($blobId);
+    }
+
+    private function downloadBlobViaJmap(string $blobId): string
     {
         $result = $this->client->call('Blob/get', [
             'ids' => [$blobId],
@@ -188,7 +203,7 @@ class FastmailEmailService
         if (\is_array($data)) {
             $encoded = \implode('', $data);
         } else {
-            $encoded = (string) $data;
+            $encoded = JmapCasts::string($data);
         }
 
         if ($encoded === '') {
@@ -213,8 +228,8 @@ class FastmailEmailService
 
         if (isset($result['list']) && \is_array($result['list'])) {
             foreach ($result['list'] as $item) {
-                if (\is_array($item) && isset($item['id'])) {
-                    $byId[(string) $item['id']] = $item;
+                if (\is_array($item) && isset($item['id']) && \is_string($item['id'])) {
+                    $byId[$item['id']] = $item;
                 }
             }
         }
@@ -265,8 +280,14 @@ class FastmailEmailService
             return \collect();
         }
 
+        $rootPart = $this->asStructurePart($data['bodyStructure']);
+
+        if ($rootPart === null) {
+            return \collect();
+        }
+
         $attachments = [];
-        $this->walkBodyStructure($data['bodyStructure'], $attachments);
+        $this->walkBodyStructure($rootPart, $attachments);
 
         return \collect($attachments);
     }
@@ -283,7 +304,7 @@ class FastmailEmailService
         $blobId = $part['blobId'] ?? null;
         $name = $part['name'] ?? null;
         $type = $part['type'] ?? 'application/octet-stream';
-        $size = (int) ($part['size'] ?? 0);
+        $size = JmapCasts::int($part['size'] ?? null);
 
         if ($disposition === 'attachment' && \is_string($blobId) && $blobId !== '') {
             $attachments[] = new EmailAttachment(
@@ -304,11 +325,38 @@ class FastmailEmailService
 
                     continue;
                 }
+
+                $subPartStructure = $this->asStructurePart($subPart);
+
+                if ($subPartStructure === null) {
+                    $index++;
+
+                    continue;
+                }
+
                 $childPartId = $partId === '' ? (string) $index : $partId . '.' . $index;
-                $this->walkBodyStructure($subPart, $attachments, $childPartId);
+                $this->walkBodyStructure($subPartStructure, $attachments, $childPartId);
                 $index++;
             }
         }
+    }
+
+    /**
+     * @return null|array<string, mixed>
+     */
+    private function asStructurePart(mixed $part): ?array
+    {
+        if (!\is_array($part)) {
+            return null;
+        }
+
+        $normalized = [];
+
+        foreach ($part as $key => $value) {
+            $normalized[(string) $key] = $value;
+        }
+
+        return $normalized;
     }
 
     /**
@@ -327,8 +375,8 @@ class FastmailEmailService
                 continue;
             }
             $parsed[] = [
-                'name' => isset($entry['name']) ? (string) $entry['name'] : null,
-                'email' => isset($entry['email']) ? (string) $entry['email'] : null,
+                'name' => JmapCasts::nullableString($entry['name'] ?? null),
+                'email' => JmapCasts::nullableString($entry['email'] ?? null),
             ];
         }
 
