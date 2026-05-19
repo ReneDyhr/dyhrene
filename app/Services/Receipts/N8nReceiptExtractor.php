@@ -127,9 +127,7 @@ final class N8nReceiptExtractor
         $normalized = [];
 
         foreach ($data as $key => $value) {
-            if (\is_string($key) || \is_int($key)) {
-                $normalized[(string) $key] = $value;
-            }
+            $normalized[(string) $key] = $value;
         }
 
         return $normalized;

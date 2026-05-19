@@ -41,7 +41,7 @@ final class ReceiptExtractedDataMapper
             static fn(ReceiptCategory $cat): array => [\mb_strtolower($cat->name) => $cat->id],
         );
 
-        $defaultCategoryId = (int) $categories->first()->id;
+        $defaultCategoryId = $categories->first()->id;
 
         $date = isset($output['date']) && \is_string($output['date']) ? $output['date'] : null;
         $time = isset($output['time']) && \is_string($output['time']) ? $output['time'] : null;
@@ -73,7 +73,7 @@ final class ReceiptExtractedDataMapper
                 continue;
             }
 
-            $itemName = $this->itemName($itemRaw);
+            $itemName = $this->itemName($this->stringKeyedRow($itemRaw));
             $quantity = $this->coercePositiveInt($itemRaw['quantity'] ?? null, 1);
             $price = $this->coerceNumber($itemRaw['price'] ?? $itemRaw['amount'] ?? null);
             $catName = isset($itemRaw['category']) && \is_string($itemRaw['category'])
@@ -106,6 +106,22 @@ final class ReceiptExtractedDataMapper
         }
 
         return new MappedReceiptData($header, $items);
+    }
+
+    /**
+     * @param array<mixed> $row
+     *
+     * @return array<string, mixed>
+     */
+    private function stringKeyedRow(array $row): array
+    {
+        $normalized = [];
+
+        foreach ($row as $key => $value) {
+            $normalized[(string) $key] = $value;
+        }
+
+        return $normalized;
     }
 
     /**

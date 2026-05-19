@@ -143,7 +143,7 @@ final class MailReceiptImportService
                 );
             }
 
-            return DB::transaction(function () use ($user, $mapped, $classification, $fastmailEmailId): Receipt {
+            return DB::transaction(function () use ($user, $mapped, $fastmailEmailId): Receipt {
                 $header = $mapped->header;
                 $header['date'] = Carbon::parse($header['date'])->format('Y-m-d H:i:s');
 
@@ -173,7 +173,7 @@ final class MailReceiptImportService
         }
     }
 
-    private function buildMailDescription(EmailMessage $message): ?string
+    private function buildMailDescription(EmailMessage $message): string
     {
         $lines = [
             'Imported from email',

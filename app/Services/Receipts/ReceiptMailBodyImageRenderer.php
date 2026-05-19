@@ -123,7 +123,7 @@ final class ReceiptMailBodyImageRenderer
             }
         }
 
-        return $lines === [] ? [''] : $lines;
+        return $lines;
     }
 
     private function applyFont(\ImagickDraw $draw): void
