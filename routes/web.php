@@ -60,6 +60,8 @@ Route::get('settings/mcp', App\Livewire\Settings\McpConnection::class)->middlewa
 
 Route::get('/storage', Storage::class)->name('storage')->middleware('auth');
 
+Route::get('mail', App\Livewire\Mail\Inbox::class)->middleware('auth')->name('mail.inbox');
+
 Route::get('receipts', App\Livewire\Receipts\Index::class)->middleware('auth')->name('receipts.index');
 Route::get('receipts/create', App\Livewire\Receipts\Create::class)->middleware('auth')->name('receipts.create');
 Route::get('receipts/mass-edit-items', App\Livewire\Receipts\MassEditItems::class)->middleware('auth')->name('receipts.mass-edit-items');
