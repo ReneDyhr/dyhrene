@@ -51,13 +51,24 @@
                                     <tr>
                                         <td>{{ $item->name }}</td>
                                         <td>{{ $item->quantity }}</td>
-                                        <td>{{ $item->amount }}</td>
-                                        <td>{{ $item->total }} {{ $receipt->currency }}</td>
+                                        <td>{{ number_format($item->amount, 2) }}</td>
+                                        <td>{{ number_format($item->total, 2) }} {{ $receipt->currency }}</td>
                                         <td>{{ $item->category?->name }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="fw-bold text-end">Total:</td>
+                                    <td class="fw-bold">
+                                        {{ number_format($receipt->total, 2) }} {{ $receipt->currency }}
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
                         </table>
+                        <a href="{{ route('receipts.edit', $receipt) }}" class="btn btn-warning btn-sm"
+                            style="color: #fff; padding: 4px 10px; font-size: 0.9em; line-height: 1.4;">Edit</a>
                         <a href="{{ route('receipts.index') }}" class="btn btn-secondary">Back to list</a>
                     </div>
                 </div>

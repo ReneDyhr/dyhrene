@@ -14,7 +14,7 @@ class Show extends Component
 
     public function mount(Receipt $receipt): void
     {
-        $this->receipt = $receipt->load('items');
+        $this->receipt = $receipt->load('items.category');
     }
 
     public function render(): View
