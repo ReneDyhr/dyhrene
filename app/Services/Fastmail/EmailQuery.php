@@ -30,6 +30,8 @@ final class EmailQuery
 
     private ?string $queryState = null;
 
+    private bool $calculateTotal = false;
+
     private ?string $recipientScope = null;
 
     /**
@@ -142,6 +144,14 @@ final class EmailQuery
         return $clone;
     }
 
+    public function calculateTotal(bool $value = true): self
+    {
+        $clone = clone $this;
+        $clone->calculateTotal = $value;
+
+        return $clone;
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -181,6 +191,10 @@ final class EmailQuery
             'position' => $this->position,
             'sort' => [['property' => 'receivedAt', 'isAscending' => false]],
         ];
+
+        if ($this->calculateTotal) {
+            $arguments['calculateTotal'] = true;
+        }
 
         $filter = $this->toFilter();
 

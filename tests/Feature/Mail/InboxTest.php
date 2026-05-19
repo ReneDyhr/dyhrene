@@ -60,6 +60,42 @@ use Livewire\Livewire;
         ->assertSee('Test message');
 });
 
+\it('loads more messages without clearing the list', function () {
+    $user = User::factory()->create();
+    $emailQueryIds = \array_map(
+        static fn(int $index): string => 'email-' . $index,
+        \range(1, 30),
+    );
+    $emailList = \array_map(
+        static fn(string $id): array => [
+            'id' => $id,
+            'subject' => 'Message ' . $id,
+            'from' => [['email' => 'sender@example.com']],
+            'receivedAt' => '2026-05-01T12:00:00Z',
+            'preview' => 'Hello',
+            'hasAttachment' => false,
+            'mailboxIds' => ['mbox-archive'],
+        ],
+        $emailQueryIds,
+    );
+
+    \fakeFastmailJmapApi([
+        'emailQueryIds' => $emailQueryIds,
+        'emailList' => $emailList,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(App\Livewire\Mail\Inbox::class)
+        ->assertCount('emails', 25)
+        ->assertSet('total', 30)
+        ->assertSet('hasMore', true)
+        ->call('loadMore')
+        ->assertCount('emails', 30)
+        ->assertSet('hasMore', false)
+        ->assertSee('Message email-1')
+        ->assertSee('Message email-30');
+});
+
 \it('classifies new messages from metadata on load', function () {
     $user = User::factory()->create();
 

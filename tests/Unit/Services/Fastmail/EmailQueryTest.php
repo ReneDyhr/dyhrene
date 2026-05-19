@@ -14,7 +14,8 @@ use Carbon\Carbon;
         ->hasAttachment(true)
         ->text('invoice')
         ->limit(10)
-        ->position(5);
+        ->position(5)
+        ->calculateTotal();
 
     \expect($query->toFilter())->toMatchArray([
         'inMailbox' => 'mbox-inbox',
@@ -28,6 +29,7 @@ use Carbon\Carbon;
     \expect($query->toArguments())->toMatchArray([
         'limit' => 10,
         'position' => 5,
+        'calculateTotal' => true,
         'filter' => $query->toFilter(),
     ]);
 });

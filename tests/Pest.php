@@ -131,13 +131,27 @@ function fakeFastmailJmapApi(array $options = []): void
         );
 
         if (\in_array('Email/query', $methods, true)) {
+            $queryArguments = [];
+
+            foreach ($methodCalls as $call) {
+                if (($call[0] ?? '') === 'Email/query') {
+                    $queryArguments = \is_array($call[1] ?? null) ? $call[1] : [];
+
+                    break;
+                }
+            }
+
+            $position = \is_int($queryArguments['position'] ?? null) ? $queryArguments['position'] : 0;
+            $limit = \is_int($queryArguments['limit'] ?? null) ? $queryArguments['limit'] : 25;
+            $pageIds = \array_slice($emailQueryIds, $position, $limit);
+
             $responses = [
                 [
                     'Email/query',
                     [
-                        'ids' => $emailQueryIds,
+                        'ids' => $pageIds,
                         'total' => \count($emailQueryIds),
-                        'position' => 0,
+                        'position' => $position,
                     ],
                     'c0',
                 ],

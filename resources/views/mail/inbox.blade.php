@@ -84,9 +84,12 @@
                     <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
                 @endif
 
-                @if ($error !== '')
+                @if ($error !== '' && count($emails) === 0 && !$loading)
                     <div class="alert alert-danger" role="alert">{{ $error }}</div>
                 @else
+                    @if ($error !== '')
+                        <div class="alert alert-danger" role="alert">{{ $error }}</div>
+                    @endif
                     <div @class([
                         'mail-inbox-layout',
                         'mail-inbox-layout--detail' => $selectedMessage !== null,

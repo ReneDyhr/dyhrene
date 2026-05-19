@@ -42,8 +42,6 @@ class Inbox extends Component
 
     public int $total = 0;
 
-    public ?string $queryState = null;
-
     public bool $processingReceipt = false;
 
     /**
@@ -251,13 +249,13 @@ class Inbox extends Component
 
             $result = $search['result'];
             $this->total = $result->total;
-            $this->queryState = $result->queryState;
             $this->hasMore = \count($this->emails) < $this->total;
         } catch (FastmailApiException | FastmailConfigurationException $e) {
-            $this->error = $e->getMessage();
-
             if ($reset) {
+                $this->error = $e->getMessage();
                 $this->emails = [];
+            } else {
+                Session::flash('error', $e->getMessage());
             }
         } finally {
             $this->loading = false;
@@ -408,15 +406,9 @@ class Inbox extends Component
             ->limit(self::PAGE_SIZE);
 
         if ($reset) {
-            return $query->position(0)->queryState(null);
+            return $query->position(0)->calculateTotal();
         }
 
-        $query = $query->position(\count($this->emails));
-
-        if ($this->queryState !== null && $this->queryState !== '') {
-            $query = $query->queryState($this->queryState);
-        }
-
-        return $query;
+        return $query->position(\count($this->emails));
     }
 }
