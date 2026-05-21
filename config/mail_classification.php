@@ -77,6 +77,9 @@ return [
     'mobilepay_sent_min_width' => (int) \env('MAIL_CLASSIFICATION_MOBILEPAY_SENT_MIN_WIDTH', 500),
     'mobilepay_sent_min_height' => (int) \env('MAIL_CLASSIFICATION_MOBILEPAY_SENT_MIN_HEIGHT', 650),
 
+    // | Inline JPEG/PNG screenshots (e.g. forwarded MobilePay) must exceed this height or width.
+    'mobilepay_image_min_height' => (int) \env('MAIL_CLASSIFICATION_MOBILEPAY_IMAGE_MIN_HEIGHT', 800),
+
     'mobilepay_incoming_keywords' => [
         'received',
         'modtaget',

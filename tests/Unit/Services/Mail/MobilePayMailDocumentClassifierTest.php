@@ -59,6 +59,49 @@ use Carbon\CarbonImmutable;
         ->and($result->source)->toBe(MailClassificationSourceEnum::MobilePay);
 });
 
+\it('classifies tall inline MobilePay screenshot JPEG as receipt', function (): void {
+    if (!\extension_loaded('imagick') || !\class_exists(Imagick::class)) {
+        $this->markTestSkipped('Imagick is required for MobilePay image classification.');
+    }
+
+    $image = new Imagick();
+    $image->newImage(1200, 4866, new ImagickPixel('white'));
+    $image->setImageFormat('jpeg');
+    $bytes = $image->getImageBlob();
+    $image->clear();
+
+    $emailService = Mockery::mock(FastmailEmailService::class);
+    $emailService->shouldReceive('downloadBlob')->once()->andReturn($bytes);
+
+    $summary = new EmailSummary(
+        id: 'email-inline-jpeg',
+        subject: '',
+        from: [],
+        receivedAt: CarbonImmutable::parse('2026-05-21T06:10:00Z'),
+        preview: null,
+        hasAttachment: true,
+        mailboxIds: [],
+    );
+
+    $message = new EmailMessage(
+        summary: $summary,
+        from: [],
+        to: [],
+        textBody: "\n",
+        htmlBody: null,
+        attachments: \collect([
+            new EmailAttachment('2', 'blob-jpeg', '12446.jpg', 'image/jpeg', 1_611_545),
+        ]),
+    );
+
+    $classifier = new MobilePayMailDocumentClassifier($emailService, new MailAttachmentTextExtractor());
+    $result = $classifier->classify($message);
+
+    \expect($result->confident)->toBeTrue()
+        ->and($result->documentType)->toBe(MailDocumentTypeEnum::Receipt)
+        ->and($result->source)->toBe(MailClassificationSourceEnum::MobilePay);
+});
+
 \it('returns unknown for non MobilePay attachments', function (): void {
     $emailService = Mockery::mock(FastmailEmailService::class);
     $emailService->shouldNotReceive('downloadBlob');

@@ -300,13 +300,12 @@ class FastmailEmailService
     {
         $currentPartId = $partId === '' ? '1' : $partId;
 
-        $disposition = $part['disposition'] ?? null;
         $blobId = $part['blobId'] ?? null;
         $name = $part['name'] ?? null;
         $type = $part['type'] ?? 'application/octet-stream';
         $size = JmapCasts::int($part['size'] ?? null);
 
-        if ($disposition === 'attachment' && \is_string($blobId) && $blobId !== '') {
+        if (\is_string($blobId) && $blobId !== '' && $this->isExtractableAttachmentPart($part)) {
             $attachments[] = new EmailAttachment(
                 partId: $currentPartId,
                 blobId: $blobId,
@@ -339,6 +338,22 @@ class FastmailEmailService
                 $index++;
             }
         }
+    }
+
+    /**
+     * @param array<string, mixed> $part
+     */
+    private function isExtractableAttachmentPart(array $part): bool
+    {
+        $disposition = $part['disposition'] ?? null;
+        $type = $part['type'] ?? 'application/octet-stream';
+        $mime = \is_string($type) ? \mb_strtolower($type) : '';
+
+        if ($disposition === 'attachment') {
+            return true;
+        }
+
+        return $disposition === 'inline' && \str_starts_with($mime, 'image/');
     }
 
     /**

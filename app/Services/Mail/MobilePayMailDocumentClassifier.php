@@ -25,7 +25,7 @@ final class MobilePayMailDocumentClassifier
 
     public function classify(EmailMessage $message): MailDocumentClassificationResult
     {
-        $attachment = $this->findMobilePayPdf($message);
+        $attachment = $this->findMobilePayAttachment($message);
 
         if ($attachment === null) {
             return MailDocumentClassificationResult::unknown(MailClassificationSourceEnum::MobilePay);
@@ -51,23 +51,29 @@ final class MobilePayMailDocumentClassifier
             }
         }
 
-        $dimensions = $this->readPdfPageDimensions($bytes);
+        $dimensions = $this->isImageAttachment($attachment)
+            ? $this->readImageDimensions($bytes)
+            : $this->readPdfPageDimensions($bytes);
 
         if ($dimensions === null) {
             return MailDocumentClassificationResult::unknown(MailClassificationSourceEnum::MobilePay);
         }
 
-        return $this->classifyFromDimensions($dimensions);
+        return $this->classifyFromDimensions($dimensions, $this->isImageAttachment($attachment));
     }
 
-    private function findMobilePayPdf(EmailMessage $message): ?EmailAttachment
+    private function findMobilePayAttachment(EmailMessage $message): ?EmailAttachment
     {
         foreach ($message->attachments as $attachment) {
-            if (!$this->isMobilePayPdfAttachment($attachment)) {
-                continue;
+            if ($this->isMobilePayPdfAttachment($attachment)) {
+                return $attachment;
             }
+        }
 
-            return $attachment;
+        foreach ($message->attachments as $attachment) {
+            if ($this->isMobilePayImageAttachment($attachment)) {
+                return $attachment;
+            }
         }
 
         return null;
@@ -83,6 +89,16 @@ final class MobilePayMailDocumentClassifier
         }
 
         return (bool) \preg_match('/^\d+\.pdf$/i', $name);
+    }
+
+    private function isMobilePayImageAttachment(EmailAttachment $attachment): bool
+    {
+        return $this->isImageAttachment($attachment);
+    }
+
+    private function isImageAttachment(EmailAttachment $attachment): bool
+    {
+        return \str_starts_with(\mb_strtolower($attachment->type), 'image/');
     }
 
     private function classifyFromText(string $text): ?MailDocumentClassificationResult
@@ -125,6 +141,32 @@ final class MobilePayMailDocumentClassifier
     /**
      * @return null|array{width: int, height: int}
      */
+    private function readImageDimensions(string $bytes): ?array
+    {
+        if ($bytes === '' || !\extension_loaded('imagick') || !\class_exists(\Imagick::class)) {
+            return null;
+        }
+
+        try {
+            $image = new \Imagick();
+            $image->readImageBlob($bytes);
+            $width = $image->getImageWidth();
+            $height = $image->getImageHeight();
+            $image->clear();
+
+            if ($width < 1 || $height < 1) {
+                return null;
+            }
+
+            return ['width' => $width, 'height' => $height];
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * @return null|array{width: int, height: int}
+     */
     private function readPdfPageDimensions(string $bytes): ?array
     {
         if ($bytes === '' || !\extension_loaded('imagick') || !\class_exists(\Imagick::class)) {
@@ -161,8 +203,12 @@ final class MobilePayMailDocumentClassifier
     /**
      * @param array{width: int, height: int} $dimensions
      */
-    private function classifyFromDimensions(array $dimensions): MailDocumentClassificationResult
+    private function classifyFromDimensions(array $dimensions, bool $fromImage = false): MailDocumentClassificationResult
     {
+        if ($fromImage && !$this->imageLooksLikeMobilePayScreenshot($dimensions)) {
+            return MailDocumentClassificationResult::unknown(MailClassificationSourceEnum::MobilePay);
+        }
+
         $minSentWidth = $this->intConfig('mail_classification.mobilepay_sent_min_width', 1500);
         $minSentHeight = $this->intConfig('mail_classification.mobilepay_sent_min_height', 1900);
 
@@ -172,6 +218,17 @@ final class MobilePayMailDocumentClassifier
         return $this->confidentResult(
             $isOutgoing ? MailDocumentTypeEnum::Receipt : MailDocumentTypeEnum::Payslip,
         );
+    }
+
+    /**
+     * @param array{width: int, height: int} $dimensions
+     */
+    private function imageLooksLikeMobilePayScreenshot(array $dimensions): bool
+    {
+        $minHeight = $this->intConfig('mail_classification.mobilepay_image_min_height', 800);
+
+        return $dimensions['height'] >= $minHeight
+            || $dimensions['width'] >= $minHeight;
     }
 
     private function confidentResult(MailDocumentTypeEnum $type): MailDocumentClassificationResult
