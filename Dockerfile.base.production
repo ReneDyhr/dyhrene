@@ -1,0 +1,19 @@
+FROM php:8.5-apache
+
+ARG PHP_EXTS="bcmath ctype fileinfo mbstring pdo pdo_mysql intl pcntl zip gd sodium"
+
+RUN apt update \
+    && apt install -y libonig-dev libicu-dev libsodium-dev libxml2-dev libzip-dev zip unzip git libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev cron curl supervisor imagemagick libmagickwand-dev fontconfig fonts-dejavu-core \
+    && docker-php-ext-install -j$(nproc) ${PHP_EXTS} \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
+    && a2enmod rewrite \
+    && apt purge -y --auto-remove libonig-dev libxml2-dev libmagickwand-dev \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
