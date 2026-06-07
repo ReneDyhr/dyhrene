@@ -1,28 +1,7 @@
-# Stage 1: Base Image with PHP and Required Extensions
-FROM php:8.5-apache as base
+ARG BASE_IMAGE=ghcr.io/renedyhr/dyhrene:base
 
-ARG PHP_EXTS="bcmath ctype fileinfo mbstring pdo pdo_mysql intl pcntl zip gd sodium"
-
-RUN apt update \
-    && apt install -y libonig-dev libicu-dev libsodium-dev libxml2-dev libzip-dev zip libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev cron curl supervisor imagemagick libmagickwand-dev fontconfig fonts-dejavu-core \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && docker-php-ext-install -j$(nproc) ${PHP_EXTS} \
-    && pecl install imagick \
-    && docker-php-ext-enable imagick \
-    && a2enmod rewrite \
-    && apt purge -y --auto-remove libonig-dev libxml2-dev libmagickwand-dev
-
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-
-# Copy Composer from official Composer image
-COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-
-RUN apt update \
-    && apt install -y zip unzip git \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Stage 1: Pull pre-built base image
+FROM ${BASE_IMAGE} as base
 
 # Stage 2: Build Stage with Node.js
 FROM node:slim as builder
@@ -32,7 +11,7 @@ WORKDIR /app
 COPY --chown=node:node . /app
 
 # Install frontend dependencies and build assets
-RUN npm install \
+RUN npm ci \
     && npm run build
 
 # Stage 3: Build PHP Application
