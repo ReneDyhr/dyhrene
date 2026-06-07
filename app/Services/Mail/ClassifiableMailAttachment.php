@@ -17,6 +17,14 @@ final class ClassifiableMailAttachment
         'image/webp',
     ];
 
+    private const NON_RECEIPT_PATTERNS = [
+        'fortrydel',   // Danish: right of withdrawal (fortrydelsesret, fortrydelse)
+        'withdrawal',  // English
+        'cancellation',
+        'widerruf',    // German
+        'agb',         // German: Allgemeine Geschäftsbedingungen
+    ];
+
     public static function firstFromMessage(EmailMessage $message): ?EmailAttachment
     {
         foreach ($message->attachments as $attachment) {
@@ -34,11 +42,22 @@ final class ClassifiableMailAttachment
         $name = \mb_strtolower($attachment->name);
 
         if (\in_array($mime, self::IMAGE_MIMES, true)) {
-            return true;
+            return !self::isNonReceiptDocument($name);
         }
 
         if (\str_contains($mime, 'pdf') || \str_ends_with($name, '.pdf')) {
-            return true;
+            return !self::isNonReceiptDocument($name);
+        }
+
+        return false;
+    }
+
+    private static function isNonReceiptDocument(string $lowercaseName): bool
+    {
+        foreach (self::NON_RECEIPT_PATTERNS as $pattern) {
+            if (\str_contains($lowercaseName, $pattern)) {
+                return true;
+            }
         }
 
         return false;
