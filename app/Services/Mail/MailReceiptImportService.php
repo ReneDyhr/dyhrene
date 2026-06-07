@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-final class MailReceiptImportService
+class MailReceiptImportService
 {
     /** @see receipts.description VARCHAR column */
     private const DESCRIPTION_MAX_LENGTH = 255;
