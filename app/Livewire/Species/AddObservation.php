@@ -6,12 +6,15 @@ namespace App\Livewire\Species;
 
 use App\Models\Observation;
 use App\Models\Species;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class AddObservation extends Component
 {
     public string $speciesSearch = '';
 
+    /** @var array<int, array<string, mixed>> */
     public array $speciesResults = [];
 
     public ?int $selectedSpeciesId = null;
@@ -26,9 +29,9 @@ class AddObservation extends Component
 
     public function mount(?Species $species = null): void
     {
-        $this->date = \now()->format('Y-m-d');
+        $this->date = now()->format('Y-m-d');
 
-        if ($species !== null && $species->user_id === \auth()->id()) {
+        if ($species !== null && $species->user_id === auth()->id()) {
             $this->selectedSpeciesId = $species->id;
             $this->speciesSearch = $species->common_name;
         }
@@ -36,10 +39,11 @@ class AddObservation extends Component
 
     public function updatedSpeciesSearch(): void
     {
-        if (\mb_strlen($this->speciesSearch) >= 2) {
-            $this->speciesResults = Species::query()
-                ->where('user_id', \auth()->id())
-                ->where(function ($q): void {
+        if (mb_strlen($this->speciesSearch) >= 2) {
+            /** @var array<int, array<string, mixed>> $results */
+            $results = Species::query()
+                ->where('user_id', auth()->id())
+                ->where(function (Builder $q): void {
                     $q->where('common_name', 'like', '%' . $this->speciesSearch . '%')
                         ->orWhere('scientific_name', 'like', '%' . $this->speciesSearch . '%');
                 })
@@ -47,6 +51,7 @@ class AddObservation extends Component
                 ->limit(10)
                 ->get()
                 ->toArray();
+            $this->speciesResults = $results;
         } else {
             $this->speciesResults = [];
         }
@@ -56,16 +61,16 @@ class AddObservation extends Component
     {
         $this->selectedSpeciesId = $id;
         $species = Species::find($id);
-        $this->speciesSearch = $species?->common_name ?? '';
+        $this->speciesSearch = $species->common_name ?? '';
         $this->speciesResults = [];
     }
 
     public function createSpecies(): void
     {
         $species = Species::create([
-            'common_name' => \trim($this->speciesSearch),
+            'common_name' => trim($this->speciesSearch),
             'scientific_name' => '',
-            'user_id' => \auth()->id(),
+            'user_id' => auth()->id(),
         ]);
         $this->selectedSpeciesId = $species->id;
         $this->speciesResults = [];
@@ -80,7 +85,7 @@ class AddObservation extends Component
 
         Observation::create([
             'species_id' => $this->selectedSpeciesId,
-            'user_id' => \auth()->id(),
+            'user_id' => auth()->id(),
             'observed_at' => $this->date,
             'observed_time' => $this->time ?: null,
             'count' => $this->count ?: 'X',
@@ -88,12 +93,12 @@ class AddObservation extends Component
             'source' => 'manual',
         ]);
 
-        \session()->flash('success', 'Observation logged!');
-        $this->redirect(\route('species.show', $this->selectedSpeciesId));
+        session()->flash('success', 'Observation logged!');
+        $this->redirect(route('species.show', $this->selectedSpeciesId));
     }
 
-    public function render()
+    public function render(): View
     {
-        return \view('livewire.species.add-observation');
+        return view('livewire.species.add-observation');
     }
 }

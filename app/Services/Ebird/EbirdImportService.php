@@ -265,13 +265,11 @@ final class EbirdImportService
                 'area_ha' => $checklistData['area_ha'] ?? null,
                 'observer_count' => $checklistData['observer_count'] ?? null,
                 'complete_checklist' => $checklistData['complete_checklist'] ?? false,
-            ], fn($v) => $v !== null);
+            ], fn (mixed $v): bool => $v !== null);
 
-            if ($updateData !== []) {
-                Observation::query()
-                    ->where('ebird_submission_id', $subId)
-                    ->update($updateData);
-            }
+            Observation::query()
+                ->where('ebird_submission_id', $subId)
+                ->update($updateData);
 
             $enriched += Observation::query()
                 ->where('ebird_submission_id', $subId)
@@ -334,7 +332,7 @@ final class EbirdImportService
         $complete = ($row['Complete Checklist'] ?? 'false') === 'true';
 
         return [
-            'observed_time' => $time !== null && $time !== '' ? $this->parseTimeString((string) $time) : null,
+            'observed_time' => $time !== null && $time !== '' ? $this->parseTimeString($time) : null,
             'observation_type' => $row['Observation Type'] ?? null,
             'duration_min' => $duration,
             'distance_km' => $distance,

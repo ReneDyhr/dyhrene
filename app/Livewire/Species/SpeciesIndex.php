@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire\Species;
 
 use App\Models\Species;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -33,25 +35,24 @@ class SpeciesIndex extends Component
         }
     }
 
-    public function render()
+    public function render(): View
     {
         $query = Species::query()
-            ->where('user_id', \auth()->id())
+            ->where('user_id', auth()->id())
             ->withCount('observations');
 
         if ($this->search !== '') {
-            $query->where(function ($q): void {
+            $query->where(function (Builder $q): void {
                 $q->where('common_name', 'like', '%' . $this->search . '%')
                     ->orWhere('scientific_name', 'like', '%' . $this->search . '%');
             });
         }
 
-        // Sortable columns
         $allowed = ['common_name', 'scientific_name', 'observations_count', 'taxonomic_order'];
-        $field = \in_array($this->sortField, $allowed, true) ? $this->sortField : 'taxonomic_order';
+        $field = in_array($this->sortField, $allowed, true) ? $this->sortField : 'taxonomic_order';
         $dir = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 
-        return \view('livewire.species.species-index', [
+        return view('livewire.species.species-index', [
             'speciesList' => $query->orderBy($field, $dir)->paginate(25),
         ]);
     }
