@@ -14,7 +14,7 @@
                                 </a>
                             </li>
                             <li data-toggle="tooltip" data-placement="left" title="Log new observation">
-                                <a href="{{ route('species.add') }}" class="btn btn-none">
+                                <a href="{{ route('species.add-preselected', $species) }}" class="btn btn-none">
                                     <i class="fa fa-plus"></i>
                                 </a>
                             </li>

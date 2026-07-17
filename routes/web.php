@@ -72,6 +72,7 @@ Route::get('receipts/{receipt}/edit', App\Livewire\Receipts\Edit::class)->middle
 // Bird Species
 Route::get('/species', App\Livewire\Species\SpeciesIndex::class)->middleware('auth')->name('species.index');
 Route::get('/species/add', App\Livewire\Species\AddObservation::class)->middleware('auth')->name('species.add');
+Route::get('/species/add/{species}', App\Livewire\Species\AddObservation::class)->middleware('auth')->name('species.add-preselected');
 Route::get('/species/{species}', App\Livewire\Species\SpeciesShow::class)->middleware('auth')->name('species.show');
 
 Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt): Illuminate\Http\Response {

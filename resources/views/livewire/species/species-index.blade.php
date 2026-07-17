@@ -21,24 +21,55 @@
                     <div class="clear"></div>
                 </div>
 
-                <div class="recipe-list">
-                    <div class="list">
-                        @foreach ($speciesList as $s)
-                            <div class="recipe">
-                                <h1>
-                                    <a href="{{ route('species.show', $s) }}" wire:navigate>{{ $s->common_name }}</a>
-                                </h1>
-                                <div class="tags">
-                                    <span class="pull-right" style="font-size:0.8rem;color:#888;">
-                                        {{ $s->observations_count }} obs
-                                    </span>
-                                    <span style="font-style:italic;font-size:0.8rem;">{{ $s->scientific_name }}</span>
-                                    <div class="clear"></div>
-                                </div>
-                            </div>
-                        @endforeach
-                        <div class="clear"></div>
-                    </div>
+                <div class="notes">
+                    <table class="table table-striped" style="margin-bottom:0;">
+                        <thead>
+                            <tr>
+                                <th style="cursor:pointer;" wire:click="sortBy('common_name')">
+                                    Species
+                                    @if ($sortField === 'common_name')
+                                        <i class="fa fa-sort-{{ $sortDirection === 'asc' ? 'asc' : 'desc' }}"></i>
+                                    @endif
+                                </th>
+                                <th style="cursor:pointer;" wire:click="sortBy('scientific_name')">
+                                    Scientific Name
+                                    @if ($sortField === 'scientific_name')
+                                        <i class="fa fa-sort-{{ $sortDirection === 'asc' ? 'asc' : 'desc' }}"></i>
+                                    @endif
+                                </th>
+                                <th class="text-center" style="cursor:pointer;" wire:click="sortBy('observations_count')">
+                                    Observations
+                                    @if ($sortField === 'observations_count')
+                                        <i class="fa fa-sort-{{ $sortDirection === 'asc' ? 'asc' : 'desc' }}"></i>
+                                    @endif
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($speciesList as $s)
+                                <tr>
+                                    <td>
+                                        <a href="{{ route('species.show', $s) }}" wire:navigate style="font-size:0.9rem;">
+                                            {{ $s->common_name }}
+                                        </a>
+                                    </td>
+                                    <td style="font-style:italic;color:#888;">{{ $s->scientific_name }}</td>
+                                    <td class="text-center">{{ $s->observations_count }}</td>
+                                </tr>
+                            @endforeach
+                            @if ($speciesList->isEmpty())
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted" style="padding:30px;">
+                                        @if ($search)
+                                            No species match "{{ $search }}".
+                                        @else
+                                            No species yet — <a href="{{ route('species.add') }}">log your first observation</a>.
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="text-center" style="margin-top:20px;">
