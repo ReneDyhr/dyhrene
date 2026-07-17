@@ -183,7 +183,7 @@ final class EbirdImportService
                 'rememberMe' => 'on',
             ],
             'headers' => [
-                'Referer'       => (string) $loginPage->getEffectiveUri(),
+                'Referer'       => self::LOGIN_URL . '?service=' . urlencode($service),
                 'Origin'        => 'https://secure.birds.cornell.edu',
                 'Content-Type'  => 'application/x-www-form-urlencoded',
             ],
