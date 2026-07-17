@@ -29,9 +29,9 @@ class AddObservation extends Component
 
     public function mount(?Species $species = null): void
     {
-        $this->date = now()->format('Y-m-d');
+        $this->date = \now()->format('Y-m-d');
 
-        if ($species !== null && $species->user_id === auth()->id()) {
+        if ($species !== null && $species->user_id === \auth()->id()) {
             $this->selectedSpeciesId = $species->id;
             $this->speciesSearch = $species->common_name;
         }
@@ -39,10 +39,10 @@ class AddObservation extends Component
 
     public function updatedSpeciesSearch(): void
     {
-        if (mb_strlen($this->speciesSearch) >= 2) {
+        if (\mb_strlen($this->speciesSearch) >= 2) {
             /** @var array<int, array<string, mixed>> $results */
             $results = Species::query()
-                ->where('user_id', auth()->id())
+                ->where('user_id', \auth()->id())
                 ->where(function (Builder $q): void {
                     $q->where('common_name', 'like', '%' . $this->speciesSearch . '%')
                         ->orWhere('scientific_name', 'like', '%' . $this->speciesSearch . '%');
@@ -68,9 +68,9 @@ class AddObservation extends Component
     public function createSpecies(): void
     {
         $species = Species::create([
-            'common_name' => trim($this->speciesSearch),
+            'common_name' => \trim($this->speciesSearch),
             'scientific_name' => '',
-            'user_id' => auth()->id(),
+            'user_id' => \auth()->id(),
         ]);
         $this->selectedSpeciesId = $species->id;
         $this->speciesResults = [];
@@ -85,7 +85,7 @@ class AddObservation extends Component
 
         Observation::create([
             'species_id' => $this->selectedSpeciesId,
-            'user_id' => auth()->id(),
+            'user_id' => \auth()->id(),
             'observed_at' => $this->date,
             'observed_time' => $this->time ?: null,
             'count' => $this->count ?: 'X',
@@ -93,12 +93,12 @@ class AddObservation extends Component
             'source' => 'manual',
         ]);
 
-        session()->flash('success', 'Observation logged!');
-        $this->redirect(route('species.show', $this->selectedSpeciesId));
+        \session()->flash('success', 'Observation logged!');
+        $this->redirect(\route('species.show', $this->selectedSpeciesId));
     }
 
     public function render(): View
     {
-        return view('livewire.species.add-observation');
+        return \view('livewire.species.add-observation');
     }
 }

@@ -6,6 +6,7 @@ namespace App\Livewire\Species;
 
 use App\Models\Species;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -35,10 +36,21 @@ class SpeciesIndex extends Component
         }
     }
 
+    public function importEbird(): void
+    {
+        $exitCode = Artisan::call('ebird:import');
+
+        if ($exitCode === 0) {
+            \session()->flash('success', 'eBird import completed.');
+        } else {
+            \session()->flash('error', 'eBird import encountered errors. Check logs for details.');
+        }
+    }
+
     public function render(): View
     {
         $query = Species::query()
-            ->where('user_id', auth()->id())
+            ->where('user_id', \auth()->id())
             ->withCount('observations');
 
         if ($this->search !== '') {
@@ -49,10 +61,10 @@ class SpeciesIndex extends Component
         }
 
         $allowed = ['common_name', 'scientific_name', 'observations_count', 'taxonomic_order'];
-        $field = in_array($this->sortField, $allowed, true) ? $this->sortField : 'taxonomic_order';
+        $field = \in_array($this->sortField, $allowed, true) ? $this->sortField : 'taxonomic_order';
         $dir = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 
-        return view('livewire.species.species-index', [
+        return \view('livewire.species.species-index', [
             'speciesList' => $query->orderBy($field, $dir)->paginate(25),
         ]);
     }

@@ -14,7 +14,7 @@ class SpeciesShow extends Component
 
     public function mount(Species $species): void
     {
-        abort_if($species->user_id !== auth()->id(), 403);
+        \abort_if($species->user_id !== \auth()->id(), 403);
         $this->species = $species->load('observations');
     }
 
@@ -38,6 +38,7 @@ class SpeciesShow extends Component
         ];
 
         $result = [];
+
         foreach ($months as $num => $label) {
             $result[$label] = isset($db[$num]) ? (int) $db[$num] : 0;
         }
@@ -47,7 +48,7 @@ class SpeciesShow extends Component
 
     public function render(): View
     {
-        return view('livewire.species.species-show', [
+        return \view('livewire.species.species-show', [
             'observations' => $this->species->observations()
                 ->orderBy('observed_at', 'desc')
                 ->get(),

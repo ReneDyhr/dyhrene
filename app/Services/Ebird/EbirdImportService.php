@@ -265,7 +265,7 @@ final class EbirdImportService
                 'area_ha' => $checklistData['area_ha'] ?? null,
                 'observer_count' => $checklistData['observer_count'] ?? null,
                 'complete_checklist' => $checklistData['complete_checklist'] ?? false,
-            ], fn (mixed $v): bool => $v !== null);
+            ], fn(mixed $v): bool => $v !== null);
 
             Observation::query()
                 ->where('ebird_submission_id', $subId)

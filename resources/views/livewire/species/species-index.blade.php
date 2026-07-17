@@ -4,9 +4,18 @@
     <div id="main">
         @include('components.layouts.header')
         <div class="content homepage">
+            @if (session()->has('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if (session()->has('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
             <div class="col-12">
                 <div class="recipe" style="overflow:hidden;">
                     <div style="float:right;">
+                        <button wire:click="importEbird" class="btn btn-info" style="color:#fff;">
+                            <i class="fa fa-refresh"></i> Import eBird
+                        </button>
                         <a href="{{ route('species.add') }}" class="btn btn-success" style="color:#fff;">
                             <i class="fa fa-plus"></i> Log Observation
                         </a>
