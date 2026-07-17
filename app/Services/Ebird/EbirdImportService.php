@@ -26,7 +26,7 @@ final class EbirdImportService
         $this->client = new Client([
             'cookies' => $this->cookieJar,
             'timeout' => 60,
-            'allow_redirects' => true,
+            'allow_redirects' => ['max' => 10],
             'headers' => [
                 'User-Agent' => 'Mozilla/5.0 (compatible; Dyhrene/1.0)',
             ],
@@ -87,7 +87,7 @@ final class EbirdImportService
             foreach ($rows as $row) {
                 $commonName = $row['Common Name'] ?? ($row['Species'] ?? '');
                 $scientificName = $row['Scientific Name'] ?? null;
-                $taxonomicOrder = isset($row['Taxonomic Order']) ? (int) $row['Taxonomic Order'] : null;
+                $taxonomicOrder = isset($row['Taxon Order']) ? (int) $row['Taxon Order'] : null;
 
                 if ($commonName === '') {
                     continue;
@@ -112,7 +112,7 @@ final class EbirdImportService
                     $species->update(['ebird_code' => $code]);
                 }
 
-                $submissionId = $row['Submission ID'] ?? null;
+                $submissionId = $row['SubID'] ?? null;
 
                 if ($submissionId === null || $submissionId === '') {
                     continue;
@@ -129,8 +129,8 @@ final class EbirdImportService
                         'observed_at' => $observedAt,
                         'count' => $row['Count'] ?? null,
                         'location' => $row['Location'] ?? null,
-                        'state_province' => $row['State/Province'] ?? ($row['State'] ?? null),
-                        'source' => 'ebird',
+                        'state_province' => $row['S/P'] ?? null,
+                        'source' => 'ebird_import',
                     ],
                 );
 
@@ -228,7 +228,7 @@ final class EbirdImportService
         // Get all observations for the user that need enrichment
         $observations = Observation::query()
             ->where('user_id', $user->id)
-            ->where('source', 'ebird')
+            ->where('source', 'ebird_import')
             ->whereNull('observation_type')
             ->get();
 
@@ -256,18 +256,22 @@ final class EbirdImportService
                 continue;
             }
 
-            // Update all observations with this submission ID
-            Observation::query()
-                ->where('ebird_submission_id', $subId)
-                ->update([
-                    'observed_time' => $checklistData['observed_time'] ?? null,
-                    'observation_type' => $checklistData['observation_type'] ?? null,
-                    'duration_min' => $checklistData['duration_min'] ?? null,
-                    'distance_km' => $checklistData['distance_km'] ?? null,
-                    'area_ha' => $checklistData['area_ha'] ?? null,
-                    'observer_count' => $checklistData['observer_count'] ?? null,
-                    'complete_checklist' => $checklistData['complete_checklist'] ?? false,
-                ]);
+            // Update all observations with this submission ID (only non-null fields)
+            $updateData = \array_filter([
+                'observed_time' => $checklistData['observed_time'] ?? null,
+                'observation_type' => $checklistData['observation_type'] ?? null,
+                'duration_min' => $checklistData['duration_min'] ?? null,
+                'distance_km' => $checklistData['distance_km'] ?? null,
+                'area_ha' => $checklistData['area_ha'] ?? null,
+                'observer_count' => $checklistData['observer_count'] ?? null,
+                'complete_checklist' => $checklistData['complete_checklist'] ?? false,
+            ], fn ($v) => $v !== null);
+
+            if ($updateData !== []) {
+                Observation::query()
+                    ->where('ebird_submission_id', $subId)
+                    ->update($updateData);
+            }
 
             $enriched += Observation::query()
                 ->where('ebird_submission_id', $subId)
@@ -305,53 +309,39 @@ final class EbirdImportService
      */
     private function parseChecklist(string $content): array
     {
-        $data = [
-            'observed_time' => null,
-            'observation_type' => null,
-            'duration_min' => null,
-            'distance_km' => null,
-            'area_ha' => null,
-            'observer_count' => null,
-            'complete_checklist' => false,
+        // Merlin returns CSV: Species,Count,Location,Observation Type,Observation Date,Start Time,...
+        $rows = $this->parseCsv($content);
+
+        if ($rows === []) {
+            return [
+                'observed_time' => null,
+                'observation_type' => null,
+                'duration_min' => null,
+                'distance_km' => null,
+                'area_ha' => null,
+                'observer_count' => null,
+                'complete_checklist' => false,
+            ];
+        }
+
+        $row = $rows[0];
+
+        $time = $row['Start Time'] ?? null;
+        $duration = isset($row['Duration']) && $row['Duration'] !== '' ? (int) $row['Duration'] : null;
+        $distance = isset($row['Distance']) && $row['Distance'] !== '' ? (float) $row['Distance'] : null;
+        $area = isset($row['Area']) && $row['Area'] !== '' ? (float) $row['Area'] : null;
+        $partySize = isset($row['Party Size']) && $row['Party Size'] !== '' ? (int) $row['Party Size'] : null;
+        $complete = ($row['Complete Checklist'] ?? 'false') === 'true';
+
+        return [
+            'observed_time' => $time !== null && $time !== '' ? $this->parseTimeString((string) $time) : null,
+            'observation_type' => $row['Observation Type'] ?? null,
+            'duration_min' => $duration,
+            'distance_km' => $distance,
+            'area_ha' => $area,
+            'observer_count' => $partySize,
+            'complete_checklist' => $complete,
         ];
-
-        // Try to parse as CSV
-        $lines = \explode("\n", \trim($content));
-
-        if (\count($lines) < 2) {
-            return $data;
-        }
-
-        // Look for key-value patterns in the content
-        if (\preg_match('/Time[:\s]+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[APap][Mm])?)/', $content, $m) === 1) {
-            $data['observed_time'] = $this->parseTimeString($m[1]);
-        }
-
-        if (\preg_match('/Protocol[:\s]+([^\n\r]+)/', $content, $m) === 1) {
-            $data['observation_type'] = \trim($m[1]);
-        }
-
-        if (\preg_match('/Duration[:\s]+(\d+(?:\.\d+)?)/', $content, $m) === 1) {
-            $data['duration_min'] = (int) $m[1];
-        }
-
-        if (\preg_match('/Distance[:\s]+(\d+(?:\.\d+)?)/', $content, $m) === 1) {
-            $data['distance_km'] = (float) $m[1];
-        }
-
-        if (\preg_match('/Area[:\s]+(\d+(?:\.\d+)?)/', $content, $m) === 1) {
-            $data['area_ha'] = (float) $m[1];
-        }
-
-        if (\preg_match('/(?:Observers|Number of Observers|Party Size)[:\s]+(\d+)/', $content, $m) === 1) {
-            $data['observer_count'] = (int) $m[1];
-        }
-
-        if (\preg_match('/All Obs(?:ervations)? Reported[:\s]*(Yes|1|true)/i', $content) === 1) {
-            $data['complete_checklist'] = true;
-        }
-
-        return $data;
     }
 
     /**
