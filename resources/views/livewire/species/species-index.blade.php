@@ -7,7 +7,7 @@
             <div class="col-12">
                 <div class="recipe" style="overflow:hidden;">
                     <div style="float:right;">
-                        <a href="{{ route('species.add') }}" class="btn btn-success">
+                        <a href="{{ route('species.add') }}" class="btn btn-success" style="color:#fff;">
                             <i class="fa fa-plus"></i> Log Observation
                         </a>
                     </div>

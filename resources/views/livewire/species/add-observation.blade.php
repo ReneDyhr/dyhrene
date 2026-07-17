@@ -74,7 +74,7 @@
                             </div>
 
                             <div class="form-group">
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" class="btn btn-success" style="color:#fff;">
                                     <i class="fa fa-check"></i> Log Observation
                                 </button>
                                 <a href="{{ route('species.index') }}" class="btn btn-default">Cancel</a>

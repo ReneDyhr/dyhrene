@@ -156,13 +156,36 @@ final class EbirdImportService
      */
     private function login(string $username, string $password): void
     {
+        $service = 'https://ebird.org/login/cas?portal=ebird';
+
+        // Step 1: GET the login page to get cookies and CSRF execution token
+        $loginPage = $this->client->get(self::LOGIN_URL, [
+            'query' => ['service' => $service],
+        ]);
+        $html = (string) $loginPage->getBody();
+
+        // Extract the execution token from the hidden input
+        \preg_match('/name="execution"\s+value="([^"]+)"/', $html, $m);
+        $execution = $m[1] ?? null;
+
+        if ($execution === null) {
+            throw new \RuntimeException('Could not extract execution token from CAS login form.');
+        }
+
+        // Step 2: POST the login form
         $this->client->post(self::LOGIN_URL, [
             'form_params' => [
-                'username' => $username,
-                'password' => $password,
-                'execution' => 'e1s1',
-                '_eventId' => 'submit',
-                'lt' => '',
+                'username'   => $username,
+                'password'   => $password,
+                'execution'  => $execution,
+                '_eventId'   => 'submit',
+                'service'    => $service,
+                'rememberMe' => 'on',
+            ],
+            'headers' => [
+                'Referer'       => (string) $loginPage->getEffectiveUri(),
+                'Origin'        => 'https://secure.birds.cornell.edu',
+                'Content-Type'  => 'application/x-www-form-urlencoded',
             ],
         ]);
     }
