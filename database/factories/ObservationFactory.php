@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Observation;
@@ -18,7 +20,6 @@ class ObservationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
         ];
     }
 }

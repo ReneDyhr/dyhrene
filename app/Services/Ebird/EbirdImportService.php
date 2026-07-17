@@ -183,7 +183,7 @@ final class EbirdImportService
                 'rememberMe' => 'on',
             ],
             'headers' => [
-                'Referer'       => self::LOGIN_URL . '?service=' . urlencode($service),
+                'Referer'       => self::LOGIN_URL . '?service=' . \urlencode($service),
                 'Origin'        => 'https://secure.birds.cornell.edu',
                 'Content-Type'  => 'application/x-www-form-urlencoded',
             ],
@@ -265,7 +265,7 @@ final class EbirdImportService
                 'area_ha' => $checklistData['area_ha'] ?? null,
                 'observer_count' => $checklistData['observer_count'] ?? null,
                 'complete_checklist' => $checklistData['complete_checklist'] ?? false,
-            ], fn ($v) => $v !== null);
+            ], fn($v) => $v !== null);
 
             if ($updateData !== []) {
                 Observation::query()

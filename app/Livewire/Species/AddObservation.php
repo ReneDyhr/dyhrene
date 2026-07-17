@@ -26,9 +26,9 @@ class AddObservation extends Component
 
     public function mount(?Species $species = null): void
     {
-        $this->date = now()->format('Y-m-d');
+        $this->date = \now()->format('Y-m-d');
 
-        if ($species !== null && $species->user_id === auth()->id()) {
+        if ($species !== null && $species->user_id === \auth()->id()) {
             $this->selectedSpeciesId = $species->id;
             $this->speciesSearch = $species->common_name;
         }
@@ -88,8 +88,8 @@ class AddObservation extends Component
             'source' => 'manual',
         ]);
 
-        session()->flash('success', 'Observation logged!');
-        $this->redirect(route('species.show', $this->selectedSpeciesId));
+        \session()->flash('success', 'Observation logged!');
+        $this->redirect(\route('species.show', $this->selectedSpeciesId));
     }
 
     public function render()

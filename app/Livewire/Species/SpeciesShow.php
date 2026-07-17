@@ -13,12 +13,12 @@ class SpeciesShow extends Component
 
     public function mount(Species $species): void
     {
-        abort_if($species->user_id !== auth()->id(), 403);
+        \abort_if($species->user_id !== \auth()->id(), 403);
         $this->species = $species->load('observations');
     }
 
     /**
-     * @return array<string, int>  e.g. ['Jan' => 3, 'Feb' => 0, ...]
+     * @return array<string, int> e.g. ['Jan' => 3, 'Feb' => 0, ...]
      */
     public function monthlyData(): array
     {
@@ -36,6 +36,7 @@ class SpeciesShow extends Component
         ];
 
         $result = [];
+
         foreach ($months as $num => $label) {
             $result[$label] = (int) ($db[$num] ?? 0);
         }
@@ -45,7 +46,7 @@ class SpeciesShow extends Component
 
     public function render()
     {
-        return view('livewire.species.species-show', [
+        return \view('livewire.species.species-show', [
             'observations' => $this->species->observations()
                 ->orderBy('observed_at', 'desc')
                 ->get(),
