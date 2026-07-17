@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Species;
 
+use App\Models\Observation;
 use App\Models\Species;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -24,7 +25,8 @@ class SpeciesShow extends Component
     public function monthlyData(): array
     {
         /** @var array<string, string> $db */
-        $db = $this->species->observations()
+        $db = Observation::query()
+            ->where('species_id', $this->species->id)
             ->selectRaw("DATE_FORMAT(observed_at, '%m') as m, COUNT(*) as count")
             ->groupBy('m')
             ->pluck('count', 'm')
