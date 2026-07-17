@@ -1,34 +1,55 @@
+@section('title', 'Bird Species')
 <div>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl">Bird Species</h2>
-    </x-slot>
-
-    <div class="p-4">
-        <div class="flex gap-3 mb-4">
-            <input type="text" wire:model.live.debounce.300ms="search"
-                   placeholder="Search species (dansk or latin)..."
-                   class="w-full px-3 py-2 border rounded shadow-sm">
-            <a href="{{ route('species.add') }}"
-               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap">
-                + Log Observation
-            </a>
-        </div>
-
-        <div class="grid gap-3">
-            @foreach ($speciesList as $s)
-                <a href="{{ route('species.show', $s) }}" wire:navigate
-                   class="block p-3 border rounded hover:bg-gray-50 transition">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <span class="font-semibold">{{ $s->common_name }}</span>
-                            <span class="text-gray-500 italic ml-2">{{ $s->scientific_name }}</span>
-                        </div>
-                        <span class="text-sm text-gray-500">{{ $s->observations_count }} obs</span>
+    @include('components.layouts.sidenav')
+    <div id="main">
+        @include('components.layouts.header')
+        <div class="content homepage">
+            <div class="col-12">
+                <div class="recipe" style="overflow:hidden;">
+                    <div style="float:right;">
+                        <a href="{{ route('species.add') }}" class="btn btn-success">
+                            <i class="fa fa-plus"></i> Log Observation
+                        </a>
                     </div>
-                </a>
-            @endforeach
-        </div>
+                    <h1>Bird Species</h1>
 
-        <div class="mt-4">{{ $speciesList->links() }}</div>
+                    <div class="form-group" style="margin-top:20px;">
+                        <input type="text" wire:model.live.debounce.300ms="search"
+                               placeholder="Search species (dansk or latin)..."
+                               class="form-control">
+                    </div>
+                    <div class="clear"></div>
+                </div>
+
+                <div class="recipe-list">
+                    <div class="list">
+                        @foreach ($speciesList as $s)
+                            <div class="recipe">
+                                <h1>
+                                    <a href="{{ route('species.show', $s) }}" wire:navigate>{{ $s->common_name }}</a>
+                                </h1>
+                                <div class="tags">
+                                    <span class="pull-right" style="font-size:0.8rem;color:#888;">
+                                        {{ $s->observations_count }} obs
+                                    </span>
+                                    <span style="font-style:italic;font-size:0.8rem;">{{ $s->scientific_name }}</span>
+                                    <div class="clear"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                        <div class="clear"></div>
+                    </div>
+                </div>
+
+                <div class="text-center" style="margin-top:20px;">
+                    {{ $speciesList->links() }}
+                </div>
+            </div>
+
+            <div class="alert alert-info" role="alert"><header>Information</header><main><span class="alert_text"></span></main></div>
+            <div class="alert alert-success" role="alert"><header>Success</header><main><span class="alert_text"></span></main></div>
+            <div class="alert alert-warning" role="alert"><header>Warning</header><main><span class="alert_text"></span></main></div>
+            <div class="alert alert-danger" role="alert"><header>Error</header><main><span class="alert_text"></span></main></div>
+        </div>
     </div>
 </div>
