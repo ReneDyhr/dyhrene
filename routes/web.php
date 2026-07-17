@@ -69,6 +69,12 @@ Route::get('receipts/{receipt}', App\Livewire\Receipts\Show::class)->middleware(
 Route::get('receipts/{receipt}/edit', App\Livewire\Receipts\Edit::class)->middleware('auth')->name('receipts.edit');
 // Route::resource('receipts', ReceiptController::class);
 
+// Bird Species
+Route::get('/species', App\Livewire\Species\SpeciesIndex::class)->middleware('auth')->name('species.index');
+Route::get('/species/add', App\Livewire\Species\AddObservation::class)->middleware('auth')->name('species.add');
+Route::get('/species/add/{species}', App\Livewire\Species\AddObservation::class)->middleware('auth')->name('species.add-preselected');
+Route::get('/species/{species}', App\Livewire\Species\SpeciesShow::class)->middleware('auth')->name('species.show');
+
 Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt): Illuminate\Http\Response {
     if ($receipt->user_id !== \auth()->id()) {
         \abort(403);
