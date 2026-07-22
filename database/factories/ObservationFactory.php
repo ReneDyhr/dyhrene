@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Observation;
+use App\Models\Species;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,6 +22,9 @@ class ObservationFactory extends Factory
     public function definition(): array
     {
         return [
+            'species_id' => Species::factory(),
+            'user_id' => User::factory(),
+            'observed_at' => \fake()->date(),
         ];
     }
 }
