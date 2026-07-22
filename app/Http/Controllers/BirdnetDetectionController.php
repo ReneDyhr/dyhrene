@@ -136,7 +136,7 @@ final class BirdnetDetectionController
                 'detection' => $detection,
             ], 201);
         } catch (\Throwable $e) {
-            if ($audioPath !== null) {
+            if (\is_string($audioPath)) {
                 Storage::disk('wasabi')->delete($audioPath);
             }
 
