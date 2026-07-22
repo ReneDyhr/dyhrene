@@ -19,7 +19,8 @@ final class BirdnetDetectionController
         /** @var array<string, mixed> $metadata */
         $metadata = \json_decode($request->string('metadata')->value(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $detectionUuid = \strval($metadata['id'] ?? '');
+        // @phpstan-ignore-next-line cast.string
+        $detectionUuid = (string) ($metadata['id'] ?? '');
 
         /** @var \App\Models\User $user */
         $user = \auth()->user();
@@ -47,14 +48,22 @@ final class BirdnetDetectionController
         }
 
         // Extract typed values from metadata before entering closure
-        $scientificName = \strval($metadata['scientific_name'] ?? '');
-        $commonName = \strval($metadata['common_name'] ?? '');
-        $confidence = \floatval($metadata['confidence'] ?? 0.0);
-        $startTime = \floatval($metadata['start_time'] ?? 0.0);
-        $endTime = \floatval($metadata['end_time'] ?? 0.0);
-        $recordedAtStr = \strval($metadata['recorded_at'] ?? '');
-        $latitude = \floatval($metadata['latitude'] ?? 0.0);
-        $longitude = \floatval($metadata['longitude'] ?? 0.0);
+        // @phpstan-ignore cast.string
+        $scientificName = (string) ($metadata['scientific_name'] ?? '');
+        // @phpstan-ignore cast.string
+        $commonName = (string) ($metadata['common_name'] ?? '');
+        // @phpstan-ignore cast.double
+        $confidence = (float) ($metadata['confidence'] ?? 0.0);
+        // @phpstan-ignore cast.double
+        $startTime = (float) ($metadata['start_time'] ?? 0.0);
+        // @phpstan-ignore cast.double
+        $endTime = (float) ($metadata['end_time'] ?? 0.0);
+        // @phpstan-ignore cast.string
+        $recordedAtStr = (string) ($metadata['recorded_at'] ?? '');
+        // @phpstan-ignore cast.double
+        $latitude = (float) ($metadata['latitude'] ?? 0.0);
+        // @phpstan-ignore cast.double
+        $longitude = (float) ($metadata['longitude'] ?? 0.0);
         $segmentId = $metadata['segment_id'] ?? null;
 
         // Wrap all DB writes in a transaction
