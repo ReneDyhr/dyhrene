@@ -11,7 +11,7 @@ class UploadBirdnetDetectionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return (bool) \auth()->user();
+        return (bool) \auth('api')->user();
     }
 
     /**
