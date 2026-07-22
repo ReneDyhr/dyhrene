@@ -94,7 +94,7 @@ final class BirdnetDetectionController
                 'location' => \sprintf(
                     '%s, %s',
                     (string) ($metadata['latitude'] ?? ''),
-                    (string) ($metadata['longitude'] ?? '')
+                    (string) ($metadata['longitude'] ?? ''),
                 ),
                 'source' => 'birdnet',
             ]);
@@ -129,7 +129,7 @@ final class BirdnetDetectionController
                 ],
                 [
                     'common_name' => $commonName,
-                ]
+                ],
             );
 
             return $species;
