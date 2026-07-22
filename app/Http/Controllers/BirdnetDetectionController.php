@@ -50,18 +50,25 @@ final class BirdnetDetectionController
         // Extract typed values from metadata before entering closure
         /** @var string $scientificName */
         $scientificName = (string) ($metadata['scientific_name'] ?? '');
+
         /** @var string $commonName */
         $commonName = (string) ($metadata['common_name'] ?? '');
+
         /** @var float $confidence */
         $confidence = (float) ($metadata['confidence'] ?? 0.0);
+
         /** @var float $startTime */
         $startTime = (float) ($metadata['start_time'] ?? 0.0);
+
         /** @var float $endTime */
         $endTime = (float) ($metadata['end_time'] ?? 0.0);
+
         /** @var string $recordedAtStr */
         $recordedAtStr = (string) ($metadata['recorded_at'] ?? '');
+
         /** @var float $latitude */
         $latitude = (float) ($metadata['latitude'] ?? 0.0);
+
         /** @var float $longitude */
         $longitude = (float) ($metadata['longitude'] ?? 0.0);
         $segmentId = $metadata['segment_id'] ?? null;
