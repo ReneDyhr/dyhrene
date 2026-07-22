@@ -12,7 +12,7 @@ return [
     | Disable for development to use a hardcoded user instead.
     |
      */
-    'auth_enabled' => \env('BIRDWATCHER_AUTH_ENABLED', true),
+    'auth_enabled' => \filter_var(\env('BIRDWATCHER_AUTH_ENABLED', true), \FILTER_VALIDATE_BOOL),
 
     /*
     |--------------------------------------------------------------------------

@@ -12,9 +12,8 @@ final class BirdwatcherAuth
 {
     public function handle(Request $request, \Closure $next): Response
     {
-        // When auth is disabled, pre-authenticate the hardcoded user.
-        // The auth:api middleware runs after this and sees the user is set.
         if (!(bool) \config('birdwatcher.auth_enabled', true)) {
+            // Auth disabled — pre-authenticate hardcoded user, skip Passport
             $email = \config('birdwatcher.hardcoded_user_email');
 
             if (!\is_string($email) || $email === '') {
@@ -28,6 +27,13 @@ final class BirdwatcherAuth
             }
 
             \auth()->guard('api')->setUser($user);
+
+            return $next($request);
+        }
+
+        // Auth enabled — validate Bearer token via Passport
+        if (!\auth('api')->check()) {
+            \abort(401, 'Unauthenticated.');
         }
 
         return $next($request);
