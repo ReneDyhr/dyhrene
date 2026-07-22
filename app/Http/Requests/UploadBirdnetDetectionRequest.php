@@ -11,7 +11,7 @@ class UploadBirdnetDetectionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        if (! (bool) \config('birdwatcher.auth_enabled', true)) {
+        if (!(bool) \config('birdwatcher.auth_enabled', true)) {
             // Auth disabled — always allow, controller resolves user
             return true;
         }
