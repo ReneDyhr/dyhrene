@@ -16,4 +16,4 @@ declare(strict_types=1);
 use App\Http\Controllers\BirdnetDetectionController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/species/upload', BirdnetDetectionController::class)->middleware('auth:api');
+Route::post('/species/upload', BirdnetDetectionController::class)->middleware('birdwatcher.auth');
