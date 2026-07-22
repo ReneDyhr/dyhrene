@@ -46,14 +46,29 @@ final class BirdnetDetectionController
             $audioPath = Storage::disk('wasabi')->put('birdnet-audio', $file);
         }
 
+        // Extract typed values from metadata before entering closure
         $scientificName = (string) ($metadata['scientific_name'] ?? '');
         $commonName = (string) ($metadata['common_name'] ?? '');
+        $confidence = (float) ($metadata['confidence'] ?? 0.0);
+        $startTime = (float) ($metadata['start_time'] ?? 0.0);
+        $endTime = (float) ($metadata['end_time'] ?? 0.0);
+        $recordedAtStr = (string) ($metadata['recorded_at'] ?? '');
+        $latitude = (float) ($metadata['latitude'] ?? 0.0);
+        $longitude = (float) ($metadata['longitude'] ?? 0.0);
+        $segmentId = $metadata['segment_id'] ?? null;
 
         // Wrap all DB writes in a transaction
         [$detection, $observation] = DB::transaction(function () use (
             $user,
             $scientificName,
             $commonName,
+            $confidence,
+            $startTime,
+            $endTime,
+            $recordedAtStr,
+            $latitude,
+            $longitude,
+            $segmentId,
             $detectionUuid,
             $metadata,
             $audioPath,
@@ -66,23 +81,22 @@ final class BirdnetDetectionController
                 'detection_uuid' => $detectionUuid,
                 'scientific_name' => $scientificName,
                 'common_name' => $commonName,
-                'confidence' => (float) ($metadata['confidence'] ?? 0.0),
-                'start_time' => (float) ($metadata['start_time'] ?? 0.0),
-                'end_time' => (float) ($metadata['end_time'] ?? 0.0),
-                'recorded_at' => (string) ($metadata['recorded_at'] ?? ''),
-                'latitude' => (float) ($metadata['latitude'] ?? 0.0),
-                'longitude' => (float) ($metadata['longitude'] ?? 0.0),
+                'confidence' => $confidence,
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'recorded_at' => $recordedAtStr,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
                 'audio_path' => $audioPath,
-                'segment_id' => $metadata['segment_id'] ?? null,
+                'segment_id' => $segmentId,
                 'raw_metadata' => $metadata,
                 'species_id' => $species->id,
                 'user_id' => $user->id,
             ]);
 
             // Parse recorded_at and split into date + time for Observation
-            $recordedAt = (string) ($metadata['recorded_at'] ?? '');
-            $dt = $recordedAt !== ''
-                ? new \DateTimeImmutable($recordedAt)
+            $dt = $recordedAtStr !== ''
+                ? new \DateTimeImmutable($recordedAtStr)
                 : new \DateTimeImmutable();
 
             // Create Observation
@@ -91,11 +105,7 @@ final class BirdnetDetectionController
                 'user_id' => $user->id,
                 'observed_at' => $dt->format('Y-m-d'),
                 'observed_time' => $dt->format('H:i:s'),
-                'location' => \sprintf(
-                    '%s, %s',
-                    (string) ($metadata['latitude'] ?? ''),
-                    (string) ($metadata['longitude'] ?? ''),
-                ),
+                'location' => \sprintf('%s, %s', $latitude, $longitude),
                 'source' => 'birdnet',
             ]);
 

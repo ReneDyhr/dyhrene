@@ -40,8 +40,12 @@ class BirdnetDetectionFactory extends Factory
 
     public function withEndTime(float $endTime): static
     {
-        return $this->state(fn(array $attributes): array => [
-            'end_time' => (float) ($attributes['start_time'] ?? 0.0) + \abs($endTime - (float) ($attributes['start_time'] ?? 0.0)),
-        ]);
+        return $this->state(function (array $attributes) use ($endTime): array {
+            $startTime = (float) ($attributes['start_time'] ?? 0.0);
+
+            return [
+                'end_time' => $startTime + \abs($endTime - $startTime),
+            ];
+        });
     }
 }
