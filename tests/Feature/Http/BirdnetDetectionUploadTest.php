@@ -111,12 +111,12 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
     \expect(BirdnetDetection::query()->where('user_id', $userB->id)->count())->toBe(0);
 })->covers(BirdnetDetectionController::class)->group('feature');
 
-\test('unauthenticated request returns 401', function (): void {
+\test('unauthenticated request returns 403', function (): void {
     $response = $this->postJson('/api/species/upload', [
         'metadata' => 'not-json',
     ]);
 
-    $response->assertStatus(401);
+    $response->assertStatus(403);
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('invalid metadata JSON returns 422', function (): void {

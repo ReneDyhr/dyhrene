@@ -8,6 +8,7 @@ use App\Http\Requests\UploadBirdnetDetectionRequest;
 use App\Models\BirdnetDetection;
 use App\Models\Observation;
 use App\Models\Species;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -16,14 +17,18 @@ final class BirdnetDetectionController
 {
     public function __invoke(UploadBirdnetDetectionRequest $request): JsonResponse
     {
+        // Resolve authenticated user: env-controlled or Passport
+        $user = $this->resolveUser();
+
+        if ($user === null) {
+            return \response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
         /** @var array<string, mixed> $metadata */
         $metadata = \json_decode($request->string('metadata')->value(), true, 512, \JSON_THROW_ON_ERROR);
 
         // @phpstan-ignore-next-line cast.string
         $detectionUuid = (string) ($metadata['id'] ?? '');
-
-        /** @var \App\Models\User $user */
-        $user = \auth()->user();
 
         // Idempotent: return 200 if already exists (scoped to user)
         $existing = BirdnetDetection::query()
@@ -142,6 +147,31 @@ final class BirdnetDetectionController
 
             throw $e;
         }
+    }
+
+    /**
+     * Resolve the authenticated user.
+     *
+     * When BIRDWATCHER_AUTH_ENABLED is false, uses the hardcoded user
+     * from BIRDWATCHER_HARDCODED_USER_EMAIL. Otherwise validates the
+     * Passport Bearer token via the api guard.
+     */
+    private function resolveUser(): ?User
+    {
+        if (!(bool) \config('birdwatcher.auth_enabled', true)) {
+            $email = \config('birdwatcher.hardcoded_user_email');
+
+            if (!\is_string($email) || $email === '') {
+                return null;
+            }
+
+            return User::query()->where('email', $email)->first();
+        }
+
+        /** @var null|User $user */
+        $user = \auth('api')->user();
+
+        return $user;
     }
 
     /**
