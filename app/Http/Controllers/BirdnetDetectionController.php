@@ -18,7 +18,7 @@ final class BirdnetDetectionController
         /** @var array<string, mixed> $metadata */
         $metadata = \json_decode($request->string('metadata')->value(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $detectionUuid = (string) $metadata['id'];
+        $detectionUuid = (string) ($metadata['id'] ?? '');
 
         // Idempotent: return 200 if already exists
         $existing = BirdnetDetection::query()
@@ -36,7 +36,7 @@ final class BirdnetDetectionController
         $user = \auth()->user();
 
         // Find or create Species scoped to user
-        $scientificName = (string) $metadata['scientific_name'];
+        $scientificName = (string) ($metadata['scientific_name'] ?? '');
         $commonName = (string) ($metadata['common_name'] ?? '');
 
         $species = Species::query()
@@ -66,12 +66,12 @@ final class BirdnetDetectionController
             'detection_uuid' => $detectionUuid,
             'scientific_name' => $scientificName,
             'common_name' => $commonName,
-            'confidence' => (float) $metadata['confidence'],
-            'start_time' => (float) $metadata['start_time'],
-            'end_time' => (float) $metadata['end_time'],
-            'recorded_at' => $metadata['recorded_at'],
-            'latitude' => (float) $metadata['latitude'],
-            'longitude' => (float) $metadata['longitude'],
+            'confidence' => (float) ($metadata['confidence'] ?? 0.0),
+            'start_time' => (float) ($metadata['start_time'] ?? 0.0),
+            'end_time' => (float) ($metadata['end_time'] ?? 0.0),
+            'recorded_at' => (string) ($metadata['recorded_at'] ?? ''),
+            'latitude' => (float) ($metadata['latitude'] ?? 0.0),
+            'longitude' => (float) ($metadata['longitude'] ?? 0.0),
             'audio_path' => $audioPath,
             'segment_id' => $metadata['segment_id'] ?? null,
             'raw_metadata' => $metadata,
@@ -83,17 +83,23 @@ final class BirdnetDetectionController
         $observation = Observation::query()->create([
             'species_id' => $species->id,
             'user_id' => $user->id,
-            'observed_at' => $metadata['recorded_at'],
-            'location' => \sprintf('%s, %s', $metadata['latitude'], $metadata['longitude']),
+            'observed_at' => (string) ($metadata['recorded_at'] ?? ''),
+            'location' => \sprintf(
+                '%s, %s',
+                (string) ($metadata['latitude'] ?? ''),
+                (string) ($metadata['longitude'] ?? '')
+            ),
             'source' => 'birdnet',
         ]);
 
         // Link observation to detection
         $detection->update(['observation_id' => $observation->id]);
 
+        $detection->load(['species', 'observation']);
+
         return \response()->json([
             'message' => 'Detection uploaded successfully',
-            'detection' => $detection->fresh()->load(['species', 'observation']),
+            'detection' => $detection,
         ], 201);
     }
 }
