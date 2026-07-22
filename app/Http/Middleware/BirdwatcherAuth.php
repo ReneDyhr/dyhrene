@@ -17,13 +17,17 @@ final class BirdwatcherAuth
             $email = \config('birdwatcher.hardcoded_user_email');
 
             if (!\is_string($email) || $email === '') {
-                \abort(500, 'BIRDWATCHER_HARDCODED_USER_EMAIL not configured.');
+                return \response()->json([
+                    'message' => 'BIRDWATCHER_HARDCODED_USER_EMAIL not configured.',
+                ], 500);
             }
 
             $user = User::query()->where('email', $email)->first();
 
             if ($user === null) {
-                \abort(500, "Hardcoded user '{$email}' not found.");
+                return \response()->json([
+                    'message' => "Hardcoded user '{$email}' not found.",
+                ], 500);
             }
 
             \auth()->guard('api')->setUser($user);
@@ -33,7 +37,9 @@ final class BirdwatcherAuth
 
         // Auth enabled — validate Bearer token via Passport
         if (!\auth('api')->check()) {
-            \abort(401, 'Unauthenticated.');
+            return \response()->json([
+                'message' => 'Unauthenticated.',
+            ], 401);
         }
 
         return $next($request);
