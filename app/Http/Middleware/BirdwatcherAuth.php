@@ -12,8 +12,9 @@ final class BirdwatcherAuth
 {
     public function handle(Request $request, \Closure $next): Response
     {
-        if (!\config('birdwatcher.auth_enabled', true)) {
-            // Auth disabled — resolve hardcoded user
+        // When auth is disabled, pre-authenticate the hardcoded user.
+        // The auth:api middleware runs after this and sees the user is set.
+        if (!(bool) \config('birdwatcher.auth_enabled', true)) {
             $email = \config('birdwatcher.hardcoded_user_email');
 
             if (!\is_string($email) || $email === '') {
@@ -26,13 +27,8 @@ final class BirdwatcherAuth
                 \abort(500, "Hardcoded user '{$email}' not found.");
             }
 
-            \auth()->setUser($user);
-
-            return $next($request);
+            \auth()->guard('api')->setUser($user);
         }
-
-        // Auth enabled — delegates to Passport auth:api guard
-        \auth('api')->authenticate();
 
         return $next($request);
     }
