@@ -38,98 +38,110 @@ final class BirdnetDetectionController
             ], 200);
         }
 
-        // Store audio file to Wasabi if present (before transaction)
+        // Store audio file to Wasabi if present
         $audioPath = null;
 
-        if ($request->hasFile('audio')) {
-            $file = $request->file('audio');
-            \assert($file instanceof \Illuminate\Http\UploadedFile);
-            $audioPath = Storage::disk('wasabi')->put('birdnet-audio', $file);
+        try {
+            if ($request->hasFile('audio')) {
+                $file = $request->file('audio');
+
+                if ($file === null) {
+                    return \response()->json(['message' => 'Audio file is invalid.'], 422);
+                }
+
+                $audioPath = Storage::disk('wasabi')->put('birdnet-audio', $file);
+            }
+
+            // Extract typed values from metadata before entering closure
+            // @phpstan-ignore cast.string
+            $scientificName = (string) ($metadata['scientific_name'] ?? '');
+            // @phpstan-ignore cast.string
+            $commonName = (string) ($metadata['common_name'] ?? '');
+            // @phpstan-ignore cast.double
+            $confidence = (float) ($metadata['confidence'] ?? 0.0);
+            // @phpstan-ignore cast.double
+            $startTime = (float) ($metadata['start_time'] ?? 0.0);
+            // @phpstan-ignore cast.double
+            $endTime = (float) ($metadata['end_time'] ?? 0.0);
+            // @phpstan-ignore cast.string
+            $recordedAtStr = (string) ($metadata['recorded_at'] ?? '');
+            // @phpstan-ignore cast.double
+            $latitude = (float) ($metadata['latitude'] ?? 0.0);
+            // @phpstan-ignore cast.double
+            $longitude = (float) ($metadata['longitude'] ?? 0.0);
+            $segmentId = $metadata['segment_id'] ?? null;
+
+            // Wrap all DB writes in a transaction
+            [$detection, $observation] = DB::transaction(function () use (
+                $user,
+                $scientificName,
+                $commonName,
+                $confidence,
+                $startTime,
+                $endTime,
+                $recordedAtStr,
+                $latitude,
+                $longitude,
+                $segmentId,
+                $detectionUuid,
+                $metadata,
+                $audioPath,
+            ): array {
+                // Find or create Species scoped to user (firstOrCreate with try/catch)
+                $species = $this->findOrCreateSpecies($scientificName, $commonName, $user->id);
+
+                // Create BirdnetDetection
+                $detection = BirdnetDetection::query()->create([
+                    'detection_uuid' => $detectionUuid,
+                    'scientific_name' => $scientificName,
+                    'common_name' => $commonName,
+                    'confidence' => $confidence,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'recorded_at' => $recordedAtStr,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                    'audio_path' => $audioPath,
+                    'segment_id' => $segmentId,
+                    'raw_metadata' => $metadata,
+                    'species_id' => $species->id,
+                    'user_id' => $user->id,
+                ]);
+
+                // Parse recorded_at and split into date + time for Observation
+                $dt = $recordedAtStr !== ''
+                    ? new \DateTimeImmutable($recordedAtStr)
+                    : new \DateTimeImmutable();
+
+                // Create Observation
+                $observation = Observation::query()->create([
+                    'species_id' => $species->id,
+                    'user_id' => $user->id,
+                    'observed_at' => $dt->format('Y-m-d'),
+                    'observed_time' => $dt->format('H:i:s'),
+                    'location' => \sprintf('%s, %s', $latitude, $longitude),
+                    'source' => 'birdnet',
+                ]);
+
+                // Link observation to detection
+                $detection->update(['observation_id' => $observation->id]);
+
+                return [$detection, $observation];
+            });
+
+            $detection->load(['species', 'observation']);
+
+            return \response()->json([
+                'message' => 'Detection uploaded successfully',
+                'detection' => $detection,
+            ], 201);
+        } catch (\Throwable $e) {
+            if ($audioPath !== null) {
+                Storage::disk('wasabi')->delete($audioPath);
+            }
+
+            throw $e;
         }
-
-        // Extract typed values from metadata before entering closure
-        // @phpstan-ignore cast.string
-        $scientificName = (string) ($metadata['scientific_name'] ?? '');
-        // @phpstan-ignore cast.string
-        $commonName = (string) ($metadata['common_name'] ?? '');
-        // @phpstan-ignore cast.double
-        $confidence = (float) ($metadata['confidence'] ?? 0.0);
-        // @phpstan-ignore cast.double
-        $startTime = (float) ($metadata['start_time'] ?? 0.0);
-        // @phpstan-ignore cast.double
-        $endTime = (float) ($metadata['end_time'] ?? 0.0);
-        // @phpstan-ignore cast.string
-        $recordedAtStr = (string) ($metadata['recorded_at'] ?? '');
-        // @phpstan-ignore cast.double
-        $latitude = (float) ($metadata['latitude'] ?? 0.0);
-        // @phpstan-ignore cast.double
-        $longitude = (float) ($metadata['longitude'] ?? 0.0);
-        $segmentId = $metadata['segment_id'] ?? null;
-
-        // Wrap all DB writes in a transaction
-        [$detection, $observation] = DB::transaction(function () use (
-            $user,
-            $scientificName,
-            $commonName,
-            $confidence,
-            $startTime,
-            $endTime,
-            $recordedAtStr,
-            $latitude,
-            $longitude,
-            $segmentId,
-            $detectionUuid,
-            $metadata,
-            $audioPath,
-        ): array {
-            // Find or create Species scoped to user (firstOrCreate with try/catch)
-            $species = $this->findOrCreateSpecies($scientificName, $commonName, $user->id);
-
-            // Create BirdnetDetection
-            $detection = BirdnetDetection::query()->create([
-                'detection_uuid' => $detectionUuid,
-                'scientific_name' => $scientificName,
-                'common_name' => $commonName,
-                'confidence' => $confidence,
-                'start_time' => $startTime,
-                'end_time' => $endTime,
-                'recorded_at' => $recordedAtStr,
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-                'audio_path' => $audioPath,
-                'segment_id' => $segmentId,
-                'raw_metadata' => $metadata,
-                'species_id' => $species->id,
-                'user_id' => $user->id,
-            ]);
-
-            // Parse recorded_at and split into date + time for Observation
-            $dt = $recordedAtStr !== ''
-                ? new \DateTimeImmutable($recordedAtStr)
-                : new \DateTimeImmutable();
-
-            // Create Observation
-            $observation = Observation::query()->create([
-                'species_id' => $species->id,
-                'user_id' => $user->id,
-                'observed_at' => $dt->format('Y-m-d'),
-                'observed_time' => $dt->format('H:i:s'),
-                'location' => \sprintf('%s, %s', $latitude, $longitude),
-                'source' => 'birdnet',
-            ]);
-
-            // Link observation to detection
-            $detection->update(['observation_id' => $observation->id]);
-
-            return [$detection, $observation];
-        });
-
-        $detection->load(['species', 'observation']);
-
-        return \response()->json([
-            'message' => 'Detection uploaded successfully',
-            'detection' => $detection,
-        ], 201);
     }
 
     /**

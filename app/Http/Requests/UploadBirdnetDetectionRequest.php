@@ -39,7 +39,7 @@ class UploadBirdnetDetectionRequest extends FormRequest
                 return;
             }
 
-            $metadata = \json_decode($metadataRaw, true, 512, \JSON_THROW_ON_ERROR);
+            $metadata = \json_decode($metadataRaw, true, 512);
 
             if (!\is_array($metadata)) {
                 $validator->errors()->add('metadata', 'The metadata must be a valid JSON object.');
