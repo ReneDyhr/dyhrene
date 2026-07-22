@@ -28,7 +28,6 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
 
-            $table->index('detection_uuid');
             $table->index('scientific_name');
             $table->index('recorded_at');
         });

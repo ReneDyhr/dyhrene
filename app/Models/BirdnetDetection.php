@@ -59,7 +59,7 @@ class BirdnetDetection extends Model
     {
         return [
             'recorded_at' => 'datetime',
-            'confidence' => 'float',
+            'confidence' => 'decimal:4',
             'start_time' => 'float',
             'end_time' => 'float',
             'latitude' => 'float',
