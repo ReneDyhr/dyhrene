@@ -41,8 +41,7 @@ class BirdnetDetectionFactory extends Factory
     public function withEndTime(float $endTime): static
     {
         return $this->state(function (array $attributes) use ($endTime): array {
-            /** @var float $startTime */
-            $startTime = (float) ($attributes['start_time'] ?? 0.0);
+            $startTime = \floatval($attributes['start_time'] ?? 0.0);
 
             return [
                 'end_time' => $startTime + \abs($endTime - $startTime),
