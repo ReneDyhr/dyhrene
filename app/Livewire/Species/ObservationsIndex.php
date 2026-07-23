@@ -41,7 +41,7 @@ class ObservationsIndex extends Component
 
     public function render(): View
     {
-        $allowed = ['observed_at', 'common_name', 'count', 'location', 'source'];
+        $allowed = ['observed_at', 'common_name', 'count', 'source'];
         $field = \in_array($this->sortField, $allowed, true) ? $this->sortField : 'observed_at';
         $dir = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 

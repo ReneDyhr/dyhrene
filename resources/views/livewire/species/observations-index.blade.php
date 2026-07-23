@@ -72,16 +72,6 @@
                                         </a>
                                     </th>
                                     <th style="font-size: 0.8rem;">
-                                        <a href="#" wire:click.prevent="sortBy('location')" style="color: inherit; text-decoration: none; font-size: 0.8rem;">
-                                            Location
-                                            @if ($sortField === 'location')
-                                                <i class="fa fa-sort-{{ $sortDirection === 'asc' ? 'asc' : 'desc' }}"></i>
-                                            @else
-                                                <i class="fa fa-sort"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th style="font-size: 0.8rem;">
                                         <a href="#" wire:click.prevent="sortBy('source')" style="color: inherit; text-decoration: none; font-size: 0.8rem;">
                                             Source
                                             @if ($sortField === 'source')
@@ -114,7 +104,6 @@
                                             {{ $localTime->format('d M Y H:i') }}
                                         </td>
                                         <td>{{ $obs->count }}</td>
-                                        <td>{{ $obs->location ?? '—' }}</td>
                                         <td>
                                             @if ($obs->source === 'ebird_import')
                                                 <span class="label label-info">eBird</span>

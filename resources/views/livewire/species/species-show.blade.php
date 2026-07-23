@@ -44,7 +44,6 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Count</th>
-                                    <th>Location</th>
                                     <th>Source</th>
                                     <th>Audio</th>
                                 </tr>
@@ -61,7 +60,6 @@
                                             {{ $localTime->format('d M Y H:i') }}
                                         </td>
                                         <td>{{ $obs->count }}</td>
-                                        <td>{{ $obs->location ?? '—' }}</td>
                                         <td>
                                             @if ($obs->source === 'ebird_import')
                                                 <span class="label label-info">eBird</span>
