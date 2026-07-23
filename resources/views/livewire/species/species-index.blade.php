@@ -82,7 +82,7 @@
                 </div>
 
                 <div class="text-center" style="margin-top:20px;">
-                    {{ $speciesList->links() }}
+                    {{ $speciesList->links('pagination::bootstrap-4') }}
                 </div>
             </div>
 

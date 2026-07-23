@@ -8,15 +8,18 @@ use App\Models\Observation;
 use App\Models\Species;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class SpeciesShow extends Component
 {
+    use WithPagination;
+
     public Species $species;
 
     public function mount(Species $species): void
     {
         \abort_if($species->user_id !== \auth()->id(), 403);
-        $this->species = $species->load('observations.birdnetDetections');
+        $this->species = $species;
     }
 
     /**
@@ -52,9 +55,10 @@ class SpeciesShow extends Component
     {
         return \view('livewire.species.species-show', [
             'observations' => $this->species->observations()
+                ->with(['birdnetDetections'])
                 ->orderBy('observed_at', 'desc')
                 ->orderBy('observed_time', 'desc')
-                ->get(),
+                ->paginate(50),
             'monthlyData' => $this->monthlyData(),
         ]);
     }

@@ -37,7 +37,7 @@
 
                 <!-- Observations table -->
                 <div class="notes">
-                    <h1>Observations ({{ count($observations) }})</h1>
+                    <h1>Observations ({{ $observations->total() }})</h1>
                     <div style="margin-top:20px;">
                         <table class="table table-striped">
                             <thead>
@@ -83,6 +83,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        {{ $observations->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>
