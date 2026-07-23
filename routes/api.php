@@ -12,8 +12,3 @@ declare(strict_types=1);
 | be assigned to the "api" middleware group. Make something great!
 |
  */
-
-use App\Http\Controllers\BirdnetDetectionController;
-use Illuminate\Support\Facades\Route;
-
-Route::post('/species/upload', BirdnetDetectionController::class);

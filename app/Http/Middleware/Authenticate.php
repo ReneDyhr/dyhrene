@@ -12,6 +12,10 @@ class Authenticate extends Middleware
     public function handle($request, \Closure $next, ...$guards): mixed
     {
         if (\auth()->guest()) {
+            if ($request->expectsJson() || \str_starts_with($request->path(), 'api/')) {
+                return \response()->json(['message' => 'Unauthenticated.'], 401);
+            }
+
             return \redirect()->route('login');
         }
 
