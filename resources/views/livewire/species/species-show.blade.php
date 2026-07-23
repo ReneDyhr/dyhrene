@@ -47,6 +47,7 @@
                                     <th>Count</th>
                                     <th>Location</th>
                                     <th>Source</th>
+                                    <th>Audio</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -59,8 +60,23 @@
                                         <td>
                                             @if ($obs->source === 'ebird_import')
                                                 <span class="label label-info">eBird</span>
+                                            @elseif ($obs->source === 'birdnet')
+                                                <span class="label label-success">BirdNET</span>
                                             @else
                                                 <span class="label label-default">Manual</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php
+                                                $detection = $obs->birdnetDetections->first(fn ($d) => $d->audio_path);
+                                                $audioUrl = $detection?->audioUrl();
+                                            @endphp
+                                            @if ($audioUrl)
+                                                <audio controls preload="none" style="height: 28px; width: 200px;">
+                                                    <source src="{{ $audioUrl }}" type="audio/wav">
+                                                </audio>
+                                            @else
+                                                —
                                             @endif
                                         </td>
                                     </tr>
