@@ -35,6 +35,6 @@ class Species extends Model
      */
     public function observations(): HasMany
     {
-        return $this->hasMany(Observation::class)->orderBy('observed_at', 'desc');
+        return $this->hasMany(Observation::class)->orderBy('observed_at', 'desc')->orderBy('observed_time', 'asc');
     }
 }

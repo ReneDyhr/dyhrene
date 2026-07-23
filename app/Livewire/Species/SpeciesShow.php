@@ -53,6 +53,7 @@ class SpeciesShow extends Component
         return \view('livewire.species.species-show', [
             'observations' => $this->species->observations()
                 ->orderBy('observed_at', 'desc')
+                ->orderBy('observed_time', 'asc')
                 ->get(),
             'monthlyData' => $this->monthlyData(),
         ]);
