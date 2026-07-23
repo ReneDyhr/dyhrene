@@ -72,16 +72,6 @@
                                         </a>
                                     </th>
                                     <th style="font-size: 0.8rem;">
-                                        <a href="#" wire:click.prevent="sortBy('location')" style="color: inherit; text-decoration: none; font-size: 0.8rem;">
-                                            Location
-                                            @if ($sortField === 'location')
-                                                <i class="fa fa-sort-{{ $sortDirection === 'asc' ? 'asc' : 'desc' }}"></i>
-                                            @else
-                                                <i class="fa fa-sort"></i>
-                                            @endif
-                                        </a>
-                                    </th>
-                                    <th style="font-size: 0.8rem;">
                                         <a href="#" wire:click.prevent="sortBy('source')" style="color: inherit; text-decoration: none; font-size: 0.8rem;">
                                             Source
                                             @if ($sortField === 'source')
@@ -91,6 +81,8 @@
                                             @endif
                                         </a>
                                     </th>
+                                    <th style="font-size: 0.8rem;">Confidence</th>
+                                    <th style="font-size: 0.8rem;">Time</th>
                                     <th style="font-size: 0.8rem;">Audio</th>
                                     <th style="font-size: 0.8rem;">Actions</th>
                                 </tr>
@@ -103,9 +95,15 @@
                                                 {{ $obs->species->common_name }}
                                             </a>
                                         </td>
-                                        <td>{{ $obs->observed_at->format('d M Y') }}</td>
+                                        <td>
+                                            @php
+                                                $dateStr = $obs->observed_at->format('Y-m-d') . ' ' . ($obs->observed_time ?? '00:00:00');
+                                                $localTime = \Carbon\Carbon::parse($dateStr, 'UTC')
+                                                    ->setTimezone('Europe/Copenhagen');
+                                            @endphp
+                                            {{ $localTime->format('d M Y H:i') }}
+                                        </td>
                                         <td>{{ $obs->count }}</td>
-                                        <td>{{ $obs->location ?? '—' }}</td>
                                         <td>
                                             @if ($obs->source === 'ebird_import')
                                                 <span class="label label-info">eBird</span>
@@ -113,6 +111,35 @@
                                                 <span class="label label-success">BirdNET</span>
                                             @else
                                                 <span class="label label-default">Manual</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php
+                                                $maxConf = $obs->birdnetDetections->isNotEmpty()
+                                                    ? $obs->birdnetDetections->max('confidence')
+                                                    : null;
+                                            @endphp
+                                            @if ($maxConf !== null)
+                                                <span title="{{ number_format((float) $maxConf * 100, 2) }}%">
+                                                    {{ number_format((float) $maxConf * 100, 1) }}%
+                                                </span>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php
+                                                $minStart = $obs->birdnetDetections->isNotEmpty()
+                                                    ? $obs->birdnetDetections->min('start_time')
+                                                    : null;
+                                                $maxEnd = $obs->birdnetDetections->isNotEmpty()
+                                                    ? $obs->birdnetDetections->max('end_time')
+                                                    : null;
+                                            @endphp
+                                            @if ($minStart !== null && $maxEnd !== null)
+                                                {{ number_format((float) $minStart, 1) }}s – {{ number_format((float) $maxEnd, 1) }}s
+                                            @else
+                                                —
                                             @endif
                                         </td>
                                         <td>
