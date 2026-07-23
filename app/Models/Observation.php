@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Observation extends Model
 {
@@ -45,6 +46,14 @@ class Observation extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return HasMany<BirdnetDetection, $this>
+     */
+    public function birdnetDetections(): HasMany
+    {
+        return $this->hasMany(BirdnetDetection::class);
     }
 
     protected function casts(): array

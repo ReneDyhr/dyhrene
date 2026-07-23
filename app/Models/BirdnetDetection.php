@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class BirdnetDetection extends Model
 {
@@ -53,6 +54,22 @@ class BirdnetDetection extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Generate a temporary signed URL for the audio file on Wasabi.
+     * Returns null if no audio is attached.
+     */
+    public function audioUrl(): ?string
+    {
+        if ($this->audio_path === null || $this->audio_path === '') {
+            return null;
+        }
+
+        return Storage::disk('wasabi')->temporaryUrl(
+            $this->audio_path,
+            \now()->addMinutes(30),
+        );
     }
 
     protected function casts(): array

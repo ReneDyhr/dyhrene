@@ -16,7 +16,7 @@ class SpeciesShow extends Component
     public function mount(Species $species): void
     {
         \abort_if($species->user_id !== \auth()->id(), 403);
-        $this->species = $species->load('observations');
+        $this->species = $species->load('observations.birdnetDetections');
     }
 
     /**
