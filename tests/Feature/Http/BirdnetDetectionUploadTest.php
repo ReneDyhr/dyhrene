@@ -86,6 +86,91 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
     \expect(BirdnetDetection::query()->count())->toBe(1);
 })->covers(BirdnetDetectionController::class)->group('feature');
 
+\test('duplicate segment_id with same start/end time returns 200 for same user', function (): void {
+    $user = User::factory()->create();
+    Passport::actingAs($user);
+
+    // First upload
+    $metadata1 = \validDetectionMetadata('uuid-seg-1');
+    $metadata1['segment_id'] = 'segment-001';
+
+    $response1 = $this->postJson('/api/species/upload', [
+        'metadata' => \json_encode($metadata1),
+    ]);
+    $response1->assertStatus(201);
+
+    // Second upload — same segment_id, start_time, end_time — but different UUID
+    $metadata2 = \validDetectionMetadata('uuid-seg-2');
+    $metadata2['segment_id'] = 'segment-001';
+    $metadata2['start_time'] = 10.5;
+    $metadata2['end_time'] = 13.2;
+
+    $response2 = $this->postJson('/api/species/upload', [
+        'metadata' => \json_encode($metadata2),
+    ]);
+    $response2->assertStatus(200);
+    $response2->assertJsonPath('message', 'Detection already exists');
+
+    // Only one record should exist
+    \expect(BirdnetDetection::query()->count())->toBe(1);
+})->covers(BirdnetDetectionController::class)->group('feature');
+
+\test('same segment_id but different time window creates new detection', function (): void {
+    $user = User::factory()->create();
+    Passport::actingAs($user);
+
+    // First upload
+    $metadata1 = \validDetectionMetadata('uuid-seg-3');
+    $metadata1['segment_id'] = 'segment-002';
+    $metadata1['start_time'] = 10.5;
+    $metadata1['end_time'] = 13.2;
+
+    $response1 = $this->postJson('/api/species/upload', [
+        'metadata' => \json_encode($metadata1),
+    ]);
+    $response1->assertStatus(201);
+
+    // Second upload — same segment_id but different time window
+    $metadata2 = \validDetectionMetadata('uuid-seg-4');
+    $metadata2['segment_id'] = 'segment-002';
+    $metadata2['start_time'] = 20.0;
+    $metadata2['end_time'] = 23.0;
+
+    $response2 = $this->postJson('/api/species/upload', [
+        'metadata' => \json_encode($metadata2),
+    ]);
+    $response2->assertStatus(201);
+
+    // Two records should exist
+    \expect(BirdnetDetection::query()->count())->toBe(2);
+})->covers(BirdnetDetectionController::class)->group('feature');
+
+\test('no segment_id always creates new detection', function (): void {
+    $user = User::factory()->create();
+    Passport::actingAs($user);
+
+    // Upload without segment_id
+    $metadata = \validDetectionMetadata('uuid-seg-5');
+    unset($metadata['segment_id']);
+
+    $response1 = $this->postJson('/api/species/upload', [
+        'metadata' => \json_encode($metadata),
+    ]);
+    $response1->assertStatus(201);
+
+    // Second upload without segment_id, different UUID
+    $metadata2 = \validDetectionMetadata('uuid-seg-6');
+    unset($metadata2['segment_id']);
+
+    $response2 = $this->postJson('/api/species/upload', [
+        'metadata' => \json_encode($metadata2),
+    ]);
+    $response2->assertStatus(201);
+
+    // Two records should exist (no dedup without segment_id)
+    \expect(BirdnetDetection::query()->count())->toBe(2);
+})->covers(BirdnetDetectionController::class)->group('feature');
+
 \test('duplicate detection_uuid from different user returns 500 due to unique constraint', function (): void {
     $userA = User::factory()->create();
     $userB = User::factory()->create();
