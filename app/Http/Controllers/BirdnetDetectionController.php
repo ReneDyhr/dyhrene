@@ -43,6 +43,33 @@ final class BirdnetDetectionController
             ], 200);
         }
 
+        // Deduplicate on segment_id + start/end time: same segment analysed
+        // twice will produce identical time windows. Only check when segment_id is set.
+        $segmentId = $metadata['segment_id'] ?? null;
+
+        if ($segmentId !== null && $segmentId !== '') {
+            // @phpstan-ignore cast.string
+            $segmentId = (string) $segmentId;
+            // @phpstan-ignore cast.double
+            $segStart = (float) ($metadata['start_time'] ?? 0.0);
+            // @phpstan-ignore cast.double
+            $segEnd = (float) ($metadata['end_time'] ?? 0.0);
+
+            $segmentExisting = BirdnetDetection::query()
+                ->where('segment_id', $segmentId)
+                ->where('start_time', $segStart)
+                ->where('end_time', $segEnd)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($segmentExisting !== null) {
+                return \response()->json([
+                    'message' => 'Detection already exists',
+                    'detection' => $segmentExisting,
+                ], 200);
+            }
+        }
+
         // Store audio file to Wasabi if present
         $audioPath = null;
 
