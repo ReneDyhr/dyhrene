@@ -128,3 +128,8 @@ Route::get('/print-jobs/{printJob}', App\Livewire\PrintJobs\Show::class)->middle
 Route::get('/print-jobs/{printJob}/edit', App\Livewire\PrintJobs\Edit::class)->middleware('auth')->name('print-jobs.edit');
 Route::put('/print-jobs/{printJob}', [App\Livewire\PrintJobs\Edit::class, 'save'])->middleware('auth')->name('print-jobs.update');
 Route::delete('/print-jobs/{printJob}', [App\Livewire\PrintJobs\Index::class, 'delete'])->middleware('auth')->name('print-jobs.destroy');
+
+// BirdNET detection upload — strips web middleware, controller handles auth
+Route::post('/api/species/upload', App\Http\Controllers\BirdnetDetectionController::class)
+    ->withoutMiddleware('web')
+    ->middleware('throttle');
