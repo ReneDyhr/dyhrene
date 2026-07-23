@@ -45,6 +45,8 @@
                                     <th>Date</th>
                                     <th>Count</th>
                                     <th>Source</th>
+                                    <th>Confidence</th>
+                                    <th>Time</th>
                                     <th>Audio</th>
                                 </tr>
                             </thead>
@@ -67,6 +69,35 @@
                                                 <span class="label label-success">BirdNET</span>
                                             @else
                                                 <span class="label label-default">Manual</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php
+                                                $maxConf = $obs->birdnetDetections->isNotEmpty()
+                                                    ? $obs->birdnetDetections->max('confidence')
+                                                    : null;
+                                            @endphp
+                                            @if ($maxConf !== null)
+                                                <span title="{{ number_format((float) $maxConf * 100, 2) }}%">
+                                                    {{ number_format((float) $maxConf * 100, 1) }}%
+                                                </span>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php
+                                                $minStart = $obs->birdnetDetections->isNotEmpty()
+                                                    ? $obs->birdnetDetections->min('start_time')
+                                                    : null;
+                                                $maxEnd = $obs->birdnetDetections->isNotEmpty()
+                                                    ? $obs->birdnetDetections->max('end_time')
+                                                    : null;
+                                            @endphp
+                                            @if ($minStart !== null && $maxEnd !== null)
+                                                {{ number_format((float) $minStart, 1) }}s – {{ number_format((float) $maxEnd, 1) }}s
+                                            @else
+                                                —
                                             @endif
                                         </td>
                                         <td>
