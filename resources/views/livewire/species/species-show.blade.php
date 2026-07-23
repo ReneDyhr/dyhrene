@@ -43,7 +43,6 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>Time</th>
                                     <th>Count</th>
                                     <th>Location</th>
                                     <th>Source</th>
@@ -53,8 +52,14 @@
                             <tbody>
                                 @foreach ($observations as $obs)
                                     <tr>
-                                        <td>{{ $obs->observed_at->format('d M Y') }}</td>
-                                        <td>{{ $obs->observed_time ?? '—' }}</td>
+                                        <td>
+                                            @php
+                                                $dateStr = $obs->observed_at->format('Y-m-d') . ' ' . ($obs->observed_time ?? '00:00:00');
+                                                $localTime = \Carbon\Carbon::parse($dateStr, 'UTC')
+                                                    ->setTimezone('Europe/Copenhagen');
+                                            @endphp
+                                            {{ $localTime->format('d M Y H:i') }}
+                                        </td>
                                         <td>{{ $obs->count }}</td>
                                         <td>{{ $obs->location ?? '—' }}</td>
                                         <td>
