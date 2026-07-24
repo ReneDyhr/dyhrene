@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Enums\ObservationSourceEnum;
-use App\Models\Observation;
-use App\Models\Species;
+use App\Enums\SiteTypeEnum;
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Observation>
+ * @extends Factory<Site>
  */
-class ObservationFactory extends Factory
+class SiteFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -23,10 +22,12 @@ class ObservationFactory extends Factory
     public function definition(): array
     {
         return [
-            'species_id' => Species::factory(),
+            'name' => \fake()->unique()->city(),
+            'latitude' => \fake()->latitude(54, 57),
+            'longitude' => \fake()->longitude(8, 15),
+            'type' => SiteTypeEnum::AcousticStation->value,
+            'timezone' => 'Europe/Copenhagen',
             'user_id' => User::factory(),
-            'observed_at' => \fake()->date(),
-            'source' => ObservationSourceEnum::Birdnet->value,
         ];
     }
 }

@@ -74,5 +74,7 @@ class AppServiceProvider extends ServiceProvider
         Passport::authorizationView(function (array $parameters): Response {
             return \response()->view('mcp.authorize', $parameters);
         });
+
+        \App\Models\Observation::observe(\App\Observers\ObservationObserver::class);
     }
 }

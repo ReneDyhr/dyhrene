@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MaterialTypeSeeder::class,
             SettingSeeder::class,
+            SiteSeeder::class,
         ]);
 
         // \App\Models\User::factory(10)->create();

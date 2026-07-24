@@ -28,6 +28,10 @@ declare(strict_types=1);
     ->use(Illuminate\Foundation\Testing\DatabaseTransactions::class)
     ->in('Unit/Services/Receipts');
 
+\pest()->extend(Tests\TestCase::class)
+    ->use(Illuminate\Foundation\Testing\DatabaseTransactions::class)
+    ->in('Unit/Domain/Nature');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations

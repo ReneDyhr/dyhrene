@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\SpeciesStatusEnum;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +21,7 @@ class Species extends Model
         'scientific_name',
         'ebird_code',
         'taxonomic_order',
+        'status',
         'user_id',
     ];
 
@@ -36,5 +39,34 @@ class Species extends Model
     public function observations(): HasMany
     {
         return $this->hasMany(Observation::class)->orderBy('observed_at', 'desc')->orderBy('observed_time', 'desc');
+    }
+
+    /**
+     * Scope to species that are not rejected.
+     *
+     * @param  Builder<Species> $query
+     * @return Builder<Species>
+     */
+    public function scopeNotRejected(Builder $query): Builder
+    {
+        return $query->where('status', '!=', SpeciesStatusEnum::Rejected->value);
+    }
+
+    /**
+     * Scope to species that are expected.
+     *
+     * @param  Builder<Species> $query
+     * @return Builder<Species>
+     */
+    public function scopeExpected(Builder $query): Builder
+    {
+        return $query->where('status', SpeciesStatusEnum::Expected->value);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'status' => SpeciesStatusEnum::class,
+        ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\SpeciesStatusEnum;
 use App\Models\Species;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,6 +24,7 @@ class SpeciesFactory extends Factory
         return [
             'common_name' => \fake()->unique()->word(),
             'scientific_name' => \fake()->unique()->word(),
+            'status' => SpeciesStatusEnum::Expected->value,
             'user_id' => User::factory(),
         ];
     }

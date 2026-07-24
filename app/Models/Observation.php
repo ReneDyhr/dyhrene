@@ -17,10 +17,17 @@ class Observation extends Model
     protected $fillable = [
         'species_id',
         'user_id',
+        'site_id',
         'observed_at',
         'observed_time',
         'count',
         'location',
+        'location_raw',
+        'local_date',
+        'local_time',
+        'minutes_from_sunrise',
+        'minutes_from_sunset',
+        'day_of_year',
         'state_province',
         'ebird_submission_id',
         'observation_type',
@@ -38,6 +45,14 @@ class Observation extends Model
     public function species(): BelongsTo
     {
         return $this->belongsTo(Species::class);
+    }
+
+    /**
+     * @return BelongsTo<Site, $this>
+     */
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
     }
 
     /**
@@ -60,9 +75,12 @@ class Observation extends Model
     {
         return [
             'observed_at' => 'date',
+            'local_date' => 'date',
+            'day_of_year' => 'integer',
             'distance_km' => 'float',
             'area_ha' => 'float',
             'complete_checklist' => 'boolean',
+            'source' => \App\Enums\ObservationSourceEnum::class,
         ];
     }
 }

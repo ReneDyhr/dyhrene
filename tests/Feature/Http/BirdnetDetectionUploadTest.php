@@ -4,11 +4,36 @@ declare(strict_types=1);
 
 use App\Http\Controllers\BirdnetDetectionController;
 use App\Models\BirdnetDetection;
+use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Laravel\Passport\Passport;
 
 \uses()->group('feature');
+
+/**
+ * Create a site for a test user so observations can be created.
+ */
+function seedSiteForUser(User $user): Site
+{
+    return Site::factory()->for($user)->create([
+        'latitude' => 55.38,
+        'longitude' => 9.15,
+        'timezone' => 'Europe/Copenhagen',
+    ]);
+}
+
+/**
+ * Create a user with a site seeded automatically.
+ */
+function createUserWithSite(): User
+{
+    $user = \createUserWithSite();
+
+    \seedSiteForUser($user);
+
+    return $user;
+}
 
 /**
  * @return array<string, mixed>
@@ -29,7 +54,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 }
 
 \test('authenticated user can upload a detection with audio', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     $audioFile = UploadedFile::fake()->create('recording.wav', 2048, 'audio/wav');
@@ -48,7 +73,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('authenticated user can upload detection without audio', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     $response = $this->postJson('/api/species/upload', [
@@ -64,7 +89,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('duplicate detection_uuid returns 200 for same user', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     $metadata = \validDetectionMetadata('duplicate-uuid-001');
@@ -87,7 +112,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('duplicate segment_id with same start/end time returns 200 for same user', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     // First upload
@@ -116,7 +141,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('same segment_id but different time window creates new detection', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     // First upload
@@ -146,7 +171,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('no segment_id always creates new detection', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     // Upload without segment_id
@@ -172,8 +197,8 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('duplicate detection_uuid from different user returns 500 due to unique constraint', function (): void {
-    $userA = User::factory()->create();
-    $userB = User::factory()->create();
+    $userA = \createUserWithSite();
+    $userB = \createUserWithSite();
 
     $metadataSameUuid = \validDetectionMetadata('shared-uuid-001');
 
@@ -205,7 +230,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('invalid metadata JSON returns 422', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     $response = $this->postJson('/api/species/upload', [
@@ -217,7 +242,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('metadata missing required id field returns 422', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     $metadata = \validDetectionMetadata();
@@ -232,7 +257,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('metadata missing required scientific_name field returns 422', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     $metadata = \validDetectionMetadata();
@@ -247,7 +272,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('metadata missing required recorded_at field returns 422', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     $metadata = \validDetectionMetadata();
@@ -262,7 +287,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('audio file with invalid mime type returns 422', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     $pdfFile = UploadedFile::fake()->create('document.pdf', 1024, 'application/pdf');
@@ -278,7 +303,7 @@ function validDetectionMetadata(string $uuid = 'd1994b9f-9876-4321-abcd-ef012345
 })->covers(BirdnetDetectionController::class)->group('feature');
 
 \test('metadata field is required returns 422', function (): void {
-    $user = User::factory()->create();
+    $user = \createUserWithSite();
     Passport::actingAs($user);
 
     $response = $this->postJson('/api/species/upload', []);

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Livewire\Species;
 
+use App\Enums\ObservationSourceEnum;
 use App\Models\Observation;
+use App\Models\Site;
 use App\Models\Species;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
@@ -86,11 +88,13 @@ class AddObservation extends Component
         Observation::create([
             'species_id' => $this->selectedSpeciesId,
             'user_id' => \auth()->id(),
+            'site_id' => $this->resolveSiteId(),
             'observed_at' => $this->date,
             'observed_time' => $this->time ?: null,
             'count' => $this->count ?: 'X',
             'location' => $this->location ?: null,
-            'source' => 'manual',
+            'location_raw' => $this->location ?: null,
+            'source' => ObservationSourceEnum::Manual->value,
         ]);
 
         \session()->flash('success', 'Observation logged!');
@@ -100,5 +104,21 @@ class AddObservation extends Component
     public function render(): View
     {
         return \view('livewire.species.add-observation');
+    }
+
+    private function resolveSiteId(): ?int
+    {
+        $userId = \auth()->id();
+
+        if ($userId === null) {
+            return null;
+        }
+
+        /** @var null|Site $site */
+        $site = Site::query()
+            ->where('user_id', $userId)
+            ->first();
+
+        return $site?->id;
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\Ebird;
 
+use App\Enums\ObservationSourceEnum;
 use App\Models\Observation;
+use App\Models\Site;
 use App\Models\Species;
 use App\Models\User;
 use GuzzleHttp\Client;
@@ -73,6 +75,9 @@ final class EbirdImportService
             return $stats;
         }
 
+        // Resolve the user's field site for all observations
+        $site = $this->resolveSite($user);
+
         foreach ($speciesCodes as $code) {
             try {
                 $rows = $this->fetchSpeciesCsv($code);
@@ -109,7 +114,12 @@ final class EbirdImportService
                 if ($species->wasRecentlyCreated) {
                     $stats['species_created']++;
                 } elseif ($species->ebird_code === null) {
-                    $species->update(['ebird_code' => $code]);
+                    $species->update([
+                        'ebird_code' => $code,
+                        'taxonomic_order' => $species->taxonomic_order ?? $taxonomicOrder,
+                    ]);
+                } elseif ($species->taxonomic_order === null && $taxonomicOrder !== null) {
+                    $species->update(['taxonomic_order' => $taxonomicOrder]);
                 }
 
                 $submissionId = $row['SubID'] ?? null;
@@ -126,11 +136,13 @@ final class EbirdImportService
                     [
                         'species_id' => $species->id,
                         'user_id' => $user->id,
+                        'site_id' => $site?->id,
                         'observed_at' => $observedAt,
                         'count' => $row['Count'] ?? null,
                         'location' => $row['Location'] ?? null,
+                        'location_raw' => $row['Location'] ?? null,
                         'state_province' => $row['S/P'] ?? null,
-                        'source' => 'ebird_import',
+                        'source' => ObservationSourceEnum::EbirdImport->value,
                     ],
                 );
 
@@ -424,5 +436,27 @@ final class EbirdImportService
 
             return null;
         }
+    }
+
+    /**
+     * Resolve the field site for the user.
+     * Returns the first field site, or the user's first site, or null.
+     */
+    private function resolveSite(User $user): ?Site
+    {
+        /** @var null|Site $site */
+        $site = Site::query()
+            ->where('user_id', $user->id)
+            ->where('type', 'field_site')
+            ->first();
+
+        if ($site === null) {
+            /** @var null|Site $site */
+            $site = Site::query()
+                ->where('user_id', $user->id)
+                ->first();
+        }
+
+        return $site;
     }
 }

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\ObservationSourceEnum;
 use App\Http\Requests\UploadBirdnetDetectionRequest;
 use App\Models\BirdnetDetection;
 use App\Models\Observation;
+use App\Models\Site;
 use App\Models\Species;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -103,9 +105,13 @@ final class BirdnetDetectionController
             $longitude = (float) ($metadata['longitude'] ?? 0.0);
             $segmentId = $metadata['segment_id'] ?? null;
 
+            // Resolve the user's acoustic station site for site_id + location_raw
+            $site = $this->resolveSite($user);
+
             // Wrap all DB writes in a transaction
             [$detection, $observation] = DB::transaction(function () use (
                 $user,
+                $site,
                 $scientificName,
                 $commonName,
                 $confidence,
@@ -145,14 +151,19 @@ final class BirdnetDetectionController
                     ? new \DateTimeImmutable($recordedAtStr)
                     : new \DateTimeImmutable();
 
+                // Build location string from incoming coords (kept for audit only)
+                $locationStr = \sprintf('%s, %s', $latitude, $longitude);
+
                 // Create Observation
                 $observation = Observation::query()->create([
                     'species_id' => $species->id,
                     'user_id' => $user->id,
+                    'site_id' => $site?->id,
                     'observed_at' => $dt->format('Y-m-d'),
                     'observed_time' => $dt->format('H:i:s'),
-                    'location' => \sprintf('%s, %s', $latitude, $longitude),
-                    'source' => 'birdnet',
+                    'location' => $locationStr,
+                    'location_raw' => $locationStr,
+                    'source' => ObservationSourceEnum::Birdnet->value,
                 ]);
 
                 // Link observation to detection
@@ -232,5 +243,27 @@ final class BirdnetDetectionController
 
             return $species;
         }
+    }
+
+    /**
+     * Resolve the acoustic station site for the user.
+     * Returns the first acoustic station site, or the user's first site, or null.
+     */
+    private function resolveSite(User $user): ?Site
+    {
+        /** @var null|Site $site */
+        $site = Site::query()
+            ->where('user_id', $user->id)
+            ->where('type', 'acoustic_station')
+            ->first();
+
+        if ($site === null) {
+            /** @var null|Site $site */
+            $site = Site::query()
+                ->where('user_id', $user->id)
+                ->first();
+        }
+
+        return $site;
     }
 }

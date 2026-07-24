@@ -51,6 +51,9 @@
                 <a href="/observations">Observations</a>
             </li>
             <li>
+                <a href="/nature">Nature</a>
+            </li>
+            <li>
                 <a href="{{ route('mail.inbox') }}">Mail</a>
             </li>
             <li>
