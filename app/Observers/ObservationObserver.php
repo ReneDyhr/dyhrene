@@ -34,34 +34,6 @@ class ObservationObserver
      */
     public function saving(Observation $observation): void
     {
-        try {
-            $this->doSaving($observation);
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('ObservationObserver::saving failed', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-        }
-    }
-
-    /**
-     * After save: recompute rollup windows and daily summary.
-     */
-    public function saved(Observation $observation): void
-    {
-        $this->updateRollups($observation);
-    }
-
-    /**
-     * After delete: recompute rollups for the affected site/species.
-     */
-    public function deleted(Observation $observation): void
-    {
-        $this->updateRollups($observation);
-    }
-
-    private function doSaving(Observation $observation): void
-    {
         $site = $this->resolveSite($observation);
 
         if ($site === null) {
@@ -95,7 +67,6 @@ class ObservationObserver
         }
 
         // Compute solar position using local datetime
-        $observedAt = \Carbon\Carbon::parse($observation->observed_at);
         $localDt = $this->localizer->toLocalCarbon(
             $observedAt->format('Y-m-d'),
             $observation->observed_time,
@@ -111,6 +82,22 @@ class ObservationObserver
         if ($observation->minutes_from_sunset === null) {
             $observation->minutes_from_sunset = $solar['minutes_from_sunset'];
         }
+    }
+
+    /**
+     * After save: recompute rollup windows and daily summary.
+     */
+    public function saved(Observation $observation): void
+    {
+        $this->updateRollups($observation);
+    }
+
+    /**
+     * After delete: recompute rollups for the affected site/species.
+     */
+    public function deleted(Observation $observation): void
+    {
+        $this->updateRollups($observation);
     }
 
     private function updateRollups(Observation $observation): void

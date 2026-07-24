@@ -28,9 +28,7 @@
                                     $lastSeen = $summary->last_seen_at
                                         ? \Carbon\Carbon::parse($summary->last_seen_at, 'Europe/Copenhagen')
                                         : null;
-                                    $rawSources = $summary->sources;
-                                    $sources = \is_string($rawSources) ? \json_decode($rawSources, true) : ($rawSources ?? []);
-                                    if (!\is_array($sources)) { $sources = []; }
+                                    $sources = $summary->sources_array;
                                 @endphp
                                 <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
                                     <div style="flex: 1 1 300px; min-width: 0;">

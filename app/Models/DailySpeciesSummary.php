@@ -40,6 +40,36 @@ class DailySpeciesSummary extends Model
         return $this->belongsTo(Species::class);
     }
 
+    /**
+     * Decode the sources JSON column to a string array.
+     *
+     * @return list<string>
+     */
+    public function getSourcesArrayAttribute(): array
+    {
+        $raw = $this->getRawOriginal('sources');
+
+        if ($raw === null || $raw === '') {
+            return [];
+        }
+
+        if (\is_string($raw)) {
+            $decoded = \json_decode($raw, true);
+
+            if (\is_array($decoded)) {
+                // @phpstan-ignore-next-line return.type
+                return \array_map(fn(mixed $v): string => (string) $v, $decoded);
+            }
+        }
+
+        if (\is_array($raw)) {
+            // @phpstan-ignore-next-line return.type
+            return \array_map(fn(mixed $v): string => (string) $v, $raw);
+        }
+
+        return [];
+    }
+
     protected function casts(): array
     {
         return [

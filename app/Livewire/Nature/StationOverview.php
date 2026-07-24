@@ -41,23 +41,27 @@ class StationOverview extends Component
     public function accumulationData(): array
     {
         $rows = DailySpeciesSummary::query()
-            ->selectRaw('date, species_id')
             ->orderBy('date')
+            ->select('date', 'species_id')
             ->toBase()
-            ->get()
-            ->groupBy('date');
+            ->get();
 
         $labels = [];
         $data = [];
         $seen = [];
 
-        foreach ($rows as $date => $group) {
-            foreach ($group as $row) {
-                $seen[(int) $row->species_id] = true;
-            }
+        foreach ($rows as $row) {
+            $seen[(int) $row->species_id] = true;
+            $date = (string) $row->date;
 
-            $labels[] = (string) $date;
-            $data[] = \count($seen);
+            // Only add a point when the date changes
+            if ($labels === [] || \end($labels) !== $date) {
+                $labels[] = $date;
+                $data[] = \count($seen);
+            } else {
+                // Same date — update the last data point in place
+                $data[\count($data) - 1] = \count($seen);
+            }
         }
 
         return ['labels' => $labels, 'data' => $data];

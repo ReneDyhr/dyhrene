@@ -54,6 +54,8 @@ final class DailySummaryAggregator
 
         /** @var list<string> $sources */
         $sources = $windows->pluck('source')
+            // @phpstan-ignore-next-line staticMethod.impossibleType
+            ->map(fn(mixed $s): string => $s instanceof \BackedEnum ? $s->value : (string) $s)
             ->unique()
             ->values()
             ->toArray();
