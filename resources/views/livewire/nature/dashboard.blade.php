@@ -32,8 +32,8 @@
                                     $sources = \is_string($rawSources) ? \json_decode($rawSources, true) : ($rawSources ?? []);
                                     if (!\is_array($sources)) { $sources = []; }
                                 @endphp
-                                <div class="row" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-                                    <div class="col-xs-12 col-sm-8">
+                                <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                                    <div style="flex: 1 1 300px; min-width: 0;">
                                         <h3 style="margin-top: 0; margin-bottom: 2px;">
                                             <a href="{{ route('species.show', $species) }}" wire:navigate style="text-decoration: none;">
                                                 {{ $species->common_name }}
@@ -61,7 +61,7 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 col-sm-4">
+                                    <div style="flex: 1 1 150px; min-width: 0; align-self: center;">
                                         @if ($audio && $audio['has_audio'])
                                             <audio controls preload="none" style="width: 100%; height: 30px;">
                                                 <source src="{{ $audio['audio_url'] }}" type="audio/wav">
