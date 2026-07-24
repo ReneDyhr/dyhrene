@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Enums\ObservationSourceEnum;
-use App\Models\Observation;
+use App\Models\ObservationWindow;
+use App\Models\Site;
 use App\Models\Species;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Observation>
+ * @extends Factory<ObservationWindow>
  */
-class ObservationFactory extends Factory
+class ObservationWindowFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -23,10 +23,12 @@ class ObservationFactory extends Factory
     public function definition(): array
     {
         return [
+            'site_id' => Site::factory(),
             'species_id' => Species::factory(),
-            'user_id' => User::factory(),
-            'observed_at' => \fake()->date(),
+            'window_start' => \fake()->dateTime(),
             'source' => ObservationSourceEnum::Birdnet->value,
+            'records' => \fake()->numberBetween(1, 200),
+            'max_confidence' => \fake()->randomFloat(4, 0, 1),
         ];
     }
 }
