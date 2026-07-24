@@ -50,8 +50,7 @@ class SpeciesIndex extends Component
     public function render(): View
     {
         $query = Species::query()
-            ->where('user_id', \auth()->id())
-            ->withCount('observations');
+            ->where('user_id', \auth()->id());
 
         if ($this->search !== '') {
             $query->where(function (Builder $q): void {
@@ -60,7 +59,7 @@ class SpeciesIndex extends Component
             });
         }
 
-        $allowed = ['common_name', 'scientific_name', 'observations_count', 'taxonomic_order'];
+        $allowed = ['common_name', 'scientific_name', 'taxonomic_order'];
         $field = \in_array($this->sortField, $allowed, true) ? $this->sortField : 'taxonomic_order';
         $dir = $this->sortDirection === 'desc' ? 'desc' : 'asc';
 

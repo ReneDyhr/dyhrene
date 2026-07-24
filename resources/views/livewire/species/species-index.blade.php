@@ -46,12 +46,6 @@
                                         <i class="fa fa-sort-{{ $sortDirection === 'asc' ? 'asc' : 'desc' }}"></i>
                                     @endif
                                 </th>
-                                <th class="text-center" style="cursor:pointer;" wire:click="sortBy('observations_count')">
-                                    Observations
-                                    @if ($sortField === 'observations_count')
-                                        <i class="fa fa-sort-{{ $sortDirection === 'asc' ? 'asc' : 'desc' }}"></i>
-                                    @endif
-                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,12 +57,11 @@
                                         </a>
                                     </td>
                                     <td style="font-style:italic;color:#888;">{{ $s->scientific_name }}</td>
-                                    <td class="text-center">{{ $s->observations_count }}</td>
                                 </tr>
                             @endforeach
                             @if ($speciesList->isEmpty())
                                 <tr>
-                                    <td colspan="3" class="text-center text-muted" style="padding:30px;">
+                                    <td colspan="2" class="text-center text-muted" style="padding:30px;">
                                         @if ($search)
                                             No species match "{{ $search }}".
                                         @else

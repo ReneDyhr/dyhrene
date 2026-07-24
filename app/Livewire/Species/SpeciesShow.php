@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Species;
 
+use App\Actions\DeleteObservationAction;
 use App\Models\Observation;
 use App\Models\Species;
 use Illuminate\View\View;
@@ -20,6 +21,17 @@ class SpeciesShow extends Component
     {
         \abort_if($species->user_id !== \auth()->id(), 403);
         $this->species = $species;
+    }
+
+    public function delete(int $observationId, DeleteObservationAction $action): void
+    {
+        $observation = $this->species->observations()->findOrFail($observationId);
+
+        \abort_if($observation->user_id !== \auth()->id(), 403);
+
+        $action->handle($observation);
+
+        \session()->flash('success', 'Observation deleted.');
     }
 
     /**
