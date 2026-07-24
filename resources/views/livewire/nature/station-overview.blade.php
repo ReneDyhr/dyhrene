@@ -93,13 +93,13 @@
                 </div>
             </div>
 
-            <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
             <script>
                 // Accumulation curve
                 (function() {
                     const acc = @json($accumulationData);
                     if (!acc.labels || acc.labels.length === 0) return;
                     const ctx = document.getElementById('accumulationChart').getContext('2d');
+                    Chart.getChart(ctx)?.destroy();
                     new Chart(ctx, {
                         type: 'line',
                         data: {
@@ -131,6 +131,7 @@
                 (function() {
                     const src = @json($sourceBreakdown);
                     const ctx = document.getElementById('sourceChart').getContext('2d');
+                    Chart.getChart(ctx)?.destroy();
                     new Chart(ctx, {
                         type: 'doughnut',
                         data: {
