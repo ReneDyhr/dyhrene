@@ -122,9 +122,9 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @if ($obs->source === 'ebird_import' || (string) $obs->source === 'ebird_import')
+                                            @if ($obs->source?->is('ebird_import'))
                                                 <span class="label label-info">eBird</span>
-                                            @elseif ($obs->source === 'birdnet' || (string) $obs->source === 'birdnet')
+                                            @elseif ($obs->source?->is('birdnet'))
                                                 <span class="label label-success">BirdNET</span>
                                             @else
                                                 <span class="label label-default">Manual</span>

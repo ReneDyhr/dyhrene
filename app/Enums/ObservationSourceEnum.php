@@ -18,4 +18,9 @@ enum ObservationSourceEnum: string
             self::Manual => 'Manual',
         };
     }
+
+    public function is(string $value): bool
+    {
+        return $this->value === $value;
+    }
 }
