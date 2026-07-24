@@ -187,7 +187,6 @@
                 </div>
             </div>
 
-            <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
             <script>
                 $(function () {
                     $('[data-toggle="tooltip"]').tooltip();
@@ -216,6 +215,7 @@
                     const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
                     const ctx = document.getElementById('phenologyChart').getContext('2d');
+                    Chart.getChart(ctx)?.destroy();
                     new Chart(ctx, {
                         type: 'line',
                         data: { labels: phenologyData.days, datasets: datasets },
@@ -282,6 +282,7 @@
                     if (confData.counts.reduce(function(a,b) { return a+b; }, 0) === 0) return;
 
                     const ctx = document.getElementById('confidenceChart').getContext('2d');
+                    Chart.getChart(ctx)?.destroy();
                     new Chart(ctx, {
                         type: 'bar',
                         data: {
