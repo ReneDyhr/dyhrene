@@ -44,7 +44,6 @@ class DailySpeciesSummary extends Model
     {
         return [
             'date' => 'date',
-            'sources' => 'array',
             'first_seen_at' => 'datetime',
             'last_seen_at' => 'datetime',
         ];
