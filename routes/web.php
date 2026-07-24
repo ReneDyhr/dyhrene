@@ -76,6 +76,7 @@ Route::get('/species/add/{species}', App\Livewire\Species\AddObservation::class)
 Route::get('/species/{species}', App\Livewire\Species\SpeciesShow::class)->middleware('auth')->name('species.show');
 Route::get('/observations', App\Livewire\Species\ObservationsIndex::class)->middleware('auth')->name('observations.index');
 Route::get('/nature', App\Livewire\Nature\Dashboard::class)->middleware('auth')->name('nature.dashboard');
+Route::get('/nature/station', App\Livewire\Nature\StationOverview::class)->middleware('auth')->name('nature.station');
 
 Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt): Illuminate\Http\Response {
     if ($receipt->user_id !== \auth()->id()) {
