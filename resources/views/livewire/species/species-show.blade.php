@@ -27,6 +27,12 @@
                     </div>
                 </div>
 
+            @if (session()->has('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
                 <!-- Chart -->
                 <div class="notes">
                     <h1>Observations per Month</h1>
@@ -43,11 +49,11 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>Count</th>
                                     <th>Source</th>
                                     <th>Confidence</th>
                                     <th>Time</th>
                                     <th>Audio</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -61,7 +67,6 @@
                                             @endphp
                                             {{ $localTime->format('d M Y H:i') }}
                                         </td>
-                                        <td>{{ $obs->count }}</td>
                                         <td>
                                             @if ($obs->source === 'ebird_import')
                                                 <span class="label label-info">eBird</span>
@@ -112,6 +117,18 @@
                                             @else
                                                 —
                                             @endif
+                                        </td>
+                                        <td>
+                                            <button
+                                                class="btn btn-danger btn-sm"
+                                                wire:click="delete({{ $obs->id }})"
+                                                wire:confirm="Are you sure you want to delete this observation?"
+                                                data-toggle="tooltip"
+                                                data-placement="left"
+                                                title="Delete observation"
+                                            >
+                                                <i class="fa fa-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach
