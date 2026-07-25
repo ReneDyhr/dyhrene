@@ -7,13 +7,23 @@
             <div class="col-12">
                 <div class="recipe">
                     <h1>What is Here Now</h1>
-                    <div class="tags">
-                        <span style="font-size:0.8rem;">{{ \Carbon\Carbon::parse($date)->locale('en')->isoFormat('dddd, D MMMM YYYY') }}</span>
+                    <div class="tags" x-data="{ open: false }">
+                        <span
+                            x-show="!open"
+                            style="font-size:0.8rem; cursor: pointer; border-bottom: 1px dashed #53875F;"
+                            title="Click to pick a different date"
+                            @click="open = true"
+                        >{{ \Carbon\Carbon::parse($date)->locale('en')->isoFormat('dddd, D MMMM YYYY') }}</span>
+                        <input
+                            type="date"
+                            x-show="open"
+                            x-ref="picker"
+                            x-init="$watch('open', v => v && $nextTick(() => $refs.picker.focus()))"
+                            @change="open = false"
+                            wire:model.live="date"
+                            style="font-size: 0.8rem; padding: 2px 4px; border: 1px solid #53875F; border-radius: 3px; width: auto; background: #fff;"
+                        >
                         <div class="clear"></div>
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <label for="datepicker" style="font-size: 0.8rem; color: #666; margin-right: 8px;">Select date:</label>
-                        <input type="date" id="datepicker" class="form-control" wire:model.live="date" style="display: inline-block; width: auto; max-width: 200px;">
                     </div>
                 </div>
 
