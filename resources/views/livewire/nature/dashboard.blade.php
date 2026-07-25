@@ -16,6 +16,7 @@
                         >{{ \Carbon\Carbon::parse($date)->locale('en')->isoFormat('dddd, D MMMM YYYY') }}</span>
                         <input
                             type="date"
+                            x-cloak
                             x-show="open"
                             x-ref="picker"
                             x-init="$watch('open', v => v && $nextTick(() => $refs.picker.focus()))"
