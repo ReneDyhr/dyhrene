@@ -10,13 +10,18 @@ use Livewire\Component;
 
 class Dashboard extends Component
 {
+    public string $date;
+
+    public function mount(): void
+    {
+        $this->date = \now('Europe/Copenhagen')->format('Y-m-d');
+    }
+
     public function render(): View
     {
-        $today = \now('Europe/Copenhagen')->format('Y-m-d');
-
-        // Species observed today, ordered by most recent
+        // Species observed on the selected date, ordered by most recent
         $todaySummaries = DailySpeciesSummary::query()
-            ->whereDate('date', $today)
+            ->whereDate('date', $this->date)
             ->whereHas('species', function (\Illuminate\Database\Eloquent\Builder $q): void {
                 $q->where('status', '!=', 'rejected');
             })
@@ -49,6 +54,7 @@ class Dashboard extends Component
         return \view('livewire.nature.dashboard', [
             'todaySummaries' => $todaySummaries,
             'speciesWithAudio' => $speciesWithAudio,
+            'date' => $this->date,
         ]);
     }
 }

@@ -8,18 +8,22 @@
                 <div class="recipe">
                     <h1>What is Here Now</h1>
                     <div class="tags">
-                        <span style="font-size:0.8rem;">{{ \now('Europe/Copenhagen')->format('l, d F Y') }}</span>
+                        <span style="font-size:0.8rem;">{{ \Carbon\Carbon::parse($date)->locale('en')->isoFormat('dddd, D MMMM YYYY') }}</span>
                         <div class="clear"></div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="datepicker" style="font-size: 0.8rem; color: #666; margin-right: 8px;">Select date:</label>
+                        <input type="date" id="datepicker" class="form-control" wire:model.live="date" style="display: inline-block; width: auto; max-width: 200px;">
                     </div>
                 </div>
 
                 @if ($todaySummaries->isEmpty())
                     <div class="notes">
-                        <p>No species observed today yet.</p>
+                        <p>No species observed on this date.</p>
                     </div>
                 @else
                     <div class="notes">
-                        <h1>{{ $todaySummaries->count() }} species today</h1>
+                        <h1>{{ $todaySummaries->count() }} species on this date</h1>
                         <div style="margin-top:20px;">
                             @foreach ($todaySummaries as $summary)
                                 @php
