@@ -7,19 +7,34 @@
             <div class="col-12">
                 <div class="recipe">
                     <h1>What is Here Now</h1>
-                    <div class="tags">
-                        <span style="font-size:0.8rem;">{{ \now('Europe/Copenhagen')->format('l, d F Y') }}</span>
+                    <div class="tags" x-data="{ open: false }">
+                        <span
+                            x-show="!open"
+                            style="font-size:0.8rem; cursor: pointer; border-bottom: 1px dashed #53875F;"
+                            title="Click to pick a different date"
+                            @click="open = true"
+                        >{{ \Carbon\Carbon::parse($date)->locale('en')->isoFormat('dddd, D MMMM YYYY') }}</span>
+                        <input
+                            type="date"
+                            x-cloak
+                            x-show="open"
+                            x-ref="picker"
+                            x-init="$watch('open', v => v && $nextTick(() => $refs.picker.focus()))"
+                            @change="open = false"
+                            wire:model.live="date"
+                            style="font-size: 0.8rem; padding: 2px 4px; border: 1px solid #53875F; border-radius: 3px; width: auto; background: #fff;"
+                        >
                         <div class="clear"></div>
                     </div>
                 </div>
 
                 @if ($todaySummaries->isEmpty())
                     <div class="notes">
-                        <p>No species observed today yet.</p>
+                        <p>No species observed on this date.</p>
                     </div>
                 @else
                     <div class="notes">
-                        <h1>{{ $todaySummaries->count() }} species today</h1>
+                        <h1>{{ $todaySummaries->count() }} species on this date</h1>
                         <div style="margin-top:20px;">
                             @foreach ($todaySummaries as $summary)
                                 @php
