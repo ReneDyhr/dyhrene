@@ -100,7 +100,7 @@
                 <div class="notes">
                     <h1>Observations ({{ $observations->total() }})</h1>
                     <div style="margin-top:20px;">
-                        <table class="table table-striped" style="font-size:0.8rem;">
+                        <table class="table table-striped table-stack-mobile" style="font-size:0.8rem;">
                             <thead>
                                 <tr>
                                     <th>Date</th>
@@ -114,14 +114,14 @@
                             <tbody>
                                 @foreach ($observations as $obs)
                                     <tr>
-                                        <td>
+                                        <td data-label="Date">
                                             @if ($obs->local_date)
                                                 {{ \Carbon\Carbon::parse($obs->local_date)->format('d M Y') }}
                                             @else
                                                 {{ $obs->observed_at->format('d M Y') }}
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Source">
                                             @if ($obs->source?->is('ebird_import'))
                                                 <span class="label label-info">eBird</span>
                                             @elseif ($obs->source?->is('birdnet'))
@@ -130,7 +130,7 @@
                                                 <span class="label label-default">Manual</span>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Confidence">
                                             @php
                                                 $maxConf = $obs->birdnetDetections->isNotEmpty()
                                                     ? $obs->birdnetDetections->max('confidence')
@@ -144,16 +144,31 @@
                                                 —
                                             @endif
                                         </td>
-                                        <td>
-                                            @if ($obs->local_time)
-                                                {{ substr($obs->local_time, 0, 5) }}
-                                            @elseif ($obs->observed_time)
-                                                {{ substr($obs->observed_time, 0, 5) }} UTC
-                                            @else
-                                                —
+                                        <td data-label="Time">
+                                            <div>
+                                                @if ($obs->local_time)
+                                                    {{ substr($obs->local_time, 0, 5) }}
+                                                @elseif ($obs->observed_time)
+                                                    {{ substr($obs->observed_time, 0, 5) }} UTC
+                                                @else
+                                                    —
+                                                @endif
+                                            </div>
+                                            @php
+                                                $minStart = $obs->birdnetDetections->isNotEmpty()
+                                                    ? $obs->birdnetDetections->min('start_time')
+                                                    : null;
+                                                $maxEnd = $obs->birdnetDetections->isNotEmpty()
+                                                    ? $obs->birdnetDetections->max('end_time')
+                                                    : null;
+                                            @endphp
+                                            @if ($minStart !== null && $maxEnd !== null)
+                                                <div style="font-size:0.7rem; color:#888;">
+                                                    {{ number_format((float) $minStart, 1) }}s – {{ number_format((float) $maxEnd, 1) }}s
+                                                </div>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Audio">
                                             @php
                                                 $detection = $obs->birdnetDetections->first(fn ($d) => $d->audio_path);
                                                 $audioUrl = $detection?->audioUrl();
@@ -166,7 +181,7 @@
                                                 —
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Actions">
                                             <button
                                                 class="btn btn-danger btn-sm"
                                                 wire:click="delete({{ $obs->id }})"

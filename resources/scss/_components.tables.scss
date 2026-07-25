@@ -196,6 +196,40 @@ table th[class*="col-"] {
   min-height: .01%;
   overflow-x: auto;
 }
+
+// Mobile: stack table rows as cards
+.table-stack-mobile {
+  @media (max-width: 767px) {
+    &, thead, tbody, th, td, tr {
+      display: block;
+    }
+    thead {
+      display: none;
+    }
+    tr {
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      background: #fff;
+    }
+    td {
+      padding: 6px 10px;
+      border: none;
+      border-bottom: 1px solid #eee;
+      text-align: right;
+      &:last-child {
+        border-bottom: none;
+      }
+      &:before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        color: #777;
+        font-size: 0.75rem;
+      }
+    }
+  }
+}
 @media screen and (max-width: 767px) {
   .table-responsive {
     width: 100%;

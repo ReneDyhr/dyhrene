@@ -38,7 +38,7 @@
                 <div class="notes">
                     <h1>Observations</h1>
                     <div style="margin-top:20px;">
-                        <table class="table table-striped" style="font-size: 0.8rem;">
+                        <table class="table table-striped table-stack-mobile" style="font-size: 0.8rem;">
                             <thead>
                                 <tr>
                                     <th style="font-size: 0.8rem;">
@@ -80,12 +80,12 @@
                             <tbody style="font-size: 0.8rem;">
                                 @foreach ($observations as $obs)
                                     <tr>
-                                        <td>
+                                        <td data-label="Species">
                                             <a href="{{ route('species.show', $obs->species) }}" wire:navigate style="font-size: 0.8rem;">
                                                 {{ $obs->species->common_name }}
                                             </a>
                                         </td>
-                                        <td>
+                                        <td data-label="Date">
                                             @php
                                                 $dateStr = $obs->observed_at->format('Y-m-d') . ' ' . ($obs->observed_time ?? '00:00:00');
                                                 $localTime = \Carbon\Carbon::parse($dateStr, 'UTC')
@@ -93,7 +93,7 @@
                                             @endphp
                                             {{ $localTime->format('d M Y H:i') }}
                                         </td>
-                                        <td>
+                                        <td data-label="Source">
                                             @if ($obs->source?->is('ebird_import'))
                                                 <span class="label label-info">eBird</span>
                                             @elseif ($obs->source?->is('birdnet'))
@@ -102,7 +102,7 @@
                                                 <span class="label label-default">Manual</span>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Confidence">
                                             @php
                                                 $maxConf = $obs->birdnetDetections->isNotEmpty()
                                                     ? $obs->birdnetDetections->max('confidence')
@@ -116,7 +116,7 @@
                                                 —
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Time">
                                             @php
                                                 $minStart = $obs->birdnetDetections->isNotEmpty()
                                                     ? $obs->birdnetDetections->min('start_time')
@@ -131,7 +131,7 @@
                                                 —
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Audio">
                                             @php
                                                 $detection = $obs->birdnetDetections->first(fn ($d) => $d->audio_path);
                                                 $audioUrl = $detection?->audioUrl();
@@ -144,7 +144,7 @@
                                                 —
                                             @endif
                                         </td>
-                                        <td>
+                                        <td data-label="Actions">
                                             <button
                                                 class="btn btn-danger btn-sm"
                                                 wire:click="delete({{ $obs->id }})"
