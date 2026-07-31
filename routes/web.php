@@ -78,6 +78,28 @@ Route::get('/observations', App\Livewire\Species\ObservationsIndex::class)->midd
 Route::get('/nature', App\Livewire\Nature\Dashboard::class)->middleware('auth')->name('nature.dashboard');
 Route::get('/nature/station', App\Livewire\Nature\StationOverview::class)->middleware('auth')->name('nature.station');
 
+// Inventory
+Route::get('inventory', App\Livewire\Inventory\Index::class)->middleware('auth')->name('inventory.index');
+Route::get('inventory/create', App\Livewire\Inventory\Create::class)->middleware('auth')->name('inventory.create');
+Route::get('inventory/categories', App\Livewire\Inventory\Categories::class)->middleware('auth')->name('inventory.categories');
+Route::get('inventory/attachments/{attachment}', function (App\Models\InventoryAttachment $attachment): Illuminate\Http\Response {
+    $item = $attachment->item;
+
+    if ($item === null || $item->user_id !== \auth()->id()) {
+        \abort(403);
+    }
+
+    if (!\Storage::disk('wasabi')->exists($attachment->file_path)) {
+        \abort(404);
+    }
+    $mime = \Storage::disk('wasabi')->mimeType($attachment->file_path) ?: 'application/octet-stream';
+    $content = \Storage::disk('wasabi')->get($attachment->file_path);
+
+    return \response($content, 200)->header('Content-Type', $mime);
+})->name('inventory.attachment')->middleware('auth');
+Route::get('inventory/{item}', App\Livewire\Inventory\Show::class)->middleware('auth')->name('inventory.show');
+Route::get('inventory/{item}/edit', App\Livewire\Inventory\Edit::class)->middleware('auth')->name('inventory.edit');
+
 Route::get('/receipts/image/{receipt}', function (App\Models\Receipt $receipt): Illuminate\Http\Response {
     if ($receipt->user_id !== \auth()->id()) {
         \abort(403);
