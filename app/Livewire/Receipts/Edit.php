@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Livewire\Receipts;
 
 use App\Actions\UpdateReceiptAction;
+use App\Models\InventoryItem;
 use App\Models\Receipt;
 use App\Models\ReceiptCategory;
 use App\Models\ReceiptItem;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -25,12 +27,12 @@ class Edit extends Component
     public ?array $data = null;
 
     /**
-     * @var null|array<int, array{id: int, name: string, quantity: int, amount: float, category_id: int}>
+     * @var null|array<int, array{id: int, name: string, quantity: int, amount: float, category_id: int, inventory_item_id: null|int}>
      */
     public ?array $items = null;
 
     /**
-     * @var null|array<int, array{name: string, quantity: int, amount: float, category_id: int}>
+     * @var null|array<int, array{name: string, quantity: int, amount: float, category_id: int, inventory_item_id: null|int}>
      */
     public ?array $itemEdits = null;
 
@@ -43,6 +45,9 @@ class Edit extends Component
      * @var null|UploadedFile
      */
     public $receiptImage;
+
+    /** @var Collection<int, InventoryItem> */
+    public Collection $availableItems;
 
     public function mount(Receipt $receipt): void
     {
@@ -74,10 +79,14 @@ class Edit extends Component
                 'quantity' => $item->quantity,
                 'amount' => $item->amount,
                 'category_id' => $item->category_id,
+                'inventory_item_id' => $item->inventory_item_id,
             ];
         })->toArray();
         // @phpstan-ignore assign.propertyType
         $this->itemEdits = \collect($this->items)->keyBy('id')->toArray();
+
+        $this->availableItems = InventoryItem::query()->forAuthUser()
+            ->orderBy('name')->get();
     }
 
     public function save(UpdateReceiptAction $action): void
@@ -93,6 +102,7 @@ class Edit extends Component
             'itemEdits.*.quantity' => 'required|integer|min:1',
             'itemEdits.*.amount' => 'required|numeric',
             'itemEdits.*.category_id' => 'required|integer|exists:receipt_categories,id',
+            'itemEdits.*.inventory_item_id' => 'nullable|integer',
         ]);
 
         if ($this->data === null) {
@@ -137,6 +147,7 @@ class Edit extends Component
                 'quantity' => $item['quantity'],
                 'amount' => $item['amount'],
                 'category_id' => $item['category_id'],
+                'inventory_item_id' => $this->resolveInventoryItemId($item),
             ]);
         }
 
@@ -158,6 +169,7 @@ class Edit extends Component
             'quantity' => 1,
             'amount' => 0.0,
             'category_id' => $defaultCategoryId ?? 0,
+            'inventory_item_id' => null,
         ];
         $this->mount($this->receipt->refresh());
     }
@@ -203,5 +215,19 @@ class Edit extends Component
         return \view('receipts.edit', [
             'receipt' => $this->receipt,
         ]);
+    }
+
+    /**
+     * @param array{inventory_item_id?: null|int} $item
+     */
+    private function resolveInventoryItemId(array $item): ?int
+    {
+        $invId = $item['inventory_item_id'] ?? null;
+
+        if ($invId !== null) {
+            InventoryItem::query()->forAuthUser()->findOrFail($invId);
+        }
+
+        return $invId;
     }
 }

@@ -95,7 +95,8 @@ Route::get('inventory/attachments/{attachment}', function (App\Models\InventoryA
     $mime = \Storage::disk('wasabi')->mimeType($attachment->file_path) ?: 'application/octet-stream';
     $content = \Storage::disk('wasabi')->get($attachment->file_path);
 
-    return \response($content, 200)->header('Content-Type', $mime);
+    return \response($content, 200)->header('Content-Type', $mime)
+        ->header('Content-Disposition', 'attachment; filename="' . $attachment->file_name . '"');
 })->name('inventory.attachment')->middleware('auth');
 Route::get('inventory/{item}', App\Livewire\Inventory\Show::class)->middleware('auth')->name('inventory.show');
 Route::get('inventory/{item}/edit', App\Livewire\Inventory\Edit::class)->middleware('auth')->name('inventory.edit');

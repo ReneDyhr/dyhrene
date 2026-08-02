@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
@@ -59,6 +60,15 @@ class InventoryItem extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(InventoryAttachment::class, 'inventory_item_id');
+    }
+
+    /**
+     * The receipt line item that paid for this inventory item.
+     * @return HasOne<ReceiptItem, $this>
+     */
+    public function receiptItem(): HasOne
+    {
+        return $this->hasOne(ReceiptItem::class, 'inventory_item_id');
     }
 
     /**

@@ -1,15 +1,15 @@
 <div>
-    @section('title', 'Edit Receipt')
-    @include('components.layouts.sidenav')
+    @section("title", "Edit Receipt")
+    @include("components.layouts.sidenav")
     <div id="main">
-        @include('components.layouts.header')
+        @include("components.layouts.header")
         <div class="content homepage">
             <div class="col-12">
                 <div class="storage-list">
                     <div class="recipe">
                         <h1>Edit Receipt</h1>
                         <form wire:submit.prevent="save">
-                            @include('receipts.partials.form')
+                            @include("receipts.partials.form")
                             <button type="submit" class="btn btn-primary">Update</button>
                         </form>
                         <div class="mt-4">
@@ -24,6 +24,7 @@
                                             <th>Quantity</th>
                                             <th>Amount</th>
                                             <th>Category</th>
+                                            <th>Inventory</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -46,14 +47,23 @@
                                                         wire:model="itemEdits.{{ $id }}.category_id"
                                                         wire:change="calculateTotal">
                                                         @foreach($categories as $cat)
-                                                            <option value="{{ $cat['id'] }}">{{ $cat['name'] }}</option>
+                                                            <option value="{{ $cat["id"] }}">{{ $cat["name"] }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select class="form-control form-control-sm"
+                                                        wire:model="itemEdits.{{ $id }}.inventory_item_id">
+                                                        <option value="">-- None --</option>
+                                                        @foreach($availableItems as $inv)
+                                                            <option value="{{ $inv->id }}">{{ $inv->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </td>
                                                 <td>
                                                     <span class="handle btn btn-default btn-sm" style="cursor:move;"><i
                                                             class="fa fa-arrows-v"></i></span>
-                                                    <button type="button" wire:click="deleteItem('{{ $id }}')"
+                                                    <button type="button" wire:click="deleteItem("{{ $id }}")"
                                                         class="btn btn-danger btn-sm">Delete</button>
                                                 </td>
                                             </tr>
@@ -65,9 +75,10 @@
                                             <td></td>
                                             <td class="fw-bold text-end">
                                                 Total:
-                                                {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + (($item['amount'] ?? 0) * ($item['quantity'] ?? 0)), 0) }}
-                                                {{ $data['currency'] ?? '' }}
+                                                {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + (($item["amount"] ?? 0) * ($item["quantity"] ?? 0)), 0) }}
+                                                {{ $data["currency"] ?? "" }}
                                             </td>
+                                            <td></td>
                                             <td></td>
                                             <td></td>
                                         </tr>
@@ -104,14 +115,23 @@
                                                 <select class="form-control" wire:model="itemEdits.{{ $id }}.category_id"
                                                     wire:change="calculateTotal">
                                                     @foreach($categories as $cat)
-                                                        <option value="{{ $cat['id'] }}">{{ $cat['name'] }}</option>
+                                                        <option value="{{ $cat["id"] }}">{{ $cat["name"] }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="receipt-item-field">
+                                                <label>Inventory</label>
+                                                <select class="form-control" wire:model="itemEdits.{{ $id }}.inventory_item_id">
+                                                    <option value="">-- None --</option>
+                                                    @foreach($availableItems as $inv)
+                                                        <option value="{{ $inv->id }}">{{ $inv->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                             <div class="receipt-item-actions">
                                                 <span class="handle btn btn-default btn-sm" style="cursor:move;"><i
                                                         class="fa fa-arrows-v"></i></span>
-                                                <button type="button" wire:click="deleteItem('{{ $id }}')"
+                                                <button type="button" wire:click="deleteItem("{{ $id }}")"
                                                     class="btn btn-danger btn-sm">Delete</button>
                                             </div>
                                         </div>
@@ -119,8 +139,8 @@
                                 </div>
                                 <div class="receipt-total-mobile">
                                     <strong>Total:
-                                        {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + (($item['amount'] ?? 0) * ($item['quantity'] ?? 0)), 0) }}
-                                        {{ $data['currency'] ?? '' }}</strong>
+                                        {{ collect($itemEdits)->reduce(fn($carry, $item) => $carry + (($item["amount"] ?? 0) * ($item["quantity"] ?? 0)), 0) }}
+                                        {{ $data["currency"] ?? "" }}</strong>
                                 </div>
                             </div>
 
@@ -228,47 +248,47 @@
 <script>
     function initReceiptSortable() {
         // Desktop table sortable
-        var el = document.getElementById('receipt-items-list');
+        var el = document.getElementById("receipt-items-list");
         if (el && window.$ && $.fn.sortable) {
-            if ($(el).data('ui-sortable')) {
-                $(el).sortable('destroy');
+            if ($(el).data("ui-sortable")) {
+                $(el).sortable("destroy");
             }
             $(el).sortable({
-                axis: 'y',
-                handle: '.handle',
-                items: '> tr',
+                axis: "y",
+                handle: ".handle",
+                items: "> tr",
                 update: function (event, ui) {
                     let ids = [];
-                    $('#receipt-items-list tr').each(function () {
-                        ids.push($(this).attr('data-id'));
+                    $("#receipt-items-list tr").each(function () {
+                        ids.push($(this).attr("data-id"));
                     });
-                    @this.call('updateItemOrder', ids);
+                    @this.call("updateItemOrder", ids);
                 }
             });
         }
 
         // Mobile card sortable
-        var mobileEl = document.getElementById('receipt-items-list-mobile');
+        var mobileEl = document.getElementById("receipt-items-list-mobile");
         if (mobileEl && window.$ && $.fn.sortable) {
-            if ($(mobileEl).data('ui-sortable')) {
-                $(mobileEl).sortable('destroy');
+            if ($(mobileEl).data("ui-sortable")) {
+                $(mobileEl).sortable("destroy");
             }
             $(mobileEl).sortable({
-                axis: 'y',
-                handle: '.handle',
-                items: '> .receipt-item-card',
+                axis: "y",
+                handle: ".handle",
+                items: "> .receipt-item-card",
                 update: function (event, ui) {
                     let ids = [];
-                    $('#receipt-items-list-mobile .receipt-item-card').each(function () {
-                        ids.push($(this).attr('data-id'));
+                    $("#receipt-items-list-mobile .receipt-item-card").each(function () {
+                        ids.push($(this).attr("data-id"));
                     });
-                    @this.call('updateItemOrder', ids);
+                    @this.call("updateItemOrder", ids);
                 }
             });
         }
     }
     initReceiptSortable();
-    document.addEventListener('livewire:update', function () {
+    document.addEventListener("livewire:update", function () {
         initReceiptSortable();
     });
 </script>

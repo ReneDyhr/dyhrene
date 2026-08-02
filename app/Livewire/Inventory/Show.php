@@ -16,7 +16,7 @@ class Show extends Component
     {
         \abort_unless($item->user_id === \Auth::id(), 403);
 
-        $this->item = $item->load(['category', 'attachments']);
+        $this->item = $item->load(['category', 'attachments', 'receiptItem.receipt']);
     }
 
     public function render(): View

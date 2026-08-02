@@ -20,6 +20,7 @@ use Livewire\Livewire;
     $this->category = InventoryCategory::factory()->create(['user_id' => $this->user->id]);
     $this->item = InventoryItem::factory()->create([
         'user_id' => $this->user->id,
+        'category_id' => $this->category->id,
         'name' => 'Original Name',
         'brand' => 'Original Brand',
     ]);
