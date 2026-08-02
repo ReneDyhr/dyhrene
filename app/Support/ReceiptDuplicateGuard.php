@@ -33,7 +33,7 @@ final class ReceiptDuplicateGuard
             $existingTotal = 0.0;
 
             foreach ($existingReceipt->items as $item) {
-                $existingTotal += $item->amount * $item->quantity;
+                $existingTotal += (float) $item->amount * $item->quantity;
             }
 
             if (\abs($itemsTotal - $existingTotal) < 0.01) {
