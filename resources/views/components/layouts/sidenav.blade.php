@@ -45,6 +45,12 @@
                 <a href="/receipts">Receipts</a>
             </li>
             <li>
+                <a href="{{ route('inventory.index') }}">Inventory</a>
+            </li>
+            <li>
+                <a href="{{ route('inventory.categories') }}">Inventory Categories</a>
+            </li>
+            <li>
                 <a href="/species">Bird Species</a>
             </li>
             <li>

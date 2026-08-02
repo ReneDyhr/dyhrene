@@ -19,6 +19,11 @@ class ReceiptItem extends Model
         'quantity',
         'amount',
         'category_id',
+        'inventory_item_id',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
     ];
 
     /**
@@ -26,7 +31,7 @@ class ReceiptItem extends Model
      */
     public function getTotalAttribute(): float
     {
-        return $this->amount * $this->quantity;
+        return (float) $this->amount * $this->quantity;
     }
 
     /**
@@ -43,5 +48,13 @@ class ReceiptItem extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(ReceiptCategory::class);
+    }
+
+    /**
+     * @return BelongsTo<InventoryItem, $this>
+     */
+    public function inventoryItem(): BelongsTo
+    {
+        return $this->belongsTo(InventoryItem::class, 'inventory_item_id');
     }
 }
