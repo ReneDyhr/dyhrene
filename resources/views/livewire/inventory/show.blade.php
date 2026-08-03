@@ -18,13 +18,17 @@
 
                         @if($item->receiptItem)
                             <div class="alert alert-info" style="padding: 10px; margin-bottom: 15px;">
-                                <strong><i class="fa fa-receipt"></i> Purchased on:</strong>
+                                <strong><i class="fa fa-file-text-o"></i> Purchased on:</strong>
                                 <a href="{{ route("receipts.show", $item->receiptItem->receipt) }}">
                                     Receipt #{{ $item->receiptItem->receipt->id }} — {{ $item->receiptItem->receipt->name }}
                                 </a>
                                 from {{ $item->receiptItem->receipt->vendor ?? "unknown vendor" }}
                                 on {{ $item->receiptItem->receipt->date->format("Y-m-d") }}
                                 ({{ \number_format((float) $item->receiptItem->amount, 2) }} {{ $item->receiptItem->receipt->currency }})
+                            </div>
+                        @else
+                            <div class="text-muted" style="margin-bottom: 15px;">
+                                <em>No receipt linked. <a href="{{ route("inventory.edit", $item) }}">Edit item</a> to link one.</em>
                             </div>
                         @endif
 
