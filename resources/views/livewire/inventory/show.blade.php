@@ -17,9 +17,9 @@
                         </div>
 
                         @if($item->receiptItem)
-                            <div style="background: #d9edf7; border: 1px solid #bce8f1; border-radius: 4px; padding: 10px; margin-bottom: 15px;">
+                            <div style="background: #d9edf7; border: 1px solid #bce8f1; border-radius: 4px; padding: 10px; margin-bottom: 15px; font-size: 0.8rem; line-height: 1.5;">
                                 <strong><i class="fa fa-file-text-o"></i> Purchased on:</strong>
-                                <a href="{{ route("receipts.show", $item->receiptItem->receipt) }}">
+                                <a href="{{ route("receipts.show", $item->receiptItem->receipt) }}" style="font-size: 0.8rem;">
                                     Receipt #{{ $item->receiptItem->receipt->id }} — {{ $item->receiptItem->receipt->name }}
                                 </a>
                                 from {{ $item->receiptItem->receipt->vendor ?? "unknown vendor" }}
