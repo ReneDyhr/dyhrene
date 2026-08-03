@@ -17,7 +17,7 @@
                         </div>
 
                         @if($item->receiptItem)
-                            <div class="alert alert-info" style="padding: 10px; margin-bottom: 15px;">
+                            <div style="background: #d9edf7; border: 1px solid #bce8f1; border-radius: 4px; padding: 10px; margin-bottom: 15px;">
                                 <strong><i class="fa fa-file-text-o"></i> Purchased on:</strong>
                                 <a href="{{ route("receipts.show", $item->receiptItem->receipt) }}">
                                     Receipt #{{ $item->receiptItem->receipt->id }} — {{ $item->receiptItem->receipt->name }}
