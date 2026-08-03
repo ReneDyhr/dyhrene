@@ -113,6 +113,7 @@ function initReceiptSelect() {
         tsReceiptSelect.destroy();
     }
 
+    const selectedValue = el.value;
     const options = Array.from(el.options).map(opt => ({
         value: opt.value,
         text: opt.textContent
@@ -128,6 +129,10 @@ function initReceiptSelect() {
             @this.set('receipt_item_id', value === '' ? null : parseInt(value));
         }
     });
+
+    if (selectedValue) {
+        tsReceiptSelect.setValue(selectedValue);
+    }
 }
 
 initReceiptSelect();
