@@ -61,7 +61,7 @@ class Create extends Component
     public Collection $availableReceiptItems;
 
     /** @var array<int, InventoryCategory> */
-    protected array $categoryList = [];
+    public array $categoryList = [];
 
     public function mount(): void
     {
