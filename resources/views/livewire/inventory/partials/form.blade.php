@@ -103,8 +103,6 @@
 
 @script
 <script>
-import TomSelect from 'tom-select';
-
 let tsReceiptSelect = null;
 
 function initReceiptSelect() {
@@ -120,7 +118,7 @@ function initReceiptSelect() {
         text: opt.textContent
     }));
 
-    tsReceiptSelect = new TomSelect(el, {
+    tsReceiptSelect = new window.TomSelect(el, {
         options: options,
         placeholder: 'Search receipt items...',
         allowEmptyOption: true,
