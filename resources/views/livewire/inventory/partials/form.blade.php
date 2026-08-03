@@ -84,8 +84,8 @@
 
 <div class="form-group">
     <label>Link to Receipt</label>
-    <div style="display: flex; gap: 8px;">
-        <select wire:model="receipt_item_id" class="form-control" style="flex: 1;">
+    <div style="display: flex; gap: 8px;" wire:ignore>
+        <select id="receipt-item-select" wire:model="receipt_item_id" class="form-control" style="flex: 1;">
             <option value="">-- Select receipt item --</option>
             @foreach($availableReceiptItems as $ri)
                 <option value="{{ $ri->id }}">
@@ -100,6 +100,44 @@
     </div>
     @error("receipt_item_id") <span class="error">{{ $message }}</span> @enderror
 </div>
+
+@script
+<script>
+import TomSelect from 'tom-select';
+
+let tsReceiptSelect = null;
+
+function initReceiptSelect() {
+    const el = document.getElementById('receipt-item-select');
+    if (!el) return;
+
+    if (tsReceiptSelect) {
+        tsReceiptSelect.destroy();
+    }
+
+    const options = Array.from(el.options).map(opt => ({
+        value: opt.value,
+        text: opt.textContent
+    }));
+
+    tsReceiptSelect = new TomSelect(el, {
+        options: options,
+        placeholder: 'Search receipt items...',
+        allowEmptyOption: true,
+        create: false,
+        sortField: { field: 'text', direction: 'asc' },
+        onChange: function(value) {
+            @this.set('receipt_item_id', value === '' ? null : parseInt(value));
+        }
+    });
+}
+
+initReceiptSelect();
+document.addEventListener('livewire:update', function() {
+    setTimeout(initReceiptSelect, 50);
+});
+</script>
+@endscript
 
 <div class="form-group">
     <label>Status</label>
