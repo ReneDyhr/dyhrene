@@ -33,49 +33,64 @@
     </div>
 
     <div class="register">
-        <a class="reg-card" href="{{ route('kitchen.index') }}" wire:navigate style="--c: var(--koekken)">
+        <div class="reg-card reg-card--link" style="--c: var(--koekken)">
+            <a class="stretched-link" href="{{ route('kitchen.index') }}" wire:navigate aria-label="Køkken"></a>
             <h3>Køkken</h3>
             <p class="what">Opskrifter, indkøb og hvad der står på lager.</p>
             <div class="reg-links">
-                <span class="chip">Opskrifter</span><span class="chip">Indkøbsliste</span><span class="chip">Lager</span>
+                <a class="chip" href="{{ route('recipes.index') }}" wire:navigate>Opskrifter</a>
+                <a class="chip" href="{{ route('shopping.list') }}" wire:navigate>Indkøbsliste</a>
+                <a class="chip" href="{{ route('storage') }}" wire:navigate>Lager</a>
             </div>
             <div class="reg-note"><span class="num">{{ $snapshot->recipes->count }}</span> opskrifter</div>
-        </a>
+        </div>
 
-        <a class="reg-card" href="{{ route('nature.dashboard') }}" wire:navigate style="--c: var(--natur)">
+        <div class="reg-card reg-card--link" style="--c: var(--natur)">
+            <a class="stretched-link" href="{{ route('nature.dashboard') }}" wire:navigate aria-label="Natur"></a>
             <h3>Natur</h3>
             <p class="what">Fuglearter, observationer og turene ud i det.</p>
             <div class="reg-links">
-                <span class="chip">Observationer</span><span class="chip">Arter</span><span class="chip">Vilde planter</span>
+                <a class="chip" href="{{ route('observations.index') }}" wire:navigate>Observationer</a>
+                <a class="chip" href="{{ route('species.index') }}" wire:navigate>Arter</a>
+                <a class="chip" href="{{ route('wild-edibles.index') }}" wire:navigate>Vilde planter</a>
             </div>
             <div class="reg-note"><span class="num">{{ $snapshot->observations->count }}</span> observationer</div>
-        </a>
+        </div>
 
-        <a class="reg-card" href="{{ route('workshop.index') }}" wire:navigate style="--c: var(--vaerksted)">
+        <div class="reg-card reg-card--link" style="--c: var(--vaerksted)">
+            <a class="stretched-link" href="{{ route('workshop.index') }}" wire:navigate aria-label="Værksted"></a>
             <h3>Værksted</h3>
             <p class="what">3D-print, filament og projekter der er i gang.</p>
             <div class="reg-links">
-                <span class="chip">Printkø</span><span class="chip">Materialer</span><span class="chip">Kunder</span>
+                <a class="chip" href="{{ route('print-jobs.index') }}" wire:navigate>Printkø</a>
+                <a class="chip" href="{{ route('print-materials.index') }}" wire:navigate>Materialer</a>
+                <a class="chip" href="{{ route('print-customers.index') }}" wire:navigate>Kunder</a>
             </div>
             <div class="reg-note">Projekter & filament</div>
-        </a>
+        </div>
 
-        <a class="reg-card" href="{{ route('household.index') }}" wire:navigate style="--c: var(--husholdning)">
+        <div class="reg-card reg-card--link" style="--c: var(--husholdning)">
+            <a class="stretched-link" href="{{ route('household.index') }}" wire:navigate aria-label="Hus"></a>
             <h3>Hus</h3>
             <p class="what">Kvitteringer, inventar og papirerne der skal gemmes.</p>
             <div class="reg-links">
-                <span class="chip">Kvitteringer</span><span class="chip">Inventar</span><span class="chip">Kategorier</span>
+                <a class="chip" href="{{ route('receipts.index') }}" wire:navigate>Kvitteringer</a>
+                <a class="chip" href="{{ route('inventory.index') }}" wire:navigate>Inventar</a>
+                <a class="chip" href="{{ route('inventory.categories') }}" wire:navigate>Kategorier</a>
             </div>
             <div class="reg-note"><span class="num">{{ $snapshot->receipts->currentMonthCount }}</span> kvitteringer denne måned</div>
-        </a>
+        </div>
 
-        <a class="reg-card" href="{{ route('family.index') }}" wire:navigate style="--c: var(--familien)">
+        <div class="reg-card reg-card--link" style="--c: var(--familien)">
+            <a class="stretched-link" href="{{ route('family.index') }}" wire:navigate aria-label="Familien"></a>
             <h3>Familien</h3>
             <p class="what">Profiler, post, adgange og indstillinger for siden.</p>
             <div class="reg-links">
-                <span class="chip">Post</span><span class="chip">AI-adgang</span><span class="chip">Indstillinger</span>
+                <a class="chip" href="{{ route('mail.inbox') }}" wire:navigate>Post</a>
+                <a class="chip" href="{{ route('settings.mcp') }}" wire:navigate>AI-adgang</a>
+                <a class="chip" href="{{ route('settings.mcp') }}" wire:navigate>Indstillinger</a>
             </div>
             <div class="reg-note"><span class="num">{{ $snapshot->inventory->count }}</span> genstande i inventar</div>
-        </a>
+        </div>
     </div>
 </x-layouts.app-shell>

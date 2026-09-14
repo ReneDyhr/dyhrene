@@ -234,6 +234,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
     color: var(--ink-soft);
 }
 .reg-note .num { font-family: var(--font-mono); color: var(--c, var(--theme)); font-weight: 500; }
+.reg-card--link > .stretched-link { position: absolute; inset: 0; z-index: 1; }
+.reg-card--link .reg-links { position: relative; z-index: 2; }
 
 /* ---------- Generiske kort ---------- */
 .grid { display: grid; gap: 14px; }
