@@ -7,6 +7,8 @@ Documentation for the business domains that Dyhrene manages — what each featur
 | Document | Description |
 |----------|-------------|
 | [features.md](features.md) | Complete feature catalog across all 8 domains |
+| [dyhrene-information-architecture.md](dyhrene-information-architecture.md) | Confirmed six-area information architecture, route→area mapping, and product decisions |
+| [dyhrene-design-acceptance-criteria.md](dyhrene-design-acceptance-criteria.md) | Visual/behavioural acceptance criteria (tokens, breakpoints, accessibility) |
 | [wild-edibles-gathering-map-spec.md](wild-edibles-gathering-map-spec.md) | Specification for the private Wild Edibles gathering map |
 | [ebird-integration.md](ebird-integration.md) | eBird import pipeline, Danish species conventions, and scheduled automation |
 
