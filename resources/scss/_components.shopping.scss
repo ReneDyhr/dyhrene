@@ -1,114 +1,118 @@
-ul.shopping-list {
-  margin: 0;
-  padding: 0;
+.shopping-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    overflow: hidden;
 }
 
-/* Style the list items */
-ul.shopping-list li {
-  cursor: pointer;
-  position: relative;
-  padding: 7px 75px 7px 35px;
-  background: #eee;
-  font-size: 1rem;
-  transition: 0.2s;
-  list-style-type: none;
-
-  /* make the list items unselectable */
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+.shopping-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease;
 }
 
-/* Set all odd list items to a different color (zebra-stripes) */
-ul.shopping-list li:nth-child(odd) {
-  background: #f9f9f9;
+.shopping-list li:last-child {
+    border-bottom: 0;
 }
 
-/* Darker background-color on hover */
-ul.shopping-list li:hover {
-  background: #ddd;
+.shopping-list li:hover {
+    background: color-mix(in srgb, var(--theme) 9%, var(--card));
 }
 
-/* When clicked on, add a background color and strike out text */
-ul.shopping-list li.checked {
-  background: #888;
-  color: #fff;
-  text-decoration: line-through;
+.shopping-list li.section-header {
+    cursor: default;
+    background: color-mix(in srgb, var(--theme) 5%, var(--card));
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
 }
 
-/* Add a "checked" mark when clicked on */
-ul.shopping-list li.checked::before {
-  content: '';
-  position: absolute;
-  border-color: #fff;
-  border-style: solid;
-  border-width: 0 2px 2px 0;
-  top: 10px;
-  left: 16px;
-  transform: rotate(45deg);
-  height: 11px;
-  width: 4px;
+.shopping-list li.section-header:hover {
+    background: color-mix(in srgb, var(--theme) 5%, var(--card));
 }
 
-.shopping-list .close {
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding: 6px 16px 12px 16px
+.shopping-list .check {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    position: relative;
+}
+
+.shopping-list li.checked .check {
+    background: var(--theme);
+    border-color: var(--theme);
+}
+
+.shopping-list li.checked .check::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: solid #10140f;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.shopping-list .name {
+    flex: 1;
+    min-width: 0;
+}
+
+.shopping-list li.checked .name {
+    color: var(--ink-soft);
+    text-decoration: line-through;
 }
 
 .shopping-list .handle {
-  position: absolute;
-  right: 40px;
-  top: 0;
-  padding: 6px 16px 12px 16px
-}
-
-.shopping-list .close:hover {
-  background-color: #f44336;
-  color: white;
+    color: var(--ink-soft);
+    cursor: grab;
+    padding: 4px 8px;
 }
 
 .shopping-list .handle:hover {
-  background-color: #888;
-  color: white
+    color: var(--ink);
 }
 
-#shopping-checked .close {
-  display: none;
+.shopping-list .close {
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.shopping-list .close:hover {
+    color: #fff;
+    background: #e0533f;
+}
+
+#shopping-checked .handle {
+    display: none;
 }
 
 .add-item {
-  margin-bottom: 20px;
-  .btn {
-    padding: 5px;
-    width: 25%;
-    float: left;
-    transition: 0.3s;
-  }
-  #add-item-name {
-    box-sizing: border-box;
-    width: 75%;
-    padding: 5px;
-    float: left;
-    font-size: 16px;
-  }
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
 
-  /* Style the "Add" button */
-  .addBtn {
-    padding: 5px;
-    width: 25%;
-    background: #d9d9d9;
-    color: #555;
-    float: left;
-    text-align: center;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
+.add-item .form-control {
+    flex: 1;
+}
 
-  .addBtn:hover {
-    background-color: #bbb;
-  }
+.add-item .cta {
+    margin-top: 0;
+    flex: 0 0 auto;
 }

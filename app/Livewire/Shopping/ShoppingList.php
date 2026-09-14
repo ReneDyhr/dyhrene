@@ -30,7 +30,7 @@ class ShoppingList extends Component
 
     public function render(): View
     {
-        return \view('livewire.shopping.list', ['title' => 'Shopping List']);
+        return \view('livewire.shopping.list', ['title' => 'Indkøbsliste']);
     }
 
     public function updateList(): void
