@@ -15,7 +15,7 @@
     @foreach ($receiptsByMonth as $monthData)
         <section x-data="{ open: @json($monthData['month'] === $currentMonth) }">
             <button type="button" class="month-toggle" @click="open = !open" :aria-expanded="open">
-                <span>{{ $monthData['monthName'] }} · {{ \App\Support\Format::number($monthData['total']) }} {{ $monthData['currency'] === 'EUR' ? '€' : 'kr.' }}</span>
+                <span>{{ $monthData['monthName'] }} · {{ $monthData['count'] }} {{ $monthData['count'] === 1 ? 'kvittering' : 'kvitteringer' }} · {{ \App\Support\Format::number($monthData['total']) }} {{ $monthData['currency'] === 'EUR' ? '€' : 'kr.' }}</span>
                 <span class="month-toggle__line"></span>
                 <span class="month-toggle__chevron" aria-hidden="true" x-text="open ? '▾' : '▸'"></span>
             </button>
@@ -28,15 +28,11 @@
                             <div>
                                 <div class="lead"><a href="{{ route('receipts.show', $receipt) }}" wire:navigate>{{ $receipt->name }}</a></div>
                                 <div class="sub">
-                                    @if ($receipt->vendor){{ $receipt->vendor }} · @endif{{ $receipt->items->count() }} varer · {{ $receipt->date->locale('da')->isoFormat('D. MMM YYYY') }}
+                                    {{ $receipt->items->count() }} varer · {{ $receipt->date->locale('da')->isoFormat('D. MMM YYYY') }}
                                 </div>
                             </div>
                             <div class="right">
-                                {{ $receipt->currency === 'EUR' ? \App\Support\Format::number($receipt->total) . ' €' : \App\Support\Format::dkk($receipt->total) }}<br>
-                                <span class="actions">
-                                    <a href="{{ route('receipts.edit', $receipt) }}" wire:navigate>Redigér</a>
-                                    <a href="#" class="danger" wire:confirm="Er du sikker?" wire:click.prevent="deleteReceipt({{ $receipt->id }})">Slet</a>
-                                </span>
+                                {{ $receipt->currency === 'EUR' ? \App\Support\Format::number($receipt->total) . ' €' : \App\Support\Format::dkk($receipt->total) }}
                             </div>
                         </div>
                     @endforeach
