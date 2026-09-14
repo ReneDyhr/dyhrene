@@ -91,7 +91,6 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--theme); }
 }
 .table-striped tbody tr:nth-child(odd) { background: rgba(255, 255, 255, 0.02); }
 .table a { color: var(--theme); text-decoration: none; }
-.table a:hover { text-decoration: underline; }
 
 /* ---------- Labels / badges ---------- */
 .label {
