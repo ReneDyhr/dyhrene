@@ -27,9 +27,9 @@
                     </div>
                     <div class="right">
                         {{ $receipt->currency === 'EUR' ? \App\Support\Format::number($receipt->total) . ' €' : \App\Support\Format::dkk($receipt->total) }}<br>
-                        <span class="sub">
+                        <span class="actions">
                             <a href="{{ route('receipts.edit', $receipt) }}" wire:navigate>Redigér</a>
-                            <a href="#" wire:confirm="Er du sikker?" wire:click.prevent="deleteReceipt({{ $receipt->id }})">· Slet</a>
+                            <a href="#" class="danger" wire:confirm="Er du sikker?" wire:click.prevent="deleteReceipt({{ $receipt->id }})">Slet</a>
                         </span>
                     </div>
                 </div>

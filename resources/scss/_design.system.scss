@@ -278,7 +278,7 @@ ul.ing li { margin: 2px 0; }
 .row:last-child { border-bottom: 0; }
 .row:hover { background: color-mix(in srgb, var(--theme) 9%, var(--card)); }
 a.row { color: var(--ink); text-decoration: none; }
-.row .lead { font-weight: 500; }
+.row .lead { font-weight: 500; font-size: 15px; }
 .row .lead a { color: var(--ink); text-decoration: none; }
 .row .lead a:hover { color: var(--theme); }
 .row .sub { font-size: 12.5px; color: var(--ink-soft); }
@@ -289,6 +289,19 @@ a.row { color: var(--ink); text-decoration: none; }
     color: var(--ink-soft);
     text-align: right;
 }
+.row .right .actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.row .right .actions a {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-decoration: none;
+}
+.row .right .actions a:hover { color: var(--theme); }
+.row .right .actions a.danger:hover { color: #e0533f; }
 .swatch {
     width: 9px;
     height: 34px;
