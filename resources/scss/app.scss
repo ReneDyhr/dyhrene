@@ -3,31 +3,19 @@
 @import "settings.global";
 @import "settings.typography";
 @import "settings.design-tokens";
-@import "generic.reset";
 
-@import "object.layout";
+// Design system (base, shell, komponenter, formularer)
+@import "design.system";
+@import "design.forms";
+
+// App-specifikke komponenter
 @import "elements.links";
-@import "module.global-nav";
-@import "module.main-content";
-
-@import "components.forms";
 @import "components.icons";
-@import "components.buttons";
-@import "components.alerts";
-@import "components.tooltip";
-@import "components.popover";
+@import "components.calendar";
 @import "components.recipes";
-@import "components.labels";
-@import "components.modal";
-@import "components.pagination";
-@import "components.multiselect";
-@import "components.select";
-@import "components.tables";
-@import "components.login";
 @import "components.shopping";
+@import "components.login";
 @import "module.wild-edibles";
-@import "module.app-shell";
-@import "module.landing";
 @import "module.recipes";
 
 @import "tom-select/src/scss/tom-select.default";

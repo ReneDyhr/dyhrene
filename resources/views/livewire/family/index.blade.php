@@ -1,10 +1,22 @@
 <x-layouts.app-shell :area="\App\Enums\AppArea::Family">
-    <section class="landing" aria-labelledby="family-heading">
-        <h1 id="family-heading" class="landing__heading">Familien</h1>
+    <div class="view-head">
+        <h1>Familien</h1>
+        <p>Profiler, post og adgang. Det tekniske ligger her, så det ikke fylder i resten af huset.</p>
+    </div>
 
-        <ul class="landing-links">
-            <li><a class="landing-links__link" href="{{ route('mail.inbox') }}" wire:navigate>Mail</a></li>
-            <li><a class="landing-links__link" href="{{ route('settings.mcp') }}" wire:navigate>MCP-forbindelse</a></li>
-        </ul>
-    </section>
+    <div class="subnav">
+        <a href="{{ route('mail.inbox') }}" wire:navigate aria-current="page">Post</a>
+        <a href="{{ route('settings.mcp') }}" wire:navigate>AI-adgang</a>
+    </div>
+
+    <div class="grid g3">
+        <article class="card">
+            <h3>Post</h3>
+            <div class="meta">Klassificeret mail fra Fastmail</div>
+        </article>
+        <article class="card">
+            <h3>AI-adgang</h3>
+            <div class="meta">MCP-servere til eksterne klienter</div>
+        </article>
+    </div>
 </x-layouts.app-shell>

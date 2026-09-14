@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 final class AppNavigation
 {
     /**
-     * @return list<array{area: AppArea, href: string, icon: string, isCurrent: bool, label: string}>
+     * @return list<array{area: AppArea, href: string, icon: string, isCurrent: bool, label: string, accentVar: string}>
      */
     public function items(?AppArea $currentArea = null): array
     {
@@ -23,6 +23,7 @@ final class AppNavigation
                 'icon' => $area->icon(),
                 'isCurrent' => $area === $currentArea,
                 'label' => $area->label(),
+                'accentVar' => $area->accentVar(),
             ],
             AppArea::cases(),
         );

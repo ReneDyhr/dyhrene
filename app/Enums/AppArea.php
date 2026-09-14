@@ -36,4 +36,16 @@ enum AppArea: string
             self::Family => 'Familien',
         };
     }
+
+    public function accentVar(): string
+    {
+        return match ($this) {
+            self::Overview => '--neutral',
+            self::Kitchen => '--koekken',
+            self::Nature => '--natur',
+            self::Workshop => '--vaerksted',
+            self::Household => '--husholdning',
+            self::Family => '--familien',
+        };
+    }
 }

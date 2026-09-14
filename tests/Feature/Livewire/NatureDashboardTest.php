@@ -101,7 +101,7 @@ use App\Models\User;
 
     $this->actingAs($user)
         ->get(\route('nature.dashboard'))
-        ->assertSee('No recording', false);
+        ->assertSee('Ingen optagelse', false);
 });
 
 \it('shows source badges correctly', function (): void {

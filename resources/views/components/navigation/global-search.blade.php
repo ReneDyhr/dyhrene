@@ -1,15 +1,6 @@
-<form class="app-recipe-search" action="{{ route('search') }}" method="get" role="search" aria-label="Opskriftssøgning">
-    <label class="app-shell__visually-hidden" for="app-recipe-search">Søg i opskrifter</label>
-    <input
-        id="app-recipe-search"
-        class="app-recipe-search__input"
-        type="search"
-        name="q"
-        placeholder="Søg i opskrifter"
-        aria-label="Søg i opskrifter"
-    >
-    <button class="app-recipe-search__submit" type="submit">
-        <span aria-hidden="true">⌕</span>
-        <span class="app-shell__visually-hidden">Søg i opskrifter</span>
-    </button>
+<form class="search" action="{{ route('search') }}" method="get" role="search" aria-label="Søg i opskrifter">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#939C94" stroke-width="1.8" aria-hidden="true">
+        <circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/>
+    </svg>
+    <input type="search" name="q" placeholder="Søg i opskrifter, arter, kvitteringer…" aria-label="Søg på hele siden">
 </form>

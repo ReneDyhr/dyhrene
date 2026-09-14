@@ -42,7 +42,7 @@ use App\Models\User;
     $this->actingAs($user)->get(\route('index'))
         ->assertOk()
         ->assertSee('Oversigt')
-        ->assertSee('href="' . \route('recipes.index') . '"', false);
+        ->assertSee('href="' . \route('kitchen.index') . '"', false);
 
     $this->actingAs($user)->get(\route('recipes.index'))
         ->assertOk()

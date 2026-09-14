@@ -1,0 +1,156 @@
+/* ===================================================================
+   Dyhrene forms, tabeller, knapper — mørke erstatninger for Bootstrap-3
+   =================================================================== */
+
+/* ---------- Grid (kompatibilitet) ---------- */
+.col-12 { width: 100%; float: left; }
+.col-6 { width: 50%; float: left; }
+.col-4 { width: 33.3333%; float: left; }
+.col-3 { width: 25%; float: left; }
+.float-left { float: left; }
+.float-right { float: right; }
+.full-width { width: 100%; }
+
+/* ---------- Knapper ---------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--card);
+    text-decoration: none;
+    cursor: pointer;
+    transition: filter 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover { border-color: var(--theme); filter: brightness(1.06); color: var(--ink); text-decoration: none; }
+.btn-primary { background: var(--vaerksted); border-color: var(--vaerksted); color: #10140f; }
+.btn-primary:hover { color: #10140f; }
+.btn-success { background: var(--natur); border-color: var(--natur); color: #10140f; }
+.btn-success:hover { color: #10140f; }
+.btn-danger { background: #e0533f; border-color: #e0533f; color: #fff; }
+.btn-danger:hover { color: #fff; }
+.btn-warning { background: var(--husholdning); border-color: var(--husholdning); color: #10140f; }
+.btn-warning:hover { color: #10140f; }
+.btn-info { background: var(--vaerksted); border-color: var(--vaerksted); color: #10140f; }
+.btn-info:hover { color: #10140f; }
+.btn-default { background: var(--card); border-color: var(--line); color: var(--ink); }
+.btn-sm { padding: 5px 10px; font-size: 12.5px; }
+.btn-xs { padding: 3px 8px; font-size: 11px; }
+.btn-none { background: none; border: 0; padding: 0; }
+
+/* ---------- Formularer ---------- */
+.form-group { margin-bottom: 16px; }
+.form-group label, .form-group > label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: var(--ink-soft);
+}
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+.form-control:focus { border-color: var(--theme); }
+textarea.form-control { resize: vertical; min-height: 90px; }
+select.form-control { appearance: none; }
+input[type='checkbox'], input[type='radio'] { accent-color: var(--theme); }
+.form-check { margin-bottom: 10px; }
+.form-check-label { font-size: 14px; }
+.checkbox-inline { font-size: 14px; color: var(--ink-soft); }
+.text-danger { color: #ff8a78; }
+.text-muted { color: var(--ink-soft); }
+
+/* ---------- Tabeller ---------- */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+.table th, .table td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+.table thead th {
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.table-striped tbody tr:nth-child(odd) { background: rgba(255, 255, 255, 0.02); }
+.table a { color: var(--theme); text-decoration: none; }
+.table a:hover { text-decoration: underline; }
+
+/* ---------- Labels / badges ---------- */
+.label {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--line);
+}
+.label-success { background: color-mix(in srgb, var(--natur) 22%, var(--card)); color: var(--natur); }
+.label-info { background: color-mix(in srgb, var(--vaerksted) 22%, var(--card)); color: var(--vaerksted); }
+.label-warning { background: color-mix(in srgb, var(--husholdning) 22%, var(--card)); color: var(--husholdning); }
+.label-danger { background: color-mix(in srgb, #e0533f 22%, var(--card)); color: #ff8a78; }
+.label-default { background: var(--line); color: var(--ink-soft); }
+
+/* ---------- Alerts (flash-beskeder) ---------- */
+.alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+}
+.alert header { font-weight: 600; margin-bottom: 2px; }
+.alert-info { border-color: color-mix(in srgb, var(--vaerksted) 40%, var(--line)); }
+.alert-success { border-color: color-mix(in srgb, var(--natur) 40%, var(--line)); }
+.alert-warning { border-color: color-mix(in srgb, var(--husholdning) 40%, var(--line)); }
+.alert-danger { border-color: color-mix(in srgb, #e0533f 40%, var(--line)); }
+
+/* ---------- Modaler (kompatibilitet) ---------- */
+.modal { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.6); }
+.modal.fade.in, .modal.show { display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal-dialog { width: min(560px, 100%); }
+.modal-content { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0; }
+.modal-header .close { font-size: 22px; line-height: 1; color: var(--ink-soft); background: none; border: 0; cursor: pointer; }
+.modal-body { padding: 18px 20px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--line); }
+
+/* ---------- Pagination ---------- */
+.pagination { display: flex; gap: 6px; list-style: none; padding: 0; margin: 18px 0; }
+.pagination a, .pagination span {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: none;
+}
+.pagination a:hover { border-color: var(--theme); color: var(--theme); }
+.pagination .active span { background: var(--theme); border-color: var(--theme); color: #10140f; }
+
+/* ---------- Diverse ---------- */
+.tooltip { display: none; }
+.tags-input, .tagsinput { display: inline-block; }

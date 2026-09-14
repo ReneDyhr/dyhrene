@@ -1,5 +1,5 @@
 import './bootstrap';
-import './custom';
+import './modal';
 import './wild-edibles-map';
 import TomSelect from 'tom-select';
 window.TomSelect = TomSelect;

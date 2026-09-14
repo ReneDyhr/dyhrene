@@ -1,29 +1,33 @@
 <x-layouts.app-shell :area="\App\Enums\AppArea::Household">
-    <section class="landing" aria-labelledby="household-heading">
-        <h1 id="household-heading" class="landing__heading">Husholdning</h1>
+    <div class="view-head">
+        <h1>Husholdning</h1>
+        <p>Kvitteringer, inventar og det praktiske. Gemt så det kan findes igen, ikke bare gemt væk.</p>
+    </div>
 
-        <div class="overview-grid">
-            <a class="overview-card" href="{{ route('receipts.index') }}">
-                <span class="overview-card__kicker">Kvitteringer</span>
-                <span class="overview-card__stat">{{ $snapshot->receipts->currentMonthCount }}</span>
-                <span class="overview-card__label">denne måned</span>
-                @if ($snapshot->receipts->latest !== null)
-                    <span class="overview-card__meta">Nyeste: {{ $snapshot->receipts->latest->name }}</span>
-                @endif
-            </a>
+    <div class="subnav">
+        <a href="{{ route('receipts.index') }}" wire:navigate aria-current="page">Kvitteringer</a>
+        <a href="{{ route('inventory.index') }}" wire:navigate>Inventar</a>
+        <a href="{{ route('inventory.categories') }}" wire:navigate>Inventarkategorier</a>
+    </div>
 
-            <a class="overview-card" href="{{ route('inventory.index') }}">
-                <span class="overview-card__kicker">Inventar</span>
-                <span class="overview-card__stat">{{ $snapshot->inventory->count }}</span>
-                <span class="overview-card__label">genstande</span>
-            </a>
+    <div class="stats">
+        <div class="stat"><div class="n">{{ $snapshot->receipts->currentMonthCount }}</div><div class="l">Kvitteringer denne måned</div></div>
+        <div class="stat"><div class="n">{{ $snapshot->inventory->count }}</div><div class="l">Genstande i inventar</div></div>
+    </div>
+
+    @if ($snapshot->receipts->latest !== null)
+        <div class="section-title">Nyeste kvittering</div>
+        <div class="list">
+            <div class="row">
+                <span class="swatch" style="--theme: var(--husholdning)"></span>
+                <div>
+                    <div class="lead">{{ $snapshot->receipts->latest->name }}</div>
+                    <div class="sub">Senest registreret</div>
+                </div>
+                <a class="right" href="{{ route('receipts.index') }}">Åbn →</a>
+            </div>
         </div>
+    @endif
 
-        <h2 class="landing__subheading">Genveje</h2>
-        <ul class="landing-links">
-            <li><a class="landing-links__link" href="{{ route('receipts.index') }}" wire:navigate>Kvitteringer</a></li>
-            <li><a class="landing-links__link" href="{{ route('inventory.index') }}" wire:navigate>Inventar</a></li>
-            <li><a class="landing-links__link" href="{{ route('inventory.categories') }}" wire:navigate>Inventarkategorier</a></li>
-        </ul>
-    </section>
+    <a class="cta" href="{{ route('receipts.create') }}" wire:navigate><i class="fa fa-plus" aria-hidden="true"></i> Tilføj kvittering</a>
 </x-layouts.app-shell>

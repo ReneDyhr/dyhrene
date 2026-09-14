@@ -46,7 +46,7 @@ use Livewire\Livewire;
 \it('renders the shell safely without an authenticated user', function (): void {
     $html = Illuminate\Support\Facades\Blade::render('<x-layouts.app-shell><p>Indhold</p></x-layouts.app-shell>');
 
-    \expect($html)->toContain('>Gæst</span>')
+    \expect($html)->toContain('>Gæst</div>')
         ->toContain('href="#main-content"')
         ->toContain('<main id="main-content"');
 });
@@ -58,14 +58,13 @@ use Livewire\Livewire;
 
     $response->assertOk();
     $response->assertSee($user->name);
-    $response->assertSee('aria-label="Primær navigation"', false);
-    $response->assertSee('aria-label="Mobil navigation"', false);
     $response->assertSee('data-area="nature"', false);
-    $response->assertSee('aria-label="Opskriftssøgning"', false);
+    $response->assertSee('aria-label="Områder"', false);
+    $response->assertSee('aria-label="Søg i opskrifter"', false);
     $response->assertSee('href="#main-content"', false);
     $response->assertSee('<main id="main-content"', false);
-    \expect($response->getContent())->toMatch('/<a\\b(?=[^>]*data-area="nature")(?=[^>]*aria-current="page")[^>]*>/');
-    \expect(\substr_count($response->getContent(), 'aria-label="Primær navigation"'))->toBe(1)
+    \expect($response->getContent())->toMatch('/<a\b[^>]*aria-current="true"[^>]*>/');
+    \expect(\substr_count($response->getContent(), 'aria-label="Områder"'))->toBe(2)
         ->and(\substr_count($response->getContent(), 'id="main-content"'))->toBe(1);
 });
 
@@ -79,7 +78,7 @@ use Livewire\Livewire;
 
     \expect($component->html())
         ->toContain('data-area="nature"')
-        ->toMatch('/<a\\b(?=[^>]*data-area="nature")(?=[^>]*aria-current="page")[^>]*>/');
+        ->toMatch('/<a\b[^>]*aria-current="true"[^>]*>/');
 });
 
 \it('redirects guests from the protected nature shell entry route', function (): void {

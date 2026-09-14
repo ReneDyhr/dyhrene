@@ -1,28 +1,21 @@
 <x-layouts.app-shell :area="\App\Enums\AppArea::Workshop">
-    <section class="landing" aria-labelledby="workshop-heading">
-        <h1 id="workshop-heading" class="landing__heading">Værksted</h1>
+    <div class="view-head">
+        <h1>Værksted</h1>
+        <p>3D-print og projekter. Her ligger også filamentbeholdningen, så du kan se hvad der er tilbage.</p>
+    </div>
 
-        <div class="overview-grid">
-            <a class="overview-card" href="{{ route('print-jobs.index') }}">
-                <span class="overview-card__kicker">Kladder</span>
-                <span class="overview-card__stat">{{ $snapshot->draftCount }}</span>
-                <span class="overview-card__label">print jobs i udkast</span>
-            </a>
+    <div class="subnav">
+        <a href="{{ route('print-jobs.index') }}" wire:navigate aria-current="page">Print jobs</a>
+        <a href="{{ route('print-materials.index') }}" wire:navigate>Materialer</a>
+        <a href="{{ route('print-material-types.index') }}" wire:navigate>Materialetyper</a>
+        <a href="{{ route('print-customers.index') }}" wire:navigate>Kunder</a>
+        <a href="{{ route('print-settings.edit') }}" wire:navigate>Indstillinger</a>
+    </div>
 
-            <a class="overview-card" href="{{ route('print-jobs.index') }}">
-                <span class="overview-card__kicker">Låste</span>
-                <span class="overview-card__stat">{{ $snapshot->lockedCount }}</span>
-                <span class="overview-card__label">låste print jobs</span>
-            </a>
-        </div>
+    <div class="stats">
+        <div class="stat"><div class="n">{{ $snapshot->draftCount }}</div><div class="l">Kladder</div></div>
+        <div class="stat"><div class="n">{{ $snapshot->lockedCount }}</div><div class="l">Låste print jobs</div></div>
+    </div>
 
-        <h2 class="landing__subheading">Genveje</h2>
-        <ul class="landing-links">
-            <li><a class="landing-links__link" href="{{ route('print-jobs.index') }}" wire:navigate>Print jobs</a></li>
-            <li><a class="landing-links__link" href="{{ route('print-materials.index') }}" wire:navigate>Materialer</a></li>
-            <li><a class="landing-links__link" href="{{ route('print-material-types.index') }}" wire:navigate>Materialetyper</a></li>
-            <li><a class="landing-links__link" href="{{ route('print-customers.index') }}" wire:navigate>Kunder</a></li>
-            <li><a class="landing-links__link" href="{{ route('print-settings.edit') }}" wire:navigate>Indstillinger</a></li>
-        </ul>
-    </section>
+    <a class="cta" href="{{ route('print-jobs.create') }}" wire:navigate><i class="fa fa-plus" aria-hidden="true"></i> Nyt print job</a>
 </x-layouts.app-shell>
