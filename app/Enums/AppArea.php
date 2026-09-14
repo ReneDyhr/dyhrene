@@ -32,7 +32,7 @@ enum AppArea: string
             self::Kitchen => 'Køkken',
             self::Nature => 'Natur',
             self::Workshop => 'Værksted',
-            self::Household => 'Husholdning',
+            self::Household => 'Hus',
             self::Family => 'Familien',
         };
     }

@@ -61,7 +61,7 @@
         </a>
 
         <a class="reg-card" href="{{ route('household.index') }}" wire:navigate style="--c: var(--husholdning)">
-            <h3>Husholdning</h3>
+            <h3>Hus</h3>
             <p class="what">Kvitteringer, inventar og papirerne der skal gemmes.</p>
             <div class="reg-links">
                 <span class="chip">Kvitteringer</span><span class="chip">Inventar</span><span class="chip">Kategorier</span>

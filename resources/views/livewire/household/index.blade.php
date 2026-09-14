@@ -1,6 +1,6 @@
 <x-layouts.app-shell :area="\App\Enums\AppArea::Household">
     <div class="view-head">
-        <h1>Husholdning</h1>
+        <h1>Hus</h1>
         <p>Kvitteringer, inventar og det praktiske. Gemt så det kan findes igen, ikke bare gemt væk.</p>
     </div>
 
