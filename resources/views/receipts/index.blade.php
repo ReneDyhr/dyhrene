@@ -10,8 +10,10 @@
         <a href="{{ route('receipts.mass-edit-items') }}" wire:navigate>Masse-redigering</a>
     </div>
 
+    @php $currentMonth = \now()->format('Y-m'); @endphp
+
     @foreach ($receiptsByMonth as $monthData)
-        <section x-data="{ open: true }">
+        <section x-data="{ open: @json($monthData['month'] === $currentMonth) }">
             <button type="button" class="month-toggle" @click="open = !open" :aria-expanded="open">
                 <span>{{ $monthData['monthName'] }} · {{ \App\Support\Format::number($monthData['total']) }} {{ $monthData['currency'] === 'EUR' ? '€' : 'kr.' }}</span>
                 <span class="month-toggle__line"></span>
