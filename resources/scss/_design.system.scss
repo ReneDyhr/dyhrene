@@ -259,7 +259,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
     border-radius: 4px;
     background: color-mix(in srgb, var(--theme) 13%, transparent);
     color: color-mix(in srgb, var(--theme) 85%, var(--ink));
+    text-decoration: none;
 }
+.tag:hover { filter: brightness(1.15); }
 ul.ing { margin: 10px 0 0; padding-left: 18px; font-size: 14px; color: var(--ink-soft); }
 ul.ing li { margin: 2px 0; }
 

@@ -29,7 +29,10 @@ use App\Services\Kitchen\EloquentKitchenSnapshotReader;
     \expect($snapshot->recipes->count)->toBe(2)
         ->and($snapshot->recipes->latest?->name)->toBe('Latest')
         ->and($snapshot->recipes->latest?->id)->toBe($latest->id)
-        ->and($snapshot->shoppingList->activeActionableCount)->toBe(1);
+        ->and($snapshot->shoppingList->activeActionableCount)->toBe(1)
+        ->and($snapshot->recentRecipes)->toHaveCount(2)
+        ->and($snapshot->recentRecipes[0]->name)->toBe('Latest')
+        ->and($snapshot->favouriteRecipes)->toHaveCount(0);
 });
 
 \it('returns an empty kitchen snapshot for a user without data', function (): void {
@@ -39,5 +42,19 @@ use App\Services\Kitchen\EloquentKitchenSnapshotReader;
 
     \expect($snapshot->recipes->count)->toBe(0)
         ->and($snapshot->recipes->latest)->toBeNull()
-        ->and($snapshot->shoppingList->activeActionableCount)->toBe(0);
+        ->and($snapshot->shoppingList->activeActionableCount)->toBe(0)
+        ->and($snapshot->recentRecipes)->toHaveCount(0)
+        ->and($snapshot->favouriteRecipes)->toHaveCount(0);
+});
+
+\it('lists favourite recipes separately', function (): void {
+    $owner = User::factory()->create();
+
+    Recipe::factory()->create(['user_id' => $owner->id, 'name' => 'Favourite', 'favourite' => true]);
+    Recipe::factory()->create(['user_id' => $owner->id, 'name' => 'Plain', 'favourite' => false]);
+
+    $snapshot = (new EloquentKitchenSnapshotReader())->read($owner->id);
+
+    \expect($snapshot->favouriteRecipes)->toHaveCount(1)
+        ->and($snapshot->favouriteRecipes[0]->name)->toBe('Favourite');
 });
