@@ -28,7 +28,7 @@ function seedSiteForUser(User $user): Site
  */
 function createUserWithSite(): User
 {
-    $user = \createUserWithSite();
+    $user = User::factory()->create();
 
     \seedSiteForUser($user);
 
