@@ -191,6 +191,28 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 .section-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 
+/* ---------- Måned-header (sammenklappelig) ---------- */
+.month-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 34px 0 12px;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+.month-toggle:hover { color: var(--ink); }
+.month-toggle__line { flex: 1; height: 1px; background: var(--line); }
+.month-toggle__chevron { font-size: 13px; line-height: 1; color: var(--ink-soft); }
+
 /* ---------- Forside: dagens stribe ---------- */
 .today {
     display: grid;

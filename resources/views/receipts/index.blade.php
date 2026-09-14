@@ -11,30 +11,36 @@
     </div>
 
     @foreach ($receiptsByMonth as $monthData)
-        <div class="section-title">
-            {{ $monthData['monthName'] }} · {{ \App\Support\Format::number($monthData['total']) }} {{ $monthData['currency'] === 'EUR' ? '€' : 'kr.' }}
-        </div>
+        <section x-data="{ open: true }">
+            <button type="button" class="month-toggle" @click="open = !open" :aria-expanded="open">
+                <span>{{ $monthData['monthName'] }} · {{ \App\Support\Format::number($monthData['total']) }} {{ $monthData['currency'] === 'EUR' ? '€' : 'kr.' }}</span>
+                <span class="month-toggle__line"></span>
+                <span class="month-toggle__chevron" aria-hidden="true" x-text="open ? '▾' : '▸'"></span>
+            </button>
 
-        <div class="list">
-            @foreach ($monthData['receipts'] as $receipt)
-                <div class="row">
-                    <span class="swatch"></span>
-                    <div>
-                        <div class="lead"><a href="{{ route('receipts.show', $receipt) }}" wire:navigate>{{ $receipt->name }}</a></div>
-                        <div class="sub">
-                            @if ($receipt->vendor){{ $receipt->vendor }} · @endif{{ $receipt->items->count() }} varer · {{ $receipt->date->locale('da')->isoFormat('D. MMM YYYY') }}
+            <div x-show="open">
+                <div class="list">
+                    @foreach ($monthData['receipts'] as $receipt)
+                        <div class="row">
+                            <span class="swatch"></span>
+                            <div>
+                                <div class="lead"><a href="{{ route('receipts.show', $receipt) }}" wire:navigate>{{ $receipt->name }}</a></div>
+                                <div class="sub">
+                                    @if ($receipt->vendor){{ $receipt->vendor }} · @endif{{ $receipt->items->count() }} varer · {{ $receipt->date->locale('da')->isoFormat('D. MMM YYYY') }}
+                                </div>
+                            </div>
+                            <div class="right">
+                                {{ $receipt->currency === 'EUR' ? \App\Support\Format::number($receipt->total) . ' €' : \App\Support\Format::dkk($receipt->total) }}<br>
+                                <span class="actions">
+                                    <a href="{{ route('receipts.edit', $receipt) }}" wire:navigate>Redigér</a>
+                                    <a href="#" class="danger" wire:confirm="Er du sikker?" wire:click.prevent="deleteReceipt({{ $receipt->id }})">Slet</a>
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="right">
-                        {{ $receipt->currency === 'EUR' ? \App\Support\Format::number($receipt->total) . ' €' : \App\Support\Format::dkk($receipt->total) }}<br>
-                        <span class="actions">
-                            <a href="{{ route('receipts.edit', $receipt) }}" wire:navigate>Redigér</a>
-                            <a href="#" class="danger" wire:confirm="Er du sikker?" wire:click.prevent="deleteReceipt({{ $receipt->id }})">Slet</a>
-                        </span>
-                    </div>
+                    @endforeach
                 </div>
-            @endforeach
-        </div>
+            </div>
+        </section>
     @endforeach
 
     @if ($receiptsByMonth->isEmpty())
