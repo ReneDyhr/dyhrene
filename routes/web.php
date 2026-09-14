@@ -78,7 +78,14 @@ Route::get('/observations', App\Livewire\Species\ObservationsIndex::class)->midd
 Route::get('/nature', App\Livewire\Nature\Dashboard::class)->middleware('auth')->name('nature.dashboard');
 Route::get('/nature/station', App\Livewire\Nature\StationOverview::class)->middleware('auth')->name('nature.station');
 
-// Inventory
+// Wild Edibles
+Route::get('wild-edibles', App\Livewire\WildEdibles\Index::class)->middleware('auth')->name('wild-edibles.index');
+Route::get('wild-edibles/create', App\Livewire\WildEdibles\Create::class)->middleware('auth')->name('wild-edibles.create');
+Route::get('wild-edibles/{wildEdible}', App\Livewire\WildEdibles\Show::class)->middleware('auth')->name('wild-edibles.show');
+Route::get('wild-edibles/{wildEdible}/edit', App\Livewire\WildEdibles\Edit::class)->middleware('auth')->name('wild-edibles.edit');
+Route::get('wild-edibles/{wildEdible}/pick', App\Livewire\WildEdibles\CreatePicking::class)->middleware('auth')->name('wild-edibles.pick');
+Route::get('wild-edible-photos/{photo}', App\Http\Controllers\WildEdiblePhotoController::class)->middleware('auth')->name('wild-edibles.photo');
+
 Route::get('inventory', App\Livewire\Inventory\Index::class)->middleware('auth')->name('inventory.index');
 Route::get('inventory/create', App\Livewire\Inventory\Create::class)->middleware('auth')->name('inventory.create');
 Route::get('inventory/categories', App\Livewire\Inventory\Categories::class)->middleware('auth')->name('inventory.categories');

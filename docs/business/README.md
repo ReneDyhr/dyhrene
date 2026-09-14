@@ -7,6 +7,7 @@ Documentation for the business domains that Dyhrene manages — what each featur
 | Document | Description |
 |----------|-------------|
 | [features.md](features.md) | Complete feature catalog across all 8 domains |
+| [wild-edibles-gathering-map-spec.md](wild-edibles-gathering-map-spec.md) | Specification for the private Wild Edibles gathering map |
 | [ebird-integration.md](ebird-integration.md) | eBird import pipeline, Danish species conventions, and scheduled automation |
 
 ## Domain Overview
