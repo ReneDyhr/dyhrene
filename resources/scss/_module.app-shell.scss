@@ -103,6 +103,24 @@
     font-weight: 700;
 }
 
+.app-shell__user-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.app-shell__logout {
+    color: var(--app-ink-soft);
+    text-decoration: none;
+    transition: color 160ms ease;
+
+    &:hover {
+        color: var(--app-paper);
+    }
+}
+
 .app-shell__skip-link {
     position: fixed;
     z-index: 30;

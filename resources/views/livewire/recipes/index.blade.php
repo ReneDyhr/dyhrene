@@ -1,7 +1,10 @@
 @section('title', $title)
 <x-layouts.app-shell :area="\App\Enums\AppArea::Kitchen">
     <section class="landing" aria-labelledby="recipes-heading">
-        <h1 id="recipes-heading" class="landing__heading">{{ $title }}</h1>
+        <div class="landing__toolbar">
+            <h1 id="recipes-heading" class="landing__heading">{{ $title }}</h1>
+            <a href="{{ route('add') }}" class="landing__action"><i class="fa fa-plus" aria-hidden="true"></i> Tilføj opskrift</a>
+        </div>
 
         @if (\count($recipes) > 0)
             <div class="recipe-grid">

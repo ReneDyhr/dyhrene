@@ -20,7 +20,10 @@
 
         <div class="app-shell__user" aria-label="Aktiv bruger">
             <span class="app-shell__user-mark" aria-hidden="true">{{ \mb_substr($userName, 0, 1) }}</span>
-            <span>{{ $userName }}</span>
+            <span class="app-shell__user-name">{{ $userName }}</span>
+            <a href="{{ \route('logout') }}" class="app-shell__logout" title="Log ud" aria-label="Log ud">
+                <i class="fa fa-sign-out" aria-hidden="true"></i>
+            </a>
         </div>
     </aside>
 
