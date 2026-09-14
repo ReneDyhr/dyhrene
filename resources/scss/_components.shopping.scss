@@ -116,3 +116,15 @@
     margin-top: 0;
     flex: 0 0 auto;
 }
+
+@media (max-width: 900px) {
+    .add-item {
+        flex-wrap: wrap;
+    }
+
+    .add-item .cta,
+    .add-item .btn {
+        flex: 0 0 100%;
+        width: 100%;
+    }
+}
