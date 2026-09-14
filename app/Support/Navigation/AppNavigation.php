@@ -40,11 +40,11 @@ final class AppNavigation
         }
 
         return match (true) {
-            $this->matches($routeName, ['add', 'category', 'edit', 'search', 'settings.categories', 'single', 'storage', 'tag'], ['shopping.']) => AppArea::Kitchen,
+            $this->matches($routeName, ['add', 'category', 'edit', 'search', 'settings.categories', 'single', 'storage', 'tag'], ['shopping.', 'kitchen.', 'recipes.']) => AppArea::Kitchen,
             $this->matches($routeName, [], ['nature.', 'observations.', 'species.', 'wild-edibles.']) => AppArea::Nature,
-            $this->matches($routeName, [], ['print-customers.', 'print-jobs.', 'print-material-types.', 'print-materials.', 'print-settings.', 'printing.']) => AppArea::Workshop,
-            $this->matches($routeName, [], ['inventory.', 'receipts.']) => AppArea::Household,
-            $this->matches($routeName, ['settings.mcp'], ['mail.']) => AppArea::Family,
+            $this->matches($routeName, [], ['print-customers.', 'print-jobs.', 'print-material-types.', 'print-materials.', 'print-settings.', 'printing.', 'workshop.']) => AppArea::Workshop,
+            $this->matches($routeName, [], ['inventory.', 'receipts.', 'household.']) => AppArea::Household,
+            $this->matches($routeName, ['settings.mcp'], ['mail.', 'family.']) => AppArea::Family,
             default => AppArea::Overview,
         };
     }
@@ -53,11 +53,11 @@ final class AppNavigation
     {
         return match ($area) {
             AppArea::Overview => 'index',
-            AppArea::Kitchen => 'shopping.list',
+            AppArea::Kitchen => 'kitchen.index',
             AppArea::Nature => 'nature.dashboard',
-            AppArea::Workshop => 'printing.index',
-            AppArea::Household => 'receipts.index',
-            AppArea::Family => 'mail.inbox',
+            AppArea::Workshop => 'workshop.index',
+            AppArea::Household => 'household.index',
+            AppArea::Family => 'family.index',
         };
     }
 

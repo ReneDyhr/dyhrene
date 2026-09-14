@@ -20,6 +20,11 @@ use Livewire\Livewire;
         ->and($navigation->areaForRoute('storage.units'))->toBe(AppArea::Overview)
         ->and($navigation->areaForRoute('shopping.list'))->toBe(AppArea::Kitchen)
         ->and($navigation->areaForRoute('shopping'))->toBe(AppArea::Overview)
+        ->and($navigation->areaForRoute('kitchen.index'))->toBe(AppArea::Kitchen)
+        ->and($navigation->areaForRoute('recipes.index'))->toBe(AppArea::Kitchen)
+        ->and($navigation->areaForRoute('workshop.index'))->toBe(AppArea::Workshop)
+        ->and($navigation->areaForRoute('household.index'))->toBe(AppArea::Household)
+        ->and($navigation->areaForRoute('family.index'))->toBe(AppArea::Family)
         ->and($navigation->areaForRoute('nature.dashboard'))->toBe(AppArea::Nature)
         ->and($navigation->areaForRoute('nature'))->toBe(AppArea::Overview);
 });
@@ -31,11 +36,11 @@ use Livewire\Livewire;
     );
 
     \expect($itemsByArea['overview']['href'])->toBe(\route('index'))
-        ->and($itemsByArea['kitchen']['href'])->toBe(\route('shopping.list'))
+        ->and($itemsByArea['kitchen']['href'])->toBe(\route('kitchen.index'))
         ->and($itemsByArea['nature']['href'])->toBe(\route('nature.dashboard'))
-        ->and($itemsByArea['workshop']['href'])->toBe(\route('printing.index'))
-        ->and($itemsByArea['household']['href'])->toBe(\route('receipts.index'))
-        ->and($itemsByArea['family']['href'])->toBe(\route('mail.inbox'));
+        ->and($itemsByArea['workshop']['href'])->toBe(\route('workshop.index'))
+        ->and($itemsByArea['household']['href'])->toBe(\route('household.index'))
+        ->and($itemsByArea['family']['href'])->toBe(\route('family.index'));
 });
 
 \it('renders the shell safely without an authenticated user', function (): void {
