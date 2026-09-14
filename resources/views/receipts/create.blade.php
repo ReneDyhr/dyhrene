@@ -11,7 +11,7 @@
         <div class="section-title" style="margin: 24px 0 12px;">Varer</div>
 
         <div id="receipt-items-list">
-            @forelse ($itemEdits as $id => $item)
+            @forelse ($itemEdits ?? [] as $id => $item)
                 <div class="receipt-item-card" data-id="{{ $id }}">
                     <div class="form-group">
                         <label>Vare</label>
