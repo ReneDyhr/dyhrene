@@ -37,6 +37,17 @@ use App\Models\User;
         ->and($results[0]->name)->toBe('Netto');
 });
 
+\it('searches receipts by description', function (): void {
+    $owner = User::factory()->create();
+
+    Receipt::factory()->create(['user_id' => $owner->id, 'name' => 'Ikea', 'description' => 'Købt til stuen']);
+
+    $results = (new ReceiptSearch())->searchFor($owner, new SearchQuery('stuen'));
+
+    \expect($results)->toHaveCount(1)
+        ->and($results[0]->name)->toBe('Ikea');
+});
+
 \it('returns no results for an empty or whitespace-only query', function (): void {
     $owner = User::factory()->create();
 
