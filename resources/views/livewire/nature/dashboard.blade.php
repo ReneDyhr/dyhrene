@@ -4,6 +4,9 @@
         <div class="col-12">
                 <div class="recipe">
                     <h1>What is Here Now</h1>
+                    @if ($natureSnapshot !== null)
+                        <p class="nature-summary">{{ $natureSnapshot->speciesCount }} arter · {{ $natureSnapshot->observationCount }} observationer i alt</p>
+                    @endif
                     <div class="tags" x-data="{ open: false }">
                         <span
                             x-show="!open"

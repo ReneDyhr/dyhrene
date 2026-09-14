@@ -4,13 +4,22 @@ declare(strict_types=1);
 
 namespace App\Livewire\Household;
 
+use App\Domain\Household\Contracts\HouseholdSnapshotReaderInterface;
 use Illuminate\View\View;
 use Livewire\Component;
 
 class Index extends Component
 {
-    public function render(): View
+    public function render(HouseholdSnapshotReaderInterface $reader): View
     {
-        return \view('livewire.household.index');
+        $userId = \auth()->id();
+
+        if (!\is_int($userId)) {
+            \abort(401);
+        }
+
+        return \view('livewire.household.index', [
+            'snapshot' => $reader->read($userId, \now('Europe/Copenhagen')->toDateTimeImmutable()),
+        ]);
     }
 }
