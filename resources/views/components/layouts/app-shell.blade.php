@@ -35,7 +35,7 @@
                 <span class="h">{{ $currentArea->label() }}</span>
                 <span class="date">{{ $today }}</span>
             </div>
-            <x-navigation.global-search />
+            <x-navigation.global-search :area="$currentArea" />
         </header>
 
         <main id="main-content" class="view" tabindex="-1">
