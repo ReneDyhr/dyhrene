@@ -1,5 +1,4 @@
 @php
-    use App\Support\Format;
 @endphp
 
 <div class="calculation-panel" 
@@ -29,25 +28,25 @@
                     <div>
                         <strong style="color: #666;">Total Pieces:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::integer((int)($calculation['totals']['total_pieces'] ?? 0)) }}
+                            {{ \App\Support\Format::integer((int)($calculation['totals']['total_pieces'] ?? 0)) }}
                         </div>
                     </div>
                     <div>
                         <strong style="color: #666;">Total Grams:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::number($calculation['totals']['total_grams'] ?? 0) }}
+                            {{ \App\Support\Format::number($calculation['totals']['total_grams'] ?? 0) }}
                         </div>
                     </div>
                     <div>
                         <strong style="color: #666;">Total Print Hours:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::number($calculation['totals']['total_print_hours'] ?? 0, 3) }}
+                            {{ \App\Support\Format::number($calculation['totals']['total_print_hours'] ?? 0, 3) }}
                         </div>
                     </div>
                     <div>
                         <strong style="color: #666;">kWh:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::number($calculation['totals']['kwh'] ?? 0, 2) }}
+                            {{ \App\Support\Format::number($calculation['totals']['kwh'] ?? 0, 2) }}
                         </div>
                     </div>
                 </div>
@@ -60,37 +59,37 @@
                     <div>
                         <strong style="color: #666;">Material Cost:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::dkk($calculation['costs']['material_cost'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['costs']['material_cost'] ?? 0) }}
                         </div>
                     </div>
                     <div>
                         <strong style="color: #666;">Material Cost (with Waste):</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::dkk($calculation['costs']['material_cost_with_waste'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['costs']['material_cost_with_waste'] ?? 0) }}
                         </div>
                     </div>
                     <div>
                         <strong style="color: #666;">Power Cost:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::dkk($calculation['costs']['power_cost'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['costs']['power_cost'] ?? 0) }}
                         </div>
                     </div>
                     <div>
                         <strong style="color: #666;">Labor Cost:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::dkk($calculation['costs']['labor_cost'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['costs']['labor_cost'] ?? 0) }}
                         </div>
                     </div>
                     <div>
                         <strong style="color: #666;">First Time Fee:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::dkk($calculation['costs']['first_time_fee_applied'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['costs']['first_time_fee_applied'] ?? 0) }}
                         </div>
                     </div>
                     <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
                         <strong style="color: #333; font-size: 1.1em;">Total Cost:</strong>
                         <div style="font-size: 1.3em; color: #dc3545; font-weight: bold; margin-top: 4px;">
-                            {{ Format::dkk($calculation['costs']['total_cost'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['costs']['total_cost'] ?? 0) }}
                         </div>
                     </div>
                 </div>
@@ -103,19 +102,19 @@
                     <div>
                         <strong style="color: #666;">Applied Avance %:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::pct($calculation['pricing']['applied_avance_pct'] ?? 0) }}
+                            {{ \App\Support\Format::pct($calculation['pricing']['applied_avance_pct'] ?? 0) }}
                         </div>
                     </div>
                     <div>
                         <strong style="color: #666;">Price per Piece:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::dkk($calculation['pricing']['price_per_piece'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['pricing']['price_per_piece'] ?? 0) }}
                         </div>
                     </div>
                     <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
                         <strong style="color: #333; font-size: 1.1em;">Sales Price:</strong>
                         <div style="font-size: 1.3em; color: #28a745; font-weight: bold; margin-top: 4px;">
-                            {{ Format::dkk($calculation['pricing']['sales_price'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['pricing']['sales_price'] ?? 0) }}
                         </div>
                     </div>
                 </div>
@@ -128,13 +127,13 @@
                     <div>
                         <strong style="color: #666;">Profit:</strong>
                         <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                            {{ Format::dkk($calculation['profit']['profit'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['profit']['profit'] ?? 0) }}
                         </div>
                     </div>
                     <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
                         <strong style="color: #333; font-size: 1.1em;">Profit per Piece:</strong>
                         <div style="font-size: 1.3em; color: #17a2b8; font-weight: bold; margin-top: 4px;">
-                            {{ Format::dkk($calculation['profit']['profit_per_piece'] ?? 0) }}
+                            {{ \App\Support\Format::dkk($calculation['profit']['profit_per_piece'] ?? 0) }}
                         </div>
                     </div>
                 </div>

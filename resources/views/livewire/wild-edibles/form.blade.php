@@ -1,8 +1,5 @@
-<div>
     @section('title', $editing ? 'Edit Wild Edible' : 'Add Wild Edible')
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Nature">
         <div class="content homepage"><div class="col-12"><div class="storage-list"><div class="recipe">
             <h1>{{ $editing ? 'Edit Wild Edible' : 'Add Wild Edible' }}</h1>
             <div class="alert alert-info"><strong>Personal record:</strong> This map does not verify identification, edibility, safety, or legal access. You are responsible for safe and lawful foraging.</div>
@@ -18,8 +15,7 @@
                 <div style="margin-top:20px"><button class="btn btn-success" type="submit">Save</button> <a class="btn btn-default" href="{{ $editing ? route('wild-edibles.show', $wildEdible) : route('wild-edibles.index') }}">Cancel</a></div>
             </form>
         </div></div><div class="clear"></div></div></div>
-    </div>
-</div>
+</x-layouts.app-shell>
 @push('scripts')
 @if(config('wild-edibles.google_maps_api_key'))<script src="https://maps.googleapis.com/maps/api/js?key={{ urlencode((string) config('wild-edibles.google_maps_api_key')) }}&libraries=marker&callback=__wildEdiblesGoogleMapsReady" async defer></script>@endif
 @endpush

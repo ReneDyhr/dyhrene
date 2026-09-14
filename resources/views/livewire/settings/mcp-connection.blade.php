@@ -1,8 +1,5 @@
 @section('title', $title)
-<div>
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Family">
         <div class="content">
             <div class="col-12 recipe">
                 <h1>{{ $title }}</h1>
@@ -27,5 +24,4 @@
                 <p style="max-width: 48rem; margin-top: 1.5rem;"><strong>Redirect URIs:</strong> OAuth clients must use redirect URIs allowed by <code>config/mcp.php</code> (<code>redirect_domains</code> / env <code>MCP_OAUTH_REDIRECT_DOMAINS</code>). Tighten this in production.</p>
             </div>
         </div>
-    </div>
-</div>
+</x-layouts.app-shell>

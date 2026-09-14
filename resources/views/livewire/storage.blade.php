@@ -1,8 +1,5 @@
-<div>
     @section('title', 'Storage')
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Kitchen">
         <div class="content homepage">
             <style>
                 .storage-list {
@@ -81,7 +78,6 @@
                 <div class="clear"></div>
             </div>
         </div>
-    </div>
 
     <!-- Confirmation Modal -->
     <div wire:ignore.self class="modal fade" id="confirmRemoveModal" tabindex="-1" role="dialog">
@@ -184,4 +180,4 @@
         });
     </script>
     @endscript
-</div>
+</x-layouts.app-shell>

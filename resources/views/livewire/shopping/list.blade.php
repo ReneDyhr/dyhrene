@@ -1,8 +1,5 @@
 @section('title', $title)
-<div>
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Kitchen">
         <div class="content homepage">
             <div class="col-12 recipe" style="position:relative;">
                 <h1>Shopping List</h1>
@@ -34,8 +31,7 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
+</x-layouts.app-shell>
 @script
 <script>
     $( "#shopping-list" ).sortable({

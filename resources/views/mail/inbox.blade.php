@@ -1,6 +1,5 @@
 @section('title', $title)
-<div>
-    @include('components.layouts.sidenav')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Family">
     <style>
         .mail-inbox-layout {
             display: flex;
@@ -68,8 +67,6 @@
             }
         }
     </style>
-    <div id="main">
-        @include('components.layouts.header')
         <div class="content">
             <div class="col-12 recipe">
                 <h1>{{ $title }}</h1>
@@ -234,5 +231,4 @@
                 @endif
             </div>
         </div>
-    </div>
-</div>
+</x-layouts.app-shell>

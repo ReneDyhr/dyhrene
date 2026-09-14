@@ -1,8 +1,5 @@
 @section('title', $title)
-<div>
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Kitchen">
         <div class="content">
             <div class="col-12">
                 <div class="new-recipe">
@@ -193,5 +190,4 @@
         <div class="alert alert-success" role="alert"><header>Success</header><main><span class="alert_text"></span></main></div>
         <div class="alert alert-warning" role="alert"><header>Warning</header><main><span class="alert_text"></span></main></div>
         <div class="alert alert-danger" role="alert"><header>Error</header><main><span class="alert_text"></span></main></div>
-    </div>
-</div>
+</x-layouts.app-shell>

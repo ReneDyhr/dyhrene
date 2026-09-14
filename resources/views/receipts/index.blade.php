@@ -1,6 +1,5 @@
-<div>
     @section('title', 'Receipts')
-    @include('components.layouts.sidenav')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Household">
     <style>
         @media screen and (max-width: 767px) {
             .receipts-table {
@@ -119,8 +118,6 @@
             });
         });
     </script>
-    <div id="main">
-        @include('components.layouts.header')
         <div class="content homepage">
             <div class="col-12">
                 <div class="storage-list">
@@ -270,5 +267,4 @@
                 <div class="clear"></div>
             </div>
         </div>
-    </div>
-</div>
+</x-layouts.app-shell>
