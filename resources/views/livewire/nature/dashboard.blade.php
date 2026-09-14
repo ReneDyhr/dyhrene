@@ -1,10 +1,7 @@
 @section('title', 'Nature — What\'s Here Now')
-<div>
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
-        <div class="content recipe-page">
-            <div class="col-12">
+<x-layouts.app-shell :area="\App\Enums\AppArea::Nature">
+    <div class="content recipe-page">
+        <div class="col-12">
                 <div class="recipe">
                     <h1>What is Here Now</h1>
                     <div class="tags" x-data="{ open: false }">
@@ -90,10 +87,9 @@
                 @endif
             </div>
 
-            <div class="alert alert-info" role="alert"><header>Information</header><main><span class="alert_text"></span></main></div>
-            <div class="alert alert-success" role="alert"><header>Success</header><main><span class="alert_text"></span></main></div>
-            <div class="alert alert-warning" role="alert"><header>Warning</header><main><span class="alert_text"></span></main></div>
-            <div class="alert alert-danger" role="alert"><header>Error</header><main><span class="alert_text"></span></main></div>
-        </div>
+        <div class="alert alert-info" role="alert"><header>Information</header><div class="alert__body"><span class="alert_text"></span></div></div>
+        <div class="alert alert-success" role="alert"><header>Success</header><div class="alert__body"><span class="alert_text"></span></div></div>
+        <div class="alert alert-warning" role="alert"><header>Warning</header><div class="alert__body"><span class="alert_text"></span></div></div>
+        <div class="alert alert-danger" role="alert"><header>Error</header><div class="alert__body"><span class="alert_text"></span></div></div>
     </div>
-</div>
+</x-layouts.app-shell>

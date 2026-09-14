@@ -46,52 +46,52 @@
     margin:0;
 }
 
-.alert main{
+.alert :is(main, .alert__body) {
     padding: 15px;
 }
 
 
-.alert-success main {
+.alert-success :is(main, .alert__body) {
     color: #3c763d;
     background-color: #dff0d8;
     border-color: #d6e9c6;
 }
-.alert-success main hr {
+.alert-success :is(main, .alert__body) hr {
     border-top-color: #c9e2b3;
 }
-.alert-success main .alert-link {
+.alert-success :is(main, .alert__body) .alert-link {
     color: #2b542c;
 }
-.alert-info main {
+.alert-info :is(main, .alert__body) {
     color: #31708f;
     background-color: #d9edf7;
     border-color: #bce8f1;
 }
-.alert-info main hr {
+.alert-info :is(main, .alert__body) hr {
     border-top-color: #a6e1ec;
 }
-.alert-info main .alert-link {
+.alert-info :is(main, .alert__body) .alert-link {
     color: #245269;
 }
-.alert-warning main {
+.alert-warning :is(main, .alert__body) {
     color: #8a6d3b;
     background-color: #fcf8e3;
     border-color: #faebcc;
 }
-.alert-warning main hr {
+.alert-warning :is(main, .alert__body) hr {
     border-top-color: #f7e1b5;
 }
-.alert-warning main .alert-link {
+.alert-warning :is(main, .alert__body) .alert-link {
     color: #66512c;
 }
-.alert-danger main {
+.alert-danger :is(main, .alert__body) {
     color: #a94442;
     background-color: #f2dede;
     border-color: #ebccd1;
 }
-.alert-danger main hr {
+.alert-danger :is(main, .alert__body) hr {
     border-top-color: #e4b9c0;
 }
-.alert-danger main .alert-link {
+.alert-danger :is(main, .alert__body) .alert-link {
     color: #843534;
 }

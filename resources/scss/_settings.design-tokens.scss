@@ -1,0 +1,26 @@
+:root {
+    color-scheme: dark;
+
+    --app-paper: #111512;
+    --app-card: #191e1a;
+    --app-ink: #e7ebe4;
+    --app-ink-soft: #949e93;
+    --app-line: #2d342e;
+    --app-focus: #e7ebe4;
+    --app-shadow: 0 12px 26px -12px rgb(0 0 0 / 70%);
+
+    --app-area-overview: #c6d0c5;
+    --app-area-kitchen: #e9704f;
+    --app-area-nature: #63bc8b;
+    --app-area-workshop: #7ba2f0;
+    --app-area-household: #dca748;
+    --app-area-family: #ae93dc;
+    --app-area-accent: var(--app-area-overview);
+
+    --app-rail-width: 248px;
+    --app-page-padding: 34px;
+    --app-mobile-nav-clearance: calc(74px + env(safe-area-inset-bottom));
+    --app-font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --app-font-body: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --app-font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
