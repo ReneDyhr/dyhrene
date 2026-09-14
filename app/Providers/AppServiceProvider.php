@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Kitchen\Contracts\KitchenSnapshotReaderInterface;
 use App\Domain\Overview\Contracts\OverviewSnapshotReaderInterface;
 use App\Services\Fastmail\FastmailJmapClient;
+use App\Services\Kitchen\EloquentKitchenSnapshotReader;
 use App\Services\Overview\EloquentOverviewSnapshotReader;
 use App\Support\Sentry\ScrubSensitiveWildEdibleEvent;
 use Illuminate\Http\Request;
@@ -28,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(FastmailJmapClient::class);
 
         $this->app->bind(OverviewSnapshotReaderInterface::class, EloquentOverviewSnapshotReader::class);
+
+        $this->app->bind(KitchenSnapshotReaderInterface::class, EloquentKitchenSnapshotReader::class);
 
         $this->app->afterResolving(ClientBuilder::class, function (ClientBuilder $clientBuilder): void {
             $options = $clientBuilder->getOptions();
