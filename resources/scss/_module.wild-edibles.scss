@@ -1,0 +1,128 @@
+.wild-edible-map {
+    width: 100%;
+    height: 55vh;
+    min-height: 360px;
+    margin: 15px 0;
+    border: 1px solid #d9d9d9;
+    background: #f5f5f5;
+}
+
+// The shared .recipe a rule overrides Bootstrap's coloured button text.
+.recipe {
+    .btn-primary,
+    .btn-success,
+    .btn-info,
+    .btn-warning,
+    .btn-danger {
+        color: #fff !important;
+
+        &:hover,
+        &:focus,
+        &:active {
+            color: #fff !important;
+        }
+    }
+}
+
+.wild-edible-info-window {
+    font-size: 0.8rem !important;
+    line-height: 1.4;
+}
+
+.wild-edible-info-window a {
+    font-size: 0.8rem !important;
+}
+
+.recipe .wild-edible-back-link {
+    font-size: 0.8rem !important;
+}
+
+.wild-edible-season-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.wild-edible-season-fields > div {
+    min-width: 0;
+}
+
+.wild-edible-season-fields label {
+    display: block;
+}
+
+.wild-edible-season-fields .form-control {
+    max-width: 100%;
+}
+
+.wild-edible-map-picker {
+    height: 420px;
+}
+.wild-edible-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.wild-edible-filters label {
+    margin: 0 8px 0 0;
+    font-weight: normal;
+}
+
+.wild-edible-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0 15px;
+}
+
+.wild-edible-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wild-edible-legend i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px #555;
+    font-style: normal;
+    font-size: 13px;
+}
+
+@media screen and (max-width: 767px) {
+    .wild-edible-map {
+        height: 55vh;
+        min-height: 300px;
+    }
+
+    .wild-edible-map-picker {
+        height: 340px;
+    }
+
+    .wild-edible-season-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .wild-edible-filters {
+        display: block;
+    }
+
+    .wild-edible-filters strong,
+    .wild-edible-filters label,
+    .wild-edible-filters button {
+        display: inline-block;
+        margin: 4px 6px 4px 0 !important;
+    }
+}

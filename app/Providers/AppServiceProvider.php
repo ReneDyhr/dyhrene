@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Services\Fastmail\FastmailJmapClient;
+use App\Support\Sentry\ScrubSensitiveWildEdibleEvent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
+use Sentry\ClientBuilder;
+use Sentry\Event;
+use Sentry\EventHint;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +24,18 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(FastmailJmapClient::class);
+
+        $this->app->afterResolving(ClientBuilder::class, function (ClientBuilder $clientBuilder): void {
+            $options = $clientBuilder->getOptions();
+            $existing = $options->getBeforeSendCallback();
+            $scrubber = new ScrubSensitiveWildEdibleEvent();
+
+            $options->setBeforeSendCallback(static function (Event $event, ?EventHint $hint) use ($existing, $scrubber): ?Event {
+                $event = $scrubber($event);
+
+                return $existing($event, $hint);
+            });
+        });
 
         // Fix Laravel 12 issue: Ensure console commands get Laravel instance when resolved from container
         $this->app->resolving(\Illuminate\Console\Command::class, function (\Illuminate\Console\Command $command): void {

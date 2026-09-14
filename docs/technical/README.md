@@ -9,6 +9,7 @@ Technical deep-dives for the Dyhrene application — local setup, architecture, 
 | [architecture.md](architecture.md) | Layered architecture, domain-driven design, MCP internals, auth layers, event system, service patterns, route surface design, and full directory structure |
 | [quality.md](quality.md) | Code style (Pint), static analysis (PHPStan level 9), class suffix rules, Pest testing conventions, CI pipeline, and code review guidelines |
 | [mcp.md](mcp.md) | MCP integration deep-dive: server registration, tool structure, auth flow, route wiring, available servers and tools, adding new servers |
+| [wild-edibles-release-verification.md](wild-edibles-release-verification.md) | Manual release verification for the private Wild Edibles map, uploads, ownership, and picking history |
 
 ## Local Development Setup
 
@@ -117,6 +118,12 @@ Xdebug is configured in `docker-compose.yml`. Attach your IDE debugger to port *
 | `WAS_DEFAULT_REGION` | S3 region (e.g., eu-central-1) |
 | `WAS_BUCKET_FINAL` | S3 bucket name |
 | `WAS_URL` | Wasabi endpoint URL |
+
+### Wild Edibles Map
+
+| Variable | Purpose |
+|----------|---------|
+| `GOOGLE_MAPS_API_KEY` | Restricted Google Maps JavaScript API key used by the private Wild Edibles map |
 
 ### eBird Integration
 

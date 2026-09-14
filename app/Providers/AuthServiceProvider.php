@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+use App\Models\Picking;
+use App\Models\WildEdible;
+use App\Models\WildEdiblePhoto;
+use App\Policies\PickingPolicy;
+use App\Policies\WildEdiblePhotoPolicy;
+use App\Policies\WildEdiblePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -15,6 +21,9 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        WildEdible::class => WildEdiblePolicy::class,
+        WildEdiblePhoto::class => WildEdiblePhotoPolicy::class,
+        Picking::class => PickingPolicy::class,
     ];
 
     /**

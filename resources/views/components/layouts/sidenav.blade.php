@@ -48,6 +48,9 @@
                 <a href="{{ route('inventory.index') }}">Inventory</a>
             </li>
             <li>
+                <a href="{{ route('wild-edibles.index') }}">Wild Edibles</a>
+            </li>
+            <li>
                 <a href="{{ route('inventory.categories') }}">Inventory Categories</a>
             </li>
             <li>

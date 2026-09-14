@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="/css/datetimepicker.min.css">
     <script>
         window.userId = @json(auth()->id());
+        window.__wildEdiblesGoogleMapsPending = false;
+        window.__wildEdiblesGoogleMapsReady = function () {
+            window.__wildEdiblesGoogleMapsPending = true;
+        };
         window.Laravel = {
             reverbKey: '{{ env('REVERB_APP_KEY') }}',
             reverbHost: '{{ env('REVERB_HOST') }}',
@@ -33,6 +37,7 @@
 
 <body>
     {{ $slot }}
+    @stack('scripts')
 </body>
 
 </html>
