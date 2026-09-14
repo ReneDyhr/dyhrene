@@ -104,10 +104,6 @@ final class EloquentKitchenSnapshotReader implements KitchenSnapshotReaderInterf
 
     private function toImmutable(?\DateTimeInterface $date): \DateTimeImmutable
     {
-        if ($date === null) {
-            throw new \LogicException('Recipe created_at must be present.');
-        }
-
-        return \DateTimeImmutable::createFromInterface($date);
+        return \DateTimeImmutable::createFromInterface($date ?? \now());
     }
 }

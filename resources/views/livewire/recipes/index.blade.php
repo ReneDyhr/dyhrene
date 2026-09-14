@@ -18,7 +18,7 @@
                     :categories="$recipe->categories->pluck('name')->implode(', ')"
                     :ingredient-count="$recipe->ingredients->filter(fn ($i) => !\str_starts_with($i->name, '#'))->count()"
                     :tags="$recipe->tags->pluck('name')->all()"
-                    :time-ago="$recipe->created_at->locale('da')->diffForHumans()"
+                    :time-ago="$recipe->created_at?->locale('da')?->diffForHumans() ?? ''"
                 />
             @endforeach
         </div>

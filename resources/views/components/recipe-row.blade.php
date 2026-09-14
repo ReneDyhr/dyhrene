@@ -12,7 +12,13 @@
     <div>
         <div class="lead">{{ $name }}</div>
         <div class="sub">
-            @if ($categories !== ''){{ $categories }} · @endif{{ $ingredientCount }} ingredienser · {{ $timeAgo }}
+            @if ($categories !== '')
+                {{ $categories }} ·
+            @endif
+            {{ $ingredientCount }} ingredienser
+            @if ($timeAgo !== '')
+                · {{ $timeAgo }}
+            @endif
         </div>
     </div>
 
