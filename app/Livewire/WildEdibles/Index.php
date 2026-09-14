@@ -33,6 +33,7 @@ class Index extends Component
         $edible = WildEdible::query()->forAuthUser()->findOrFail($id);
         $this->authorize('delete', $edible);
         $edible->delete();
+        $this->dispatch('wild-edibles-updated', markers: $this->markers());
     }
 
     public function render(): \Illuminate\Contracts\View\View

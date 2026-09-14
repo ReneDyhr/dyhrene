@@ -15,10 +15,6 @@ class WildEdiblePhotoController
     {
         Gate::authorize('view', $photo);
 
-        if ($photo->deleted_at !== null || $photo->wildEdible?->trashed() === true) {
-            \abort(404);
-        }
-
         $stream = Storage::disk('wasabi')->readStream($photo->storage_path);
 
         if (!\is_resource($stream)) {

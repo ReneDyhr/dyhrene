@@ -50,7 +50,7 @@ final class StoreWildEdiblePhotoAction
             $exif = @\exif_read_data($file->getRealPath(), null, true);
 
             if (\is_array($exif)) {
-                $metadata['exif'] = $exif;
+                $metadata['exif'] = $this->normalizeMetadata($exif);
             }
         }
 
@@ -73,5 +73,24 @@ final class StoreWildEdiblePhotoAction
         } finally {
             \fclose($stream);
         }
+    }
+
+    private function normalizeMetadata(mixed $value): mixed
+    {
+        if (\is_array($value)) {
+            $normalized = [];
+
+            foreach ($value as $key => $item) {
+                $normalized[$key] = $this->normalizeMetadata($item);
+            }
+
+            return $normalized;
+        }
+
+        if (!\is_string($value) || \preg_match('//u', $value) === 1) {
+            return $value;
+        }
+
+        return \mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
     }
 }

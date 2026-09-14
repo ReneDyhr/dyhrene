@@ -11,7 +11,11 @@ class WildEdiblePhotoPolicy
 {
     public function view(User $user, WildEdiblePhoto $photo): bool
     {
-        return $photo->wildEdible?->user_id === $user->id;
+        $wildEdible = $photo->wildEdible()->withTrashed()->first();
+
+        return $wildEdible !== null
+            && !$wildEdible->trashed()
+            && $wildEdible->user_id === $user->id;
     }
 
     public function create(User $user): bool

@@ -5,8 +5,10 @@ declare(strict_types=1);
 use App\Actions\WildEdibles\CreatePickingAction;
 use App\Actions\WildEdibles\DeleteWildEdiblePermanentlyAction;
 use App\Actions\WildEdibles\StoreWildEdiblePhotoAction;
+use App\Http\Controllers\WildEdiblePhotoController;
 use App\Livewire\WildEdibles\Create;
 use App\Livewire\WildEdibles\Edit;
+use App\Livewire\WildEdibles\Index;
 use App\Models\Picking;
 use App\Models\User;
 use App\Models\WildEdible;
@@ -23,6 +25,7 @@ use Livewire\Livewire;
 \covers(StoreWildEdiblePhotoAction::class);
 \covers(DeleteWildEdiblePermanentlyAction::class);
 \covers(Edit::class);
+\covers(WildEdiblePhotoController::class);
 
 \it('keeps the wild edible map private to the owner', function (): void {
     $owner = User::factory()->create();
@@ -63,6 +66,55 @@ use Livewire\Livewire;
     Livewire::actingAs($user)->test(Edit::class, ['wildEdible' => $edible])
         ->assertSet('type', 'mushroom')
         ->assertHasNoErrors();
+});
+
+\it('uses the configured default center for a new edible', function (): void {
+    $user = User::factory()->create();
+    \config()->set('wild-edibles.default_center', ['latitude' => 56.1234567, 'longitude' => 10.7654321]);
+
+    Livewire::actingAs($user)->test(Create::class)
+        ->assertSet('latitude', '56.1234567')
+        ->assertSet('longitude', '10.7654321');
+});
+
+\it('renders the configured default map zoom', function (): void {
+    $user = User::factory()->create();
+    \config()->set('wild-edibles.default_zoom', 11);
+
+    Livewire::actingAs($user)->test(Index::class)
+        ->assertSee('data-zoom="11"', false);
+});
+
+\it('dispatches a marker refresh after deleting an edible', function (): void {
+    $user = User::factory()->create();
+    $edible = WildEdible::factory()->for($user)->create();
+
+    Livewire::actingAs($user)->test(Index::class)
+        ->call('delete', $edible->id)
+        ->assertDispatched('wild-edibles-updated');
+});
+
+\it('serves photos only to their owner and never after soft deletion', function (): void {
+    $disk = Storage::fake('local');
+    Storage::set('wasabi', $disk);
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $edible = WildEdible::factory()->for($owner)->create();
+    $photo = WildEdiblePhoto::factory()->for($edible)->create();
+    Storage::disk('wasabi')->put($photo->storage_path, 'private image bytes');
+
+    $this->actingAs($owner)->get(\route('wild-edibles.photo', $photo))
+        ->assertOk()
+        ->assertHeader('Content-Type', 'image/jpeg')
+        ->assertHeader('X-Content-Type-Options', 'nosniff');
+    $this->actingAs($other)->get(\route('wild-edibles.photo', $photo))->assertForbidden();
+
+    $edible->delete();
+    $this->actingAs($owner)->get(\route('wild-edibles.photo', $photo))->assertForbidden();
+    $edible->restore();
+
+    $photo->delete();
+    $this->actingAs($owner)->get(\route('wild-edibles.photo', $photo))->assertNotFound();
 });
 
 \it('soft deletes an edible while retaining photo storage until force deletion', function (): void {

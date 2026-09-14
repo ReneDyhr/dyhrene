@@ -8,21 +8,53 @@ function markerContent(marker) {
     return element;
 }
 
+function removeMarkers(state) {
+    state.infoWindow.close();
+    state.markerObjects.forEach((marker) => {
+        marker.map = null;
+    });
+    state.markerObjects = [];
+}
+
+function addMarkers(state, markers) {
+    state.markerObjects = markers.map((marker) => {
+        const object = new state.AdvancedMarkerElement({
+            map: state.map,
+            position: { lat: marker.latitude, lng: marker.longitude },
+            title: marker.name,
+            content: markerContent(marker),
+        });
+        object.addListener('click', () => {
+            state.infoWindow.setContent(`<div class="wild-edible-info-window" style="font-size:0.8rem;line-height:1.4;"><strong>${escapeHtml(marker.name)}</strong><br>${escapeHtml(marker.label)}<br>${escapeHtml(marker.location_name || '')}<br>${escapeHtml(marker.season)}<br><a href="${escapeHtml(marker.url)}" style="font-size:0.8rem;">View details</a></div>`);
+            state.infoWindow.open({ map: state.map, anchor: object });
+        });
+        return object;
+    });
+}
+
 async function createMap(container, markers) {
     if (!window.google?.maps || !container) return;
+
+    const existingState = maps.get(container.id);
+    if (existingState) {
+        removeMarkers(existingState);
+        addMarkers(existingState, markers);
+        return;
+    }
+
     const { Map } = await google.maps.importLibrary('maps');
     const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
     const center = { lat: Number(container.dataset.centerLat), lng: Number(container.dataset.centerLng) };
-    const map = new Map(container, { center, zoom: Number(container.dataset.zoom || 9), mapId: container.dataset.mapId || 'DEMO_MAP_ID', streetViewControl: false, mapTypeControl: false });
-    const infoWindow = new google.maps.InfoWindow();
-    const markerObjects = [];
-    for (const marker of markers) {
-        const object = new AdvancedMarkerElement({ map, position: { lat: marker.latitude, lng: marker.longitude }, title: marker.name, content: markerContent(marker) });
-        object.addListener('click', () => infoWindow.setContent(`<div class="wild-edible-info-window" style="font-size:0.8rem;line-height:1.4;"><strong>${escapeHtml(marker.name)}</strong><br>${escapeHtml(marker.label)}<br>${escapeHtml(marker.location_name || '')}<br>${escapeHtml(marker.season)}<br><a href="${escapeHtml(marker.url)}" style="font-size:0.8rem;">View details</a></div>`));
-        object.addListener('click', () => infoWindow.open({ map, anchor: object }));
-        markerObjects.push(object);
-    }
-    maps.set(container.id, { map, markerObjects, infoWindow });
+    const map = new Map(container, {
+        center,
+        zoom: Number(container.dataset.zoom || 9),
+        mapId: container.dataset.mapId || 'DEMO_MAP_ID',
+        streetViewControl: false,
+        mapTypeControl: false,
+    });
+    const state = { map, markerObjects: [], infoWindow: new google.maps.InfoWindow(), AdvancedMarkerElement };
+    maps.set(container.id, state);
+    addMarkers(state, markers);
 }
 
 function escapeHtml(value) {
@@ -36,10 +68,16 @@ function initWildEdibleMaps() {
 }
 
 function updateWildEdibleMarkers(markers) {
+    const container = document.getElementById('wild-edibles-map');
     const state = maps.get('wild-edibles-map');
-    if (!state) { initWildEdibleMaps(); return; }
-    state.markerObjects.forEach((marker) => { marker.map = null; });
-    createMap(document.getElementById('wild-edibles-map'), markers);
+    if (!container) return;
+    if (!state) {
+        createMap(container, markers);
+        return;
+    }
+
+    removeMarkers(state);
+    addMarkers(state, markers);
 }
 
 function setWireValue(id, value) {
@@ -56,7 +94,7 @@ async function initWildEdiblePicker() {
     const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
     const position = { lat: Number(container.dataset.latitude), lng: Number(container.dataset.longitude) };
     const map = new Map(container, { center: position, zoom: 14, mapId: container.dataset.mapId || 'DEMO_MAP_ID', streetViewControl: false, mapTypeControl: false });
-    let marker = new AdvancedMarkerElement({ map, position, gmpDraggable: true, title: 'Selected location', content: markerContent({ label: 'Selected', name: 'location', color: '#53875F' }) });
+    const marker = new AdvancedMarkerElement({ map, position, gmpDraggable: true, title: 'Selected location', content: markerContent({ label: 'Selected', name: 'location', color: '#53875F' }) });
     const update = (lat, lng) => { setWireValue('wild-edible-latitude', lat.toFixed(7)); setWireValue('wild-edible-longitude', lng.toFixed(7)); };
     map.addListener('click', (event) => { marker.position = event.latLng; update(event.latLng.lat(), event.latLng.lng()); });
     marker.addListener('dragend', () => { const p = marker.position; update(typeof p.lat === 'function' ? p.lat() : p.lat, typeof p.lng === 'function' ? p.lng() : p.lng); });

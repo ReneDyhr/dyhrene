@@ -8,8 +8,9 @@ use App\Actions\WildEdibles\StoreWildEdiblePhotoAction;
 use App\Enums\WildEdibleTypeEnum;
 use App\Models\User;
 use App\Models\WildEdible;
-use App\Support\WildEdibles\ImageUploadGuard;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -55,26 +56,34 @@ class Edit extends Component
         $this->authorize('update', $this->wildEdible);
         $this->validate();
 
-        if ($this->photo !== null && ImageUploadGuard::isAnimated($this->photo)) {
-            $this->addError('photo', 'Animated images are not supported.');
-
-            return;
-        }
-
         if (!$this->validateSeason()) {
             return;
         }
-        $this->wildEdible->update([
-            'type' => $this->type, 'name' => \trim($this->name), 'description' => $this->nullable($this->description),
-            'location_name' => $this->nullable($this->location_name), 'latitude' => $this->latitude, 'longitude' => $this->longitude,
-            'season_start_month' => $this->season_start_month, 'season_end_month' => $this->season_end_month,
-            'season_all_year' => $this->season_all_year,
-        ]);
 
-        if ($this->photo !== null) {
-            $user = User::query()->findOrFail((int) \auth()->id());
-            $storePhoto->handle($user, $this->wildEdible, $this->photo);
+        try {
+            DB::transaction(function () use ($storePhoto): void {
+                $this->wildEdible->update([
+                    'type' => $this->type, 'name' => \trim($this->name), 'description' => $this->nullable($this->description),
+                    'location_name' => $this->nullable($this->location_name), 'latitude' => $this->latitude, 'longitude' => $this->longitude,
+                    'season_start_month' => $this->season_start_month, 'season_end_month' => $this->season_end_month,
+                    'season_all_year' => $this->season_all_year,
+                ]);
+
+                if ($this->photo !== null) {
+                    $user = User::query()->findOrFail((int) \auth()->id());
+                    $storePhoto->handle($user, $this->wildEdible, $this->photo);
+                }
+            });
+        } catch (ValidationException $exception) {
+            foreach ($exception->errors() as $field => $messages) {
+                foreach ($messages as $message) {
+                    $this->addError($field, $message);
+                }
+            }
+
+            return;
         }
+
         $this->redirectRoute('wild-edibles.show', ['wildEdible' => $this->wildEdible]);
     }
 
