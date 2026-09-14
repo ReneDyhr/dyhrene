@@ -9,6 +9,7 @@
         <a href="{{ route('shopping.list') }}" wire:navigate>Indkøbsliste</a>
         <a href="{{ route('storage') }}" wire:navigate>Lager</a>
         <a href="{{ route('settings.categories') }}" wire:navigate>Kategorier</a>
+        <a href="{{ route('add') }}" wire:navigate>Tilføj opskrift</a>
     </div>
 
     <div class="section-title">Senest tilføjet</div>
@@ -46,6 +47,4 @@
     @else
         <p>Ingen favoritter endnu.</p>
     @endif
-
-    <a class="cta" href="{{ route('add') }}" wire:navigate><i class="fa fa-plus" aria-hidden="true"></i> Tilføj opskrift</a>
 </x-layouts.app-shell>

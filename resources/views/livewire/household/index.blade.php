@@ -8,6 +8,7 @@
         <a href="{{ route('receipts.index') }}" wire:navigate aria-current="page">Kvitteringer</a>
         <a href="{{ route('inventory.index') }}" wire:navigate>Inventar</a>
         <a href="{{ route('inventory.categories') }}" wire:navigate>Inventarkategorier</a>
+        <a href="{{ route('receipts.create') }}" wire:navigate>Tilføj kvittering</a>
     </div>
 
     <div class="stats">
@@ -35,6 +36,4 @@
     @else
         <p>Ingen kvitteringer endnu.</p>
     @endif
-
-    <a class="cta" href="{{ route('receipts.create') }}" wire:navigate><i class="fa fa-plus" aria-hidden="true"></i> Tilføj kvittering</a>
 </x-layouts.app-shell>
