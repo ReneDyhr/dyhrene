@@ -125,6 +125,38 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--theme); }
 .alert-warning { border-color: color-mix(in srgb, var(--husholdning) 40%, var(--line)); }
 .alert-danger { border-color: color-mix(in srgb, #e0533f 40%, var(--line)); }
 
+/* ---------- Kvittering varer (kort) ---------- */
+.receipt-item-card {
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: var(--paper);
+}
+.receipt-item-row {
+    display: flex;
+    gap: 10px;
+}
+.receipt-item-row .form-group {
+    flex: 1;
+}
+.receipt-item-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 12px;
+}
+.receipt-item-actions .handle {
+    color: var(--ink-soft);
+    cursor: grab;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+.receipt-item-actions .handle:hover {
+    color: var(--ink);
+}
+
 /* ---------- Modaler (kompatibilitet) ---------- */
 .modal { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.6); }
 .modal.fade.in, .modal.show { display: flex; align-items: center; justify-content: center; padding: 16px; }
