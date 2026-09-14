@@ -15,18 +15,25 @@
         <div class="stat"><div class="n">{{ $snapshot->inventory->count }}</div><div class="l">Genstande i inventar</div></div>
     </div>
 
-    @if ($snapshot->receipts->latest !== null)
-        <div class="section-title">Nyeste kvittering</div>
+    <div class="section-title">Seneste kvitteringer</div>
+    @if (\count($snapshot->latestReceipts) > 0)
         <div class="list">
-            <div class="row">
-                <span class="swatch" style="--theme: var(--husholdning)"></span>
-                <div>
-                    <div class="lead">{{ $snapshot->receipts->latest->name }}</div>
-                    <div class="sub">Senest registreret</div>
-                </div>
-                <a class="right" href="{{ route('receipts.index') }}">Åbn →</a>
-            </div>
+            @foreach ($snapshot->latestReceipts as $receipt)
+                <a class="row" href="{{ route('receipts.show', $receipt->id) }}" wire:navigate>
+                    <span class="swatch"></span>
+                    <div>
+                        <div class="lead">{{ $receipt->name }}</div>
+                        <div class="sub">{{ $receipt->category }} · {{ $receipt->itemCount }} varer</div>
+                    </div>
+                    <div class="right">
+                        {{ $receipt->currency === 'EUR' ? \App\Support\Format::number($receipt->amount) . ' €' : \App\Support\Format::dkk($receipt->amount) }}<br>
+                        <span class="sub">{{ \Carbon\Carbon::parse($receipt->date)->locale('da')->isoFormat('D. MMM') }}</span>
+                    </div>
+                </a>
+            @endforeach
         </div>
+    @else
+        <p>Ingen kvitteringer endnu.</p>
     @endif
 
     <a class="cta" href="{{ route('receipts.create') }}" wire:navigate><i class="fa fa-plus" aria-hidden="true"></i> Tilføj kvittering</a>

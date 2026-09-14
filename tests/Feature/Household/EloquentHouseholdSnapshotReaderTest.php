@@ -36,7 +36,11 @@ use App\Services\Household\EloquentHouseholdSnapshotReader;
         ->and($snapshot->receipts->latest?->name)->toBe('Latest')
         ->and($snapshot->receipts->latest?->vendor)->toBe('Store')
         ->and($snapshot->receipts->amountsByCurrency)->toBe(['DKK' => 20.0, 'EUR' => 12.5])
-        ->and($snapshot->inventory->count)->toBe(2);
+        ->and($snapshot->inventory->count)->toBe(2)
+        ->and($snapshot->latestReceipts)->toHaveCount(3)
+        ->and($snapshot->latestReceipts[0]->name)->toBe('Latest')
+        ->and($snapshot->latestReceipts[0]->amount)->toBe(12.5)
+        ->and($snapshot->latestReceipts[0]->itemCount)->toBe(1);
 });
 
 \it('returns an empty household snapshot for a user without data', function (): void {
@@ -50,5 +54,6 @@ use App\Services\Household\EloquentHouseholdSnapshotReader;
     \expect($snapshot->receipts->currentMonthCount)->toBe(0)
         ->and($snapshot->receipts->latest)->toBeNull()
         ->and($snapshot->receipts->amountsByCurrency)->toBe([])
-        ->and($snapshot->inventory->count)->toBe(0);
+        ->and($snapshot->inventory->count)->toBe(0)
+        ->and($snapshot->latestReceipts)->toHaveCount(0);
 });

@@ -6,11 +6,13 @@ namespace App\Services\Household;
 
 use App\Domain\Household\Contracts\HouseholdSnapshotReaderInterface;
 use App\Domain\Household\HouseholdSnapshot;
+use App\Domain\Household\ReceiptSummary;
 use App\Domain\Overview\InventoryOverview;
 use App\Domain\Overview\LatestReceipt;
 use App\Domain\Overview\ReceiptOverview;
 use App\Models\InventoryItem;
 use App\Models\Receipt;
+use Illuminate\Support\Collection;
 
 final class EloquentHouseholdSnapshotReader implements HouseholdSnapshotReaderInterface
 {
@@ -54,15 +56,45 @@ final class EloquentHouseholdSnapshotReader implements HouseholdSnapshotReaderIn
             inventory: new InventoryOverview(
                 count: InventoryItem::query()->where('user_id', $userId)->count(),
             ),
+            latestReceipts: $this->toSummaries(
+                Receipt::query()
+                    ->where('user_id', $userId)
+                    ->with('items.category')
+                    ->orderByDesc('date')
+                    ->orderByDesc('id')
+                    ->limit(5)
+                    ->get(),
+            ),
         );
+    }
+
+    /**
+     * @param  Collection<int, Receipt> $receipts
+     * @return list<ReceiptSummary>
+     */
+    private function toSummaries(Collection $receipts): array
+    {
+        $summaries = [];
+
+        foreach ($receipts as $receipt) {
+            $firstItem = $receipt->items->first();
+
+            $summaries[] = new ReceiptSummary(
+                id: $receipt->id,
+                name: $receipt->name,
+                category: $firstItem?->category->name ?? 'Ingen kategori',
+                itemCount: $receipt->items->count(),
+                currency: $receipt->currency,
+                amount: $receipt->total,
+                date: $this->toImmutable($receipt->date),
+            );
+        }
+
+        return $summaries;
     }
 
     private function toImmutable(?\DateTimeInterface $date): \DateTimeImmutable
     {
-        if ($date === null) {
-            throw new \LogicException('Receipt date must be present.');
-        }
-
-        return \DateTimeImmutable::createFromInterface($date);
+        return \DateTimeImmutable::createFromInterface($date ?? \now());
     }
 }
