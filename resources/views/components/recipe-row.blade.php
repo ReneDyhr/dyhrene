@@ -7,7 +7,8 @@
     'timeAgo' => '',
 ])
 
-<div class="row">
+<div class="row row--link">
+    <a class="stretched-link" href="{{ route('single', $id) }}" wire:navigate aria-label="{{ $name }}"></a>
     <span class="swatch" aria-hidden="true"></span>
     <div>
         <div class="lead">{{ $name }}</div>
@@ -29,6 +30,4 @@
             @endforeach
         </div>
     @endif
-
-    <a class="right" href="{{ route('single', $id) }}" wire:navigate>Åbn →</a>
 </div>

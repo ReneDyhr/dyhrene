@@ -278,6 +278,7 @@ ul.ing li { margin: 2px 0; }
 .row:last-child { border-bottom: 0; }
 .row:hover { background: color-mix(in srgb, var(--theme) 9%, var(--card)); }
 a.row { color: var(--ink); text-decoration: none; }
+a.row:hover { text-decoration: none; }
 .row .lead { font-weight: 500; font-size: 15px; }
 .row .lead a { color: var(--ink); text-decoration: none; }
 .row .lead a:hover { color: var(--theme); }
@@ -302,6 +303,9 @@ a.row { color: var(--ink); text-decoration: none; }
 }
 .row .right .actions a:hover { color: var(--theme); }
 .row .right .actions a.danger:hover { color: #e0533f; }
+.row--link { position: relative; }
+.row--link > .stretched-link { position: absolute; inset: 0; z-index: 1; }
+.row--link .taglist { position: relative; z-index: 2; }
 .swatch {
     width: 9px;
     height: 34px;
