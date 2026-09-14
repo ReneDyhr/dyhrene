@@ -1,50 +1,41 @@
 @section('title', $title)
 <x-layouts.app-shell :area="\App\Enums\AppArea::Kitchen">
-    <div class="content homepage">
-        <div class="col-12 recipe-list">
-            <div class="list">
+    <section class="landing" aria-labelledby="recipes-heading">
+        <h1 id="recipes-heading" class="landing__heading">{{ $title }}</h1>
+
+        @if (\count($recipes) > 0)
+            <div class="recipe-grid">
                 @foreach ($recipes as $recipe)
-                    <div class="recipe">
-                        <h1>
-                            <a href="/recipe/{{$recipe->id}}">{{$recipe->name}}</a>
-                        </h1>
-                        <div class="recipe-list">
-                            <ul>
-                                @foreach ($recipe->ingredients as $ingredient)
-                                    @if (str_starts_with($ingredient->name, '#'))
-                                        <li><b>{{substr($ingredient->name, 1)}}</b></li>
-                                    @else
-                                        <li>{{$ingredient->name}}</li>
-                                    @endif
+                    <article class="recipe-card">
+                        <h2 class="recipe-card__title">
+                            <a href="{{ route('single', $recipe->id) }}" wire:navigate>{{ $recipe->name }}</a>
+                        </h2>
+
+                        <ul class="recipe-card__ingredients">
+                            @foreach ($recipe->ingredients as $ingredient)
+                                @if (\str_starts_with($ingredient->name, '#'))
+                                    <li class="recipe-card__section">{{ \substr($ingredient->name, 1) }}</li>
+                                @else
+                                    <li>{{ $ingredient->name }}</li>
+                                @endif
+                            @endforeach
+                        </ul>
+
+                        @if ($recipe->tags->count() > 0 || $recipe->categories->count() > 0)
+                            <div class="recipe-card__tags">
+                                @foreach ($recipe->tags as $tag)
+                                    <a href="/tag/{{ $tag->name }}" class="chip">{{ $tag->name }}</a>
                                 @endforeach
-                            </ul>
-                        </div>
-                        @if ($recipe->tags->count() > 0)
-                            <div class="tags">
-                                <label>Tags:</label>
-                                <span>
-                                    @foreach($recipe->tags as $index => $tag)
-                                        <a href="/tag/{{$tag->name}}">{{$tag->name}}</a>@if($index < count($recipe->tags) - 1), @endif
-                                    @endforeach
-                                </span>
-                                <div class="clear"></div>
+                                @foreach ($recipe->categories as $category)
+                                    <a href="/category/{{ $category->slug }}" class="chip">{{ $category->name }}</a>
+                                @endforeach
                             </div>
                         @endif
-                        @if ($recipe->categories->count() > 0)
-                            <div class="tags">
-                                <label>Categories:</label>
-                                <span>
-                                    @foreach ($recipe->categories as $index => $category)
-                                        <a href="/category/{{$category->slug}}">{{$category->name}}</a>@if($index < count($recipe->categories) - 1), @endif
-                                    @endforeach
-                                </span>
-                                <div class="clear"></div>
-                            </div>
-                        @endif
-                    </div>
+                    </article>
                 @endforeach
             </div>
-            <div class="clear"></div>
-        </div>
-    </div>
+        @else
+            <p class="landing__empty">Ingen opskrifter endnu.</p>
+        @endif
+    </section>
 </x-layouts.app-shell>

@@ -46,7 +46,7 @@ use App\Models\User;
 
     $this->actingAs($user)->get(\route('recipes.index'))
         ->assertOk()
-        ->assertSee('recipe-list', false);
+        ->assertSee('Opskrifter');
 });
 
 \it('exposes expected quick links on each domain landing', function (string $routeName, string $expectedRouteName): void {

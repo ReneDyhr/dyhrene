@@ -15,8 +15,6 @@ class SingleRecipe extends Component
 
     public Recipe $recipe;
 
-    public bool $deleteCheck = false;
-
     public function mount(int $id): void
     {
         $this->id = $id;
@@ -35,12 +33,8 @@ class SingleRecipe extends Component
 
     public function delete(): RedirectResponse
     {
-        if ($this->deleteCheck) {
-            $this->recipe->delete();
+        $this->recipe->delete();
 
-            return \redirect()->route('index');
-        }
-
-        return \redirect()->route('single', $this->recipe->id);
+        return \redirect()->route('recipes.index');
     }
 }

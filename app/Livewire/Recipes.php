@@ -14,6 +14,6 @@ class Recipes extends Component
     {
         $recipes = Recipe::with(['ingredients', 'tags', 'categories'])->forAuthUser()->orderBy('id', 'DESC')->get();
 
-        return \view('livewire.recipes.index', ['title' => 'Home', 'recipes' => $recipes]);
+        return \view('livewire.recipes.index', ['title' => 'Opskrifter', 'recipes' => $recipes]);
     }
 }

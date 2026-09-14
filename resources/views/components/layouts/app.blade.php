@@ -24,7 +24,6 @@
         };
     </script>
     <script src="/js/jquery.js"></script>
-    <script src="/js/masonry.js"></script>
     <script src="/js/jquery-ui.js"></script>
     <script src="/js/datetimepicker.js"></script>
     <script src="/js/bootstrap-tagsinput.js"></script>
