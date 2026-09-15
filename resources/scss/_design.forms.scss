@@ -302,3 +302,30 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--theme); }
 .bootstrap-tagsinput .tag [data-role="remove"]:hover {
     color: #e0533f;
 }
+
+/* ---------- Autocomplete (jQuery UI) ---------- */
+.ui-autocomplete {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.ui-autocomplete .ui-menu-item,
+.ui-autocomplete .ui-menu-item-wrapper {
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.ui-autocomplete .ui-state-active,
+.ui-autocomplete .ui-state-focus {
+    background: color-mix(in srgb, var(--koekken) 20%, transparent);
+    border: 0;
+    margin: 0;
+}

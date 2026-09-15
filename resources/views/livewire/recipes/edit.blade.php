@@ -12,11 +12,7 @@
         </div>
 
         <div class="form-group">
-            <label for="arrtibutevalue">
-                Tilføj ingrediens
-                <i class="fa fa-info-circle" title="Hjælp" data-toggle="popover" data-placement="top"
-                    data-content="Skriv én ingrediens ad gangen med mængde, og tryk på fluebenet.<br>Ingredienserne vises i den rækkefølge de tilføjes.<br><b>Start med # og det bliver en overskrift.</b><br><span style='font-size:0.7rem;'>fx 50 g hakkede nødder</span>"></i>
-            </label>
+            <label for="arrtibutevalue">Tilføj ingrediens</label>
             <div class="attline" style="display: flex; gap: 10px;">
                 <input tabindex="2" type="text" wire:model="newIngredient" wire:keydown.enter="addIngredient" id="arrtibutevalue" class="form-control noEnterSubmit" style="flex: 1;">
                 <div wire:ignore>
@@ -40,29 +36,17 @@
         </div>
 
         <div class="form-group">
-            <label for="description">
-                Beskrivelse
-                <i class="fa fa-info-circle" title="Hjælp" data-toggle="popover" data-placement="top"
-                    data-content="Beskriv hvordan maden laves.<br><span style='font-size:0.7rem;'>fx Pisk æggene inden de langsomt tilsættes blandingen.</span>"></i>
-            </label>
+            <label for="description">Beskrivelse</label>
             <textarea tabindex="3" rows="10" id="description" wire:model="description" class="form-control"></textarea>
         </div>
 
         <div class="form-group">
-            <label for="note">
-                Note
-                <i class="fa fa-info-circle" title="Hjælp" data-toggle="popover" data-placement="top"
-                    data-content="Notér ting du vil huske om opskriften.<br><span style='font-size:0.7rem;'>fx Smager godt med creme fraiche.</span>"></i>
-            </label>
+            <label for="note">Note</label>
             <textarea tabindex="4" rows="10" id="note" wire:model="note" class="form-control"></textarea>
         </div>
 
         <div class="form-group" wire:ignore>
-            <label for="selectCategories">
-                Kategorier
-                <i class="fa fa-info-circle" title="Hjælp" data-toggle="popover" data-placement="top"
-                    data-content="Vælg én eller flere kategorier for opskriften. Det gør det nemmere at finde den igen."></i>
-            </label>
+            <label for="selectCategories">Kategorier</label>
             <select tabindex="5" multiple="multiple" id="selectCategories" wire:model="categories" class="form-control" style="height: 200px;" data-usesprite="smallIcons">
                 @foreach (\App\Models\Category::with('icon')->forAuthUser()->get() as $index => $category)
                     <option wire:key="category-{{ $index }}" value="{{ $category->id }}" data-icon="{{ $category->icon->class }}"
@@ -72,11 +56,7 @@
         </div>
 
         <div class="form-group" wire:ignore>
-            <label for="tags">
-                Tags
-                <i class="fa fa-info-circle" title="Hjælp" data-toggle="popover" data-placement="top"
-                    data-content="Tags gør det nemmere at finde opskriften igen. Det kan være ingredienser, allergener eller anledningen den serveres til."></i>
-            </label>
+            <label for="tags">Tags</label>
             <input data-tab="6" type="text" id="tags" wire:model="tags" class="tags-input form-control">
         </div>
 
@@ -109,9 +89,6 @@
                 $('#selectCategories').multiSelect('refresh');
             }, 500);
 
-            $('[data-toggle="popover"]').popover({
-                html: true
-            });
             $('#attlink').hide();
 
             $('#arrtibutevalue').keydown(function (e) {
@@ -133,6 +110,17 @@
             $('#tags').tagsinput('add', @json($tags));
             $('#tags').on('itemAdded', function(event) {
                 @this.set('tags', $(this).val());
+            });
+
+            var existingTags = @json($existingTags ?? []);
+            $('.bootstrap-tagsinput input').autocomplete({
+                source: existingTags,
+                minLength: 1,
+                select: function (event, ui) {
+                    $('#tags').tagsinput('add', ui.item.value);
+                    $(this).val('');
+                    return false;
+                },
             });
         });
 
