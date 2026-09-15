@@ -55,29 +55,31 @@
 </x-layouts.app-shell>
 
 @script
-(function () {
-    function initReceiptSortable() {
-        const el = document.getElementById('receipt-items-list');
-        if (el && window.$ && $.fn.sortable) {
-            if ($(el).data('ui-sortable')) {
-                $(el).sortable('destroy');
+<script>
+    (function () {
+        function initReceiptSortable() {
+            const el = document.getElementById('receipt-items-list');
+            if (el && window.$ && $.fn.sortable) {
+                if ($(el).data('ui-sortable')) {
+                    $(el).sortable('destroy');
+                }
+                $(el).sortable({
+                    axis: 'y',
+                    handle: '.handle',
+                    items: '> .receipt-item-card',
+                    update: function () {
+                        const ids = [];
+                        $('#receipt-items-list .receipt-item-card').each(function () {
+                            ids.push($(this).attr('data-id'));
+                        });
+                        @this.call('updateItemOrder', ids);
+                    },
+                });
             }
-            $(el).sortable({
-                axis: 'y',
-                handle: '.handle',
-                items: '> .receipt-item-card',
-                update: function () {
-                    const ids = [];
-                    $('#receipt-items-list .receipt-item-card').each(function () {
-                        ids.push($(this).attr('data-id'));
-                    });
-                    @this.call('updateItemOrder', ids);
-                },
-            });
         }
-    }
 
-    initReceiptSortable();
-    document.addEventListener('livewire:update', initReceiptSortable);
-})();
+        initReceiptSortable();
+        document.addEventListener('livewire:update', initReceiptSortable);
+    })();
+</script>
 @endscript
