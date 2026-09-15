@@ -55,7 +55,7 @@
 </x-layouts.app-shell>
 
 @script
-<script>
+(function () {
     function initReceiptSortable() {
         const el = document.getElementById('receipt-items-list');
         if (el && window.$ && $.fn.sortable) {
@@ -79,5 +79,5 @@
 
     initReceiptSortable();
     document.addEventListener('livewire:update', initReceiptSortable);
-</script>
+})();
 @endscript
