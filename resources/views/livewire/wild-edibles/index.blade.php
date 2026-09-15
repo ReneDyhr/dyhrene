@@ -58,10 +58,11 @@
     @else
         <div class="list">
             @foreach ($edibles as $edible)
-                <div class="row">
-                    <span class="swatch"></span>
+                <div class="row row--link">
+                    <a class="stretched-link" href="{{ route('wild-edibles.show', $edible) }}" wire:navigate aria-label="{{ $edible->name }}"></a>
+                    <span class="swatch" aria-hidden="true"></span>
                     <div>
-                        <div class="lead"><a href="{{ route('wild-edibles.show', $edible) }}" wire:navigate>{{ $edible->name }}</a></div>
+                        <div class="lead">{{ $edible->name }}</div>
                         <div class="sub">{{ $edible->type->label() }} · {{ $edible->seasonLabel() }} · {{ $edible->location_name ?: '—' }}</div>
                     </div>
                     <div class="right">

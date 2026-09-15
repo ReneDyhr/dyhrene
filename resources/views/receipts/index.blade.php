@@ -23,10 +23,11 @@
             <div x-show="open">
                 <div class="list">
                     @foreach ($monthData['receipts'] as $receipt)
-                        <div class="row">
-                            <span class="swatch"></span>
+                        <div class="row row--link">
+                            <a class="stretched-link" href="{{ route('receipts.show', $receipt) }}" wire:navigate aria-label="{{ $receipt->name }}"></a>
+                            <span class="swatch" aria-hidden="true"></span>
                             <div>
-                                <div class="lead"><a href="{{ route('receipts.show', $receipt) }}" wire:navigate>{{ $receipt->name }}</a></div>
+                                <div class="lead">{{ $receipt->name }}</div>
                                 <div class="sub">
                                     {{ $receipt->items->count() }} varer · {{ $receipt->date->locale('da')->isoFormat('D. MMM YYYY') }}
                                 </div>
