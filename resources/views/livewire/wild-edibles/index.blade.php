@@ -13,15 +13,31 @@
         <div class="alert alert-info"><strong>Personlig notat:</strong> Kortet verificerer ikke identifikation, spiselighed, sikkerhed eller adgang. Du er ansvarlig for sikker og lovlig sankning.</div>
 
         <div class="wild-edible-filters">
-            <strong>Typer:</strong>
-            @foreach ($typesList as $type)
-                <label><input type="checkbox" wire:model.live="types" value="{{ $type->value }}"> {{ $type->label() }}</label>
-            @endforeach
-            <strong style="margin-left: 15px;">Sæson:</strong>
-            @foreach ($monthsList as $month)
-                <label><input type="checkbox" wire:model.live="months" value="{{ $month }}"> {{ \date('M', \mktime(0, 0, 0, $month, 1)) }}</label>
-            @endforeach
-            <button type="button" wire:click="clearFilters" class="btn btn-default btn-xs">Ryd</button>
+            <div class="filter-group">
+                <span class="filter-label">Typer</span>
+                <div class="filter-chips">
+                    @foreach ($typesList as $type)
+                        <label class="filter-chip">
+                            <input type="checkbox" wire:model.live="types" value="{{ $type->value }}">
+                            <span>{{ $type->label() }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <span class="filter-label">Sæson</span>
+                <div class="filter-chips">
+                    @foreach ($monthsList as $month)
+                        <label class="filter-chip">
+                            <input type="checkbox" wire:model.live="months" value="{{ $month }}">
+                            <span>{{ \date('M', \mktime(0, 0, 0, $month, 1)) }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <button type="button" wire:click="clearFilters" class="btn btn-default btn-xs" style="align-self: flex-end; margin-left: auto;">Ryd</button>
         </div>
 
         @if (!config('wild-edibles.google_maps_api_key'))
