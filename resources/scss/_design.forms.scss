@@ -313,6 +313,9 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--theme); }
     padding: 4px;
     max-height: 220px;
     overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 200px;
+    max-width: 320px;
 }
 
 .ui-autocomplete .ui-menu-item,
