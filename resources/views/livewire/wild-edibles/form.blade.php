@@ -6,8 +6,6 @@
     </div>
 
     <form wire:submit="save" class="card">
-        <div class="alert alert-info"><strong>Personlig notat:</strong> Kortet verificerer ikke identifikation, spiselighed, sikkerhed eller adgang. Du er ansvarlig for sikker og lovlig sankning.</div>
-
         <div class="form-group">
             <label>Type</label>
             <select wire:model="type" class="form-control">

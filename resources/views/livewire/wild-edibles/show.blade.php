@@ -6,8 +6,6 @@
     </div>
 
     <article class="card">
-        <div class="alert alert-info"><strong>Personlig notat:</strong> Kortet verificerer ikke identifikation, spiselighed, sikkerhed eller adgang. Du er ansvarlig for sikker og lovlig sankning.</div>
-
         <div class="meta" style="margin-bottom: 12px;">
             <p style="margin: 0;">Type: {{ $wildEdible->type->label() }}</p>
             <p style="margin: 0;">Sæson: {{ $wildEdible->seasonLabel() }}</p>

@@ -10,8 +10,6 @@
     </div>
 
     <article class="card">
-        <div class="alert alert-info"><strong>Personlig notat:</strong> Kortet verificerer ikke identifikation, spiselighed, sikkerhed eller adgang. Du er ansvarlig for sikker og lovlig sankning.</div>
-
         <div class="wild-edible-filters">
             <div class="filter-group">
                 <span class="filter-label">Typer</span>
