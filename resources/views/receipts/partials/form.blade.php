@@ -37,6 +37,10 @@
     <input type="file" id="receiptImage" class="form-control" wire:model="receiptImage">
     @if (!isset($this->receipt))
         <button id="extractFromImage" type="button" {{ !$this->receiptImage ? 'disabled="disabled"' : '' }}
-            class="btn btn-default" style="margin-top: 8px;" wire:click="extractFromImage">Uddrag fra billede</button>
+            class="btn btn-default" style="margin-top: 8px;" wire:click="extractFromImage"
+            wire:loading.attr="disabled" wire:target="extractFromImage">
+            <span wire:loading.remove wire:target="extractFromImage"><i class="fa fa-file-image-o"></i> Uddrag fra billede</span>
+            <span wire:loading wire:target="extractFromImage"><i class="fa fa-spinner fa-spin"></i> Uddrager…</span>
+        </button>
     @endif
 </div>
