@@ -16,7 +16,7 @@
 
         <div class="form-group">
             <label>Plukkested</label>
-            <div id="wild-edible-picker" data-latitude="{{ $latitude }}" data-longitude="{{ $longitude }}" data-map-id="{{ config('wild-edibles.google_maps_map_id') }}" class="wild-edible-map wild-edible-map-picker"></div>
+            <div id="wild-edible-picker" wire:ignore data-latitude="{{ $latitude }}" data-longitude="{{ $longitude }}" data-map-id="{{ config('wild-edibles.google_maps_map_id') }}" class="wild-edible-map wild-edible-map-picker"></div>
             <input type="hidden" wire:model="latitude" id="wild-edible-latitude">
             <input type="hidden" wire:model="longitude" id="wild-edible-longitude">
             @error('latitude')<span class="text-danger">{{ $message }}</span>@enderror

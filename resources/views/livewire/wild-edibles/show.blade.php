@@ -19,7 +19,7 @@
             <p>{{ $wildEdible->description }}</p>
         @endif
 
-        <div id="wild-edible-detail-map" data-markers='@json($markers)' data-center-lat="{{ $wildEdible->latitude }}" data-center-lng="{{ $wildEdible->longitude }}" data-zoom="{{ config('wild-edibles.default_zoom') }}" data-map-id="{{ config('wild-edibles.google_maps_map_id') }}" class="wild-edible-map"></div>
+        <div id="wild-edible-detail-map" wire:ignore data-markers='@json($markers)' data-center-lat="{{ $wildEdible->latitude }}" data-center-lng="{{ $wildEdible->longitude }}" data-zoom="{{ config('wild-edibles.default_zoom') }}" data-map-id="{{ config('wild-edibles.google_maps_map_id') }}" class="wild-edible-map"></div>
 
         <div style="display: flex; gap: 10px; margin-top: 16px;">
             <a href="{{ route('wild-edibles.edit', $wildEdible) }}" class="btn btn-primary" wire:navigate>Redigér</a>

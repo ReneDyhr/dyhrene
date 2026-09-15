@@ -37,7 +37,7 @@
 
         <div class="form-group">
             <label>Sted</label>
-            <div id="wild-edible-picker" data-latitude="{{ $latitude }}" data-longitude="{{ $longitude }}" data-map-id="{{ config('wild-edibles.google_maps_map_id') }}" class="wild-edible-map wild-edible-map-picker"></div>
+            <div id="wild-edible-picker" wire:ignore data-latitude="{{ $latitude }}" data-longitude="{{ $longitude }}" data-map-id="{{ config('wild-edibles.google_maps_map_id') }}" class="wild-edible-map wild-edible-map-picker"></div>
             <input id="wild-edible-latitude" type="hidden" wire:model="latitude">
             <input id="wild-edible-longitude" type="hidden" wire:model="longitude">
             @error('latitude')<span class="text-danger">{{ $message }}</span>@enderror

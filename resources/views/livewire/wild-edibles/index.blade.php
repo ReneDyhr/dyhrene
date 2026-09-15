@@ -28,7 +28,7 @@
             <div class="alert alert-warning">Google Maps er ikke konfigureret. Sæt <code>GOOGLE_MAPS_API_KEY</code> for at aktivere kortet.</div>
         @endif
 
-        <div id="wild-edibles-map" data-markers='@json($markers)' data-center-lat="{{ config('wild-edibles.default_center.latitude') }}" data-center-lng="{{ config('wild-edibles.default_center.longitude') }}" data-zoom="{{ config('wild-edibles.default_zoom') }}" data-map-id="{{ config('wild-edibles.google_maps_map_id') }}" class="wild-edible-map"></div>
+        <div id="wild-edibles-map" wire:ignore data-markers='@json($markers)' data-center-lat="{{ config('wild-edibles.default_center.latitude') }}" data-center-lng="{{ config('wild-edibles.default_center.longitude') }}" data-zoom="{{ config('wild-edibles.default_zoom') }}" data-map-id="{{ config('wild-edibles.google_maps_map_id') }}" class="wild-edible-map"></div>
 
         <div class="wild-edible-legend">
             <strong>Forklaring:</strong>
