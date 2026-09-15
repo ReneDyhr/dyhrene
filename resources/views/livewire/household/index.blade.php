@@ -5,7 +5,7 @@
     </div>
 
     <div class="subnav">
-        <a href="{{ route('receipts.index') }}" wire:navigate aria-current="page">Kvitteringer</a>
+        <a href="{{ route('receipts.index') }}" wire:navigate>Kvitteringer</a>
         <a href="{{ route('inventory.index') }}" wire:navigate>Inventar</a>
         <a href="{{ route('inventory.categories') }}" wire:navigate>Inventarkategorier</a>
         <a href="{{ route('receipts.create') }}" wire:navigate>Tilføj kvittering</a>
