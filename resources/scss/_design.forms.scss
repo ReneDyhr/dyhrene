@@ -206,6 +206,12 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--theme); }
     cursor: default;
 }
 
+.ms-container .icon {
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+}
+
 @media (max-width: 767px) {
     .ms-container {
         flex-direction: column;
@@ -240,4 +246,59 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--theme); }
 
 /* ---------- Diverse ---------- */
 .tooltip { display: none; }
-.tags-input, .tagsinput { display: inline-block; }
+
+/* ---------- Tags-input ---------- */
+.bootstrap-tagsinput {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--paper);
+    color: var(--ink);
+    cursor: text;
+}
+
+.bootstrap-tagsinput input {
+    border: 0;
+    background: none;
+    outline: none;
+    color: var(--ink);
+    padding: 2px 4px;
+    flex: 1;
+    min-width: 80px;
+    font-size: 13px;
+}
+
+.bootstrap-tagsinput .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--koekken) 20%, var(--card));
+}
+
+.bootstrap-tagsinput .tag [data-role="remove"] {
+    cursor: pointer;
+    color: var(--ink-soft);
+}
+
+.bootstrap-tagsinput .tag [data-role="remove"]:after {
+    content: "×";
+    font-size: 14px;
+    line-height: 1;
+}
+
+.bootstrap-tagsinput .tag [data-role="remove"]:hover {
+    color: #e0533f;
+}
