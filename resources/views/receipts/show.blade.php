@@ -1,101 +1,75 @@
-<div>
-    @section("title", $receipt->name)
-    @include("components.layouts.sidenav")
-    <div id="main">
-        @include("components.layouts.header")
-        <div class="content homepage">
-            <div class="col-12">
-                <div class="storage-list">
-                    <div class="recipe">
-                        <h1>{{ $receipt->name }}</h1>
-                        <div class="description">
-                            <strong>Vendor:</strong> {{ $receipt->vendor }}<br />
-                            <strong>Date:</strong> {{ $receipt->date->format("F j, Y H:i") }}<br />
-                            <strong>Description:</strong> {{ $receipt->description }}<br />
-                            <strong>Currency:</strong> {{ $receipt->currency }}<br />
-                            <strong>File:</strong>
-                            @if($receipt->file_path)
-                                <a href="#"
-                                    onclick="event.preventDefault(); document.getElementById("image-modal").style.display = "flex";"
-                                    style="color: #53875F; font-size: 14px;">View Receipt</a>
-                                <!-- Modal -->
-                                <div id="image-modal"
-                                    style="display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; background: rgba(0,0,0,0.6);">
-                                    <div
-                                        style="background: #fff; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.2); padding: 1.5rem; max-width: 600px; width: 100%; position: relative;">
-                                        <button onclick="document.getElementById("image-modal").style.display = "none";"
-                                            style="position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; color: #888; font-size: 1.5rem;">
-                                            &times;
-                                        </button>
-                                        <img src="{{ route("receipts.image", $receipt) }}" alt="Receipt Image"
-                                            style="max-width: 100%; max-height: 70vh; display: block; margin: 0 auto; border-radius: 4px;">
-                                    </div>
-                                </div>
-                            @else
-                                <span style="color: #888;">No image</span>
-                            @endif
-                        </div>
-                        <h2>Items</h2>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Quantity</th>
-                                    <th>Amount</th>
-                                    <th>Total</th>
-                                    <th>Category</th>
-                                    <th>Inventory</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($receipt->items as $item)
-                                    <tr>
-                                        <td>{{ $item->name }}</td>
-                                        <td>{{ $item->quantity }}</td>
-                                        <td>{{ number_format($item->amount, 2) }}</td>
-                                        <td>{{ number_format($item->total, 2) }} {{ $receipt->currency }}</td>
-                                        <td>{{ $item->category?->name }}</td>
-                                        <td>
-                                            @if($item->inventoryItem)
-                                                <a href="{{ route("inventory.show", $item->inventoryItem) }}" class="label label-success">
-                                                    <i class="fa fa-cube"></i> {{ $item->inventoryItem->name }}
-                                                </a>
-                                                <button wire:click="unlinkFromInventory({{ $item->id }})"
-                                                        wire:confirm="Unlink this inventory item?"
-                                                        class="btn btn-xs btn-danger" style="margin-left: 4px;">
-                                                    <i class="fa fa-unlink"></i>
-                                                </button>
-                                            @else
-                                                <select wire:change="linkToInventory({{ $item->id }}, $event.target.value)"
-                                                        class="form-control input-sm" style="width: 200px; display: inline;">
-                                                    <option value="">-- Link --</option>
-                                                    @foreach($availableItems as $inv)
-                                                        <option value="{{ $inv->id }}">{{ $inv->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="3" class="fw-bold text-end">Total:</td>
-                                    <td class="fw-bold">
-                                        {{ number_format($receipt->total, 2) }} {{ $receipt->currency }}
-                                    </td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                        <a href="{{ route("receipts.edit", $receipt) }}" class="btn btn-warning btn-sm"
-                            style="color: #fff; padding: 4px 10px; font-size: 0.9em; line-height: 1.4;">Edit</a>
-                        <a href="{{ route("receipts.index") }}" class="btn btn-secondary">Back to list</a>
-                    </div>
-                </div>
-                <div class="clear"></div>
-            </div>
-        </div>
+@section('title', $receipt->name)
+<x-layouts.app-shell :area="\App\Enums\AppArea::Household">
+    <div class="view-head">
+        <h1>{{ $receipt->name }}</h1>
+        <p>
+            {{ $receipt->vendor }} · {{ $receipt->date->locale('da')->isoFormat('D. MMMM YYYY HH:mm') }}
+        </p>
     </div>
-</div>
+
+    <article class="card">
+        @if ($receipt->description)
+            <p style="margin: 0 0 12px;">{{ $receipt->description }}</p>
+        @endif
+
+        <div class="meta" style="margin-bottom: 14px;">
+            <p style="margin: 0;">Valuta: {{ $receipt->currency }}</p>
+            @if ($receipt->file_path)
+                <p style="margin: 0;"><a href="{{ route('receipts.image', $receipt) }}" target="_blank">Vis kvittering</a></p>
+            @else
+                <p style="margin: 0;">Ingen billede</p>
+            @endif
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Vare</th>
+                    <th>Antal</th>
+                    <th>Pris</th>
+                    <th>Total</th>
+                    <th>Kategori</th>
+                    <th>Inventar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($receipt->items as $item)
+                    <tr>
+                        <td>{{ $item->name }}</td>
+                        <td>{{ $item->quantity }}</td>
+                        <td>{{ \App\Support\Format::number((float) $item->amount) }}</td>
+                        <td>{{ \App\Support\Format::number($item->total) }} {{ $receipt->currency }}</td>
+                        <td>{{ $item->category?->name }}</td>
+                        <td>
+                            @if ($item->inventoryItem)
+                                <a href="{{ route('inventory.show', $item->inventoryItem) }}">{{ $item->inventoryItem->name }}</a>
+                                <button wire:click="unlinkFromInventory({{ $item->id }})"
+                                    wire:confirm="Fjern kobling til inventar?" class="btn btn-xs btn-danger">Fjern</button>
+                            @else
+                                <select wire:change="linkToInventory({{ $item->id }}, $event.target.value)" class="form-control" style="min-width: 180px;">
+                                    <option value="">-- Link --</option>
+                                    @foreach ($availableItems as $inv)
+                                        <option value="{{ $inv->id }}">{{ $inv->name }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3">Total:</td>
+                    <td>{{ \App\Support\Format::number($receipt->total) }} {{ $receipt->currency }}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <a href="{{ route('receipts.edit', $receipt) }}" class="btn btn-primary" wire:navigate>Redigér</a>
+            <a href="{{ route('receipts.index') }}" class="btn btn-default" wire:navigate>Tilbage</a>
+        </div>
+    </article>
+</x-layouts.app-shell>

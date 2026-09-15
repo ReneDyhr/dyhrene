@@ -8,6 +8,7 @@ use App\Livewire\Category\Categories;
 use App\Livewire\EditRecipe;
 use App\Livewire\Login;
 use App\Livewire\Recipes;
+use App\Livewire\SearchReceipt;
 use App\Livewire\SearchRecipe;
 use App\Livewire\Shopping\ShoppingList;
 use App\Livewire\SingleRecipe;
@@ -37,9 +38,15 @@ Route::get('logout', function (): RedirectResponse {
 
     return \redirect()->route('login');
 })->name('logout');
-Route::get('/', Recipes::class)->middleware('auth')->name('index');
+Route::get('/', App\Livewire\Overview\Index::class)->middleware('auth')->name('index');
+Route::get('/kitchen', App\Livewire\Kitchen\Index::class)->middleware('auth')->name('kitchen.index');
+Route::get('/kitchen/recipes', Recipes::class)->middleware('auth')->name('recipes.index');
+Route::get('/workshop', App\Livewire\Workshop\Index::class)->middleware('auth')->name('workshop.index');
+Route::get('/household', App\Livewire\Household\Index::class)->middleware('auth')->name('household.index');
+Route::get('/family', App\Livewire\Family\Index::class)->middleware('auth')->name('family.index');
 Route::get('/recipe/add', AddRecipe::class)->middleware('auth')->name('add');
-Route::get('recipe/search', SearchRecipe::class)->middleware('auth')->name('search');
+Route::get('recipe/search', SearchRecipe::class)->middleware('auth')->name('search.recipes');
+Route::get('receipt/search', SearchReceipt::class)->middleware('auth')->name('search.receipts');
 
 Route::get('/recipe/{id}', SingleRecipe::class)->middleware('auth')->name('single');
 Route::get('/recipe/{id}/edit', EditRecipe::class)->middleware('auth')->name('edit');

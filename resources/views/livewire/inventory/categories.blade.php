@@ -1,8 +1,5 @@
 @section('title', $title)
-<div>
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Household">
         <div class="content">
             <div class="col-12">
                 <div class="settings-categories">
@@ -154,8 +151,7 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
+</x-layouts.app-shell>
 @script
 <script>
     Livewire.on('showEditInventoryCategoryModal', (e) => {

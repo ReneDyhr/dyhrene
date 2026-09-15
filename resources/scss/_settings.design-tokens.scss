@@ -1,0 +1,54 @@
+:root {
+    color-scheme: dark;
+
+    /* Mørkt papir & lys blæk */
+    --paper: #111512;
+    --card: #191e1a;
+    --ink: #e7ebe4;
+    --ink-soft: #949e93;
+    --line: #2d342e;
+
+    /* Temafarver = registerfaner, lysnet så de bærer på mørk bund */
+    --koekken: #e9704f;
+    --natur: #63bc8b;
+    --vaerksted: #7ba2f0;
+    --husholdning: #dca748;
+    --familien: #ae93dc;
+    --neutral: #c6d0c5;
+
+    --theme: var(--neutral);
+
+    --rail: 248px;
+    --r: 14px;
+
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    /* aliasser for ældre komponenter */
+    --app-paper: var(--paper);
+    --app-card: var(--card);
+    --app-ink: var(--ink);
+    --app-ink-soft: var(--ink-soft);
+    --app-line: var(--line);
+    --app-area-overview: var(--neutral);
+    --app-area-kitchen: var(--koekken);
+    --app-area-nature: var(--natur);
+    --app-area-workshop: var(--vaerksted);
+    --app-area-household: var(--husholdning);
+    --app-area-family: var(--familien);
+    --app-area-accent: var(--theme);
+    --app-radius: var(--r);
+    --app-rail-width: var(--rail);
+    --app-font-display: var(--font-display);
+    --app-font-body: var(--font-body);
+    --app-font-mono: var(--font-mono);
+}
+
+/* nuværende område sætter tema-farven */
+.app-shell[data-area='overview'] { --theme: var(--neutral); }
+.app-shell[data-area='kitchen'] { --theme: var(--koekken); }
+.app-shell[data-area='nature'] { --theme: var(--natur); }
+.app-shell[data-area='workshop'] { --theme: var(--vaerksted); }
+.app-shell[data-area='household'] { --theme: var(--husholdning); }
+.app-shell[data-area='family'] { --theme: var(--familien); }

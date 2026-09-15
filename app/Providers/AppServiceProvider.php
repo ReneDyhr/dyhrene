@@ -4,7 +4,17 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Household\Contracts\HouseholdSnapshotReaderInterface;
+use App\Domain\Kitchen\Contracts\KitchenSnapshotReaderInterface;
+use App\Domain\Nature\Contracts\NatureSnapshotReaderInterface;
+use App\Domain\Overview\Contracts\OverviewSnapshotReaderInterface;
+use App\Domain\Workshop\Contracts\WorkshopSnapshotReaderInterface;
 use App\Services\Fastmail\FastmailJmapClient;
+use App\Services\Household\EloquentHouseholdSnapshotReader;
+use App\Services\Kitchen\EloquentKitchenSnapshotReader;
+use App\Services\Nature\EloquentNatureSnapshotReader;
+use App\Services\Overview\EloquentOverviewSnapshotReader;
+use App\Services\Workshop\EloquentWorkshopSnapshotReader;
 use App\Support\Sentry\ScrubSensitiveWildEdibleEvent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -24,6 +34,16 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(FastmailJmapClient::class);
+
+        $this->app->bind(OverviewSnapshotReaderInterface::class, EloquentOverviewSnapshotReader::class);
+
+        $this->app->bind(KitchenSnapshotReaderInterface::class, EloquentKitchenSnapshotReader::class);
+
+        $this->app->bind(HouseholdSnapshotReaderInterface::class, EloquentHouseholdSnapshotReader::class);
+
+        $this->app->bind(WorkshopSnapshotReaderInterface::class, EloquentWorkshopSnapshotReader::class);
+
+        $this->app->bind(NatureSnapshotReaderInterface::class, EloquentNatureSnapshotReader::class);
 
         $this->app->afterResolving(ClientBuilder::class, function (ClientBuilder $clientBuilder): void {
             $options = $clientBuilder->getOptions();

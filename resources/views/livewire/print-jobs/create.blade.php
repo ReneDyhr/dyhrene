@@ -1,5 +1,5 @@
-<div>
     @section('title', 'Create Print Job')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Workshop">
     <style>
         @media (max-width: 768px) {
             .calculation-panel>div[style*="grid"] {
@@ -11,9 +11,6 @@
             }
         }
     </style>
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
         <div class="content homepage">
             <div class="col-12">
                 <div class="storage-list">
@@ -275,7 +272,6 @@
 
                         <!-- Calculation Panel -->
                         @php
-                            use App\Support\Format;
                             $calc = $calculation ?? null;
                             $isLocked = false;
                         @endphp
@@ -306,22 +302,22 @@
                                             <div>
                                                 <strong style="color: #666;">Total Pieces:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::integer((int) ($calc['totals']['total_pieces'] ?? 0)) }}</div>
+                                                    {{ \App\Support\Format::integer((int) ($calc['totals']['total_pieces'] ?? 0)) }}</div>
                                             </div>
                                             <div>
                                                 <strong style="color: #666;">Total Grams:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::number($calc['totals']['total_grams'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::number($calc['totals']['total_grams'] ?? 0) }}</div>
                                             </div>
                                             <div>
                                                 <strong style="color: #666;">Total Print Hours:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::number($calc['totals']['total_print_hours'] ?? 0, 3) }}</div>
+                                                    {{ \App\Support\Format::number($calc['totals']['total_print_hours'] ?? 0, 3) }}</div>
                                             </div>
                                             <div>
                                                 <strong style="color: #666;">kWh:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::number($calc['totals']['kwh'] ?? 0, 2) }}</div>
+                                                    {{ \App\Support\Format::number($calc['totals']['kwh'] ?? 0, 2) }}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -336,33 +332,33 @@
                                             <div>
                                                 <strong style="color: #666;">Material Cost:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['costs']['material_cost'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['costs']['material_cost'] ?? 0) }}</div>
                                             </div>
                                             <div>
                                                 <strong style="color: #666;">Material Cost (with Waste):</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['costs']['material_cost_with_waste'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['costs']['material_cost_with_waste'] ?? 0) }}</div>
                                             </div>
                                             <div>
                                                 <strong style="color: #666;">Power Cost:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['costs']['power_cost'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['costs']['power_cost'] ?? 0) }}</div>
                                             </div>
                                             <div>
                                                 <strong style="color: #666;">Labor Cost:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['costs']['labor_cost'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['costs']['labor_cost'] ?? 0) }}</div>
                                             </div>
                                             <div>
                                                 <strong style="color: #666;">First Time Fee:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['costs']['first_time_fee_applied'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['costs']['first_time_fee_applied'] ?? 0) }}</div>
                                             </div>
                                             <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
                                                 <strong style="color: #333; font-size: 1.1em;">Total Cost:</strong>
                                                 <div
                                                     style="font-size: 1.3em; color: #dc3545; font-weight: bold; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['costs']['total_cost'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['costs']['total_cost'] ?? 0) }}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -377,18 +373,18 @@
                                             <div>
                                                 <strong style="color: #666;">Applied Avance %:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::pct($calc['pricing']['applied_avance_pct'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::pct($calc['pricing']['applied_avance_pct'] ?? 0) }}</div>
                                             </div>
                                             <div>
                                                 <strong style="color: #666;">Price per Piece:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['pricing']['price_per_piece'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['pricing']['price_per_piece'] ?? 0) }}</div>
                                             </div>
                                             <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
                                                 <strong style="color: #333; font-size: 1.1em;">Sales Price:</strong>
                                                 <div
                                                     style="font-size: 1.3em; color: #28a745; font-weight: bold; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['pricing']['sales_price'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['pricing']['sales_price'] ?? 0) }}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -403,13 +399,13 @@
                                             <div>
                                                 <strong style="color: #666;">Profit:</strong>
                                                 <div style="font-size: 1.1em; color: #333; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['profit']['profit'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['profit']['profit'] ?? 0) }}</div>
                                             </div>
                                             <div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
                                                 <strong style="color: #333; font-size: 1.1em;">Profit per Piece:</strong>
                                                 <div
                                                     style="font-size: 1.3em; color: #17a2b8; font-weight: bold; margin-top: 4px;">
-                                                    {{ Format::dkk($calc['profit']['profit_per_piece'] ?? 0) }}</div>
+                                                    {{ \App\Support\Format::dkk($calc['profit']['profit_per_piece'] ?? 0) }}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -430,5 +426,4 @@
                 <div class="clear"></div>
             </div>
         </div>
-    </div>
-</div>
+</x-layouts.app-shell>

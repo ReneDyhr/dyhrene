@@ -1,99 +1,84 @@
-@section('title', 'Nature — What\'s Here Now')
-<div>
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
-        <div class="content recipe-page">
-            <div class="col-12">
-                <div class="recipe">
-                    <h1>What is Here Now</h1>
-                    <div class="tags" x-data="{ open: false }">
-                        <span
-                            x-show="!open"
-                            style="font-size:0.8rem; cursor: pointer; border-bottom: 1px dashed #53875F;"
-                            title="Click to pick a different date"
-                            @click="open = true"
-                        >{{ \Carbon\Carbon::parse($date)->locale('en')->isoFormat('dddd, D MMMM YYYY') }}</span>
-                        <input
-                            type="date"
-                            x-cloak
-                            x-show="open"
-                            x-ref="picker"
-                            x-init="$watch('open', v => v && $nextTick(() => $refs.picker.focus()))"
-                            @change="open = false"
-                            wire:model.live="date"
-                            style="font-size: 0.8rem; padding: 2px 4px; border: 1px solid #53875F; border-radius: 3px; width: auto; background: #fff;"
-                        >
-                        <div class="clear"></div>
+@section('title', 'Natur')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Nature">
+    <div class="view-head">
+        <h1>Natur</h1>
+        <p>Hvad vi har set, hvor og hvornår. Observationer samles i artslisten efterhånden.</p>
+    </div>
+
+    <div class="subnav">
+        <a href="{{ route('observations.index') }}" wire:navigate>Observationer</a>
+        <a href="{{ route('species.index') }}" wire:navigate>Arter</a>
+        <a href="{{ route('wild-edibles.index') }}" wire:navigate>Vilde planter</a>
+    </div>
+
+    @if ($natureSnapshot !== null)
+        <div class="stats">
+            <div class="stat"><div class="n">{{ $natureSnapshot->speciesCount }}</div><div class="l">Arter</div></div>
+            <div class="stat"><div class="n">{{ $natureSnapshot->observationCount }}</div><div class="l">Observationer i alt</div></div>
+        </div>
+    @endif
+
+    <div class="section-title">Hvad er her nu — {{ \Carbon\Carbon::parse($date)->locale('da')->isoFormat('dddd D. MMMM YYYY') }}</div>
+
+    <div x-data="{ open: false }" class="form-group">
+        <button type="button" class="btn" @click="open = !open">
+            <i class="fa fa-calendar" aria-hidden="true"></i>
+            {{ \Carbon\Carbon::parse($date)->locale('da')->isoFormat('dddd D. MMMM YYYY') }}
+        </button>
+        <input
+            type="date"
+            x-cloak
+            x-show="open"
+            x-ref="picker"
+            x-init="$watch('open', v => v && $nextTick(() => $refs.picker.focus()))"
+            @change="open = false"
+            wire:model.live="date"
+            class="form-control"
+            style="max-width: 220px; margin-top: 8px;"
+        >
+    </div>
+
+    @if ($todaySummaries->isEmpty())
+        <p>Ingen arter observeret på denne dato.</p>
+    @else
+        <div class="list">
+            @foreach ($todaySummaries as $summary)
+                @php
+                    $species = $summary->species;
+                    $audio = $speciesWithAudio[$species->id] ?? null;
+                    $lastSeen = $summary->last_seen_at ? \Carbon\Carbon::parse($summary->last_seen_at, 'Europe/Copenhagen') : null;
+                    $sources = $summary->sources_array;
+                @endphp
+                <div class="row">
+                    <span class="swatch"></span>
+                    <div>
+                        <div class="lead">
+                            <a href="{{ route('species.show', $species) }}" wire:navigate>{{ $species->common_name }}</a>
+                        </div>
+                        <div class="sub">
+                            {{ $species->scientific_name }}
+                            @if ($lastSeen) · senest {{ $lastSeen->format('H:i') }} @endif
+                            · {{ $summary->windows_present }} vinduer i dag
+                        </div>
+                        @if (\count($sources) > 0)
+                            <div class="taglist">
+                                @if (\in_array('birdnet', $sources, true)) <span class="tag">BirdNET</span> @endif
+                                @if (\in_array('ebird_import', $sources, true)) <span class="tag">eBird</span> @endif
+                                @if (\in_array('manual', $sources, true)) <span class="tag">Manual</span> @endif
+                            </div>
+                        @endif
+                    </div>
+                    <div class="right">
+                        @if ($audio && $audio['has_audio'])
+                            <audio controls preload="none" style="width: 150px; height: 30px;">
+                                <source src="{{ $audio['audio_url'] }}" type="audio/wav">
+                            </audio>
+                        @else
+                            Ingen optagelse
+                        @endif
                     </div>
                 </div>
-
-                @if ($todaySummaries->isEmpty())
-                    <div class="notes">
-                        <p>No species observed on this date.</p>
-                    </div>
-                @else
-                    <div class="notes">
-                        <h1>{{ $todaySummaries->count() }} species on this date</h1>
-                        <div style="margin-top:20px;">
-                            @foreach ($todaySummaries as $summary)
-                                @php
-                                    $species = $summary->species;
-                                    $audio = $speciesWithAudio[$species->id] ?? null;
-                                    $lastSeen = $summary->last_seen_at
-                                        ? \Carbon\Carbon::parse($summary->last_seen_at, 'Europe/Copenhagen')
-                                        : null;
-                                    $sources = $summary->sources_array;
-                                @endphp
-                                <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-                                    <div style="flex: 1 1 300px; min-width: 0;">
-                                        <h3 style="margin-top: 0; margin-bottom: 2px;">
-                                            <a href="{{ route('species.show', $species) }}" wire:navigate style="text-decoration: none;">
-                                                {{ $species->common_name }}
-                                            </a>
-                                        </h3>
-                                        <p style="font-style: italic; color: #666; margin-bottom: 5px; font-size: 0.85rem;">
-                                            {{ $species->scientific_name }}
-                                        </p>
-                                        <p style="font-size: 0.8rem; color: #999; margin-bottom: 0;">
-                                            @if ($lastSeen)
-                                                Last seen: {{ $lastSeen->format('H:i') }}
-                                            @endif
-                                            &nbsp;·&nbsp;
-                                            {{ $summary->windows_present }} windows today
-                                        </p>
-                                        <div style="margin-top: 5px;">
-                                            @if (\in_array('birdnet', $sources, true))
-                                                <span class="label label-success" style="font-size: 0.7rem;">BirdNET</span>
-                                            @endif
-                                            @if (\in_array('ebird_import', $sources, true))
-                                                <span class="label label-info" style="font-size: 0.7rem;">eBird</span>
-                                            @endif
-                                            @if (\in_array('manual', $sources, true))
-                                                <span class="label label-default" style="font-size: 0.7rem;">Manual</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div style="flex: 1 1 150px; min-width: 0; align-self: center;">
-                                        @if ($audio && $audio['has_audio'])
-                                            <audio controls preload="none" style="width: 100%; height: 30px;">
-                                                <source src="{{ $audio['audio_url'] }}" type="audio/wav">
-                                            </audio>
-                                        @else
-                                            <span style="font-size: 0.75rem; color: #bbb;">No recording</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            </div>
-
-            <div class="alert alert-info" role="alert"><header>Information</header><main><span class="alert_text"></span></main></div>
-            <div class="alert alert-success" role="alert"><header>Success</header><main><span class="alert_text"></span></main></div>
-            <div class="alert alert-warning" role="alert"><header>Warning</header><main><span class="alert_text"></span></main></div>
-            <div class="alert alert-danger" role="alert"><header>Error</header><main><span class="alert_text"></span></main></div>
+            @endforeach
         </div>
-    </div>
-</div>
+    @endif
+</x-layouts.app-shell>

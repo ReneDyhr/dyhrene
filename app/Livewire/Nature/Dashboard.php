@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Nature;
 
+use App\Domain\Nature\Contracts\NatureSnapshotReaderInterface;
 use App\Models\DailySpeciesSummary;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -17,8 +18,11 @@ class Dashboard extends Component
         $this->date = \now('Europe/Copenhagen')->format('Y-m-d');
     }
 
-    public function render(): View
+    public function render(NatureSnapshotReaderInterface $reader): View
     {
+        $userId = \auth()->id();
+        $natureSnapshot = \is_int($userId) ? $reader->read($userId) : null;
+
         // Species observed on the selected date, ordered by most recent
         $todaySummaries = DailySpeciesSummary::query()
             ->whereDate('date', $this->date)
@@ -55,6 +59,7 @@ class Dashboard extends Component
             'todaySummaries' => $todaySummaries,
             'speciesWithAudio' => $speciesWithAudio,
             'date' => $this->date,
+            'natureSnapshot' => $natureSnapshot,
         ]);
     }
 }

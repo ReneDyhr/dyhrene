@@ -21,7 +21,7 @@ class Index extends Component
      */
     public function deleteReceipt(int $id): \Livewire\Features\SupportRedirects\Redirector
     {
-        $receipt = Receipt::query()->findOrFail($id);
+        $receipt = Receipt::forAuthUser()->findOrFail($id);
         \app(\App\Actions\DeleteReceiptAction::class)->handle($receipt);
         \session()->flash('success', 'Receipt deleted!');
 
@@ -31,7 +31,7 @@ class Index extends Component
 
     public function render(): View
     {
-        $receipts = Receipt::query()
+        $receipts = Receipt::forAuthUser()
             ->with(['user', 'items.category'])
             ->orderByDesc('date')
             ->get();

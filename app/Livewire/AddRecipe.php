@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Models\Recipe;
+use App\Models\RecipeTag;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
@@ -42,7 +43,10 @@ class AddRecipe extends Component
 
     public function render(): View
     {
-        return \view('livewire.recipes.add', ['title' => 'Add Recipe']);
+        return \view('livewire.recipes.add', [
+            'title' => 'Tilføj opskrift',
+            'existingTags' => $this->existingTags(),
+        ]);
     }
 
     public function save(): ?Redirector
@@ -82,5 +86,22 @@ class AddRecipe extends Component
     {
         unset($this->ingredients[$index]);
         $this->ingredients = \array_values($this->ingredients); // Reindex the array
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function existingTags(): array
+    {
+        /** @var list<string> $names */
+        $names = RecipeTag::query()
+            ->whereIn('recipe_id', Recipe::query()->forAuthUser()->select('id'))
+            ->pluck('name')
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+
+        return $names;
     }
 }

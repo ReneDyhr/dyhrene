@@ -1,8 +1,5 @@
-<div>
     @section('title', 'Print Job: ' . $printJob->order_no)
-    @include('components.layouts.sidenav')
-    <div id="main">
-        @include('components.layouts.header')
+<x-layouts.app-shell :area="\App\Enums\AppArea::Workshop">
         <div class="content homepage">
             <div class="col-12">
                 <div class="storage-list">
@@ -210,6 +207,5 @@
                 <div class="clear"></div>
             </div>
         </div>
-    </div>
-</div>
+</x-layouts.app-shell>
 

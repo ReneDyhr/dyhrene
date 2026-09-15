@@ -29,8 +29,6 @@ class Storage extends Component
      */
     public array $itemQuantity = [];
 
-    public ?int $confirmingItemId;
-
     public ?int $editItemId;
 
     public ?string $editItemName;
@@ -98,16 +96,6 @@ class Storage extends Component
     {
         \App\Models\StorageItem::where('id', $itemId)->delete();
         $this->storage = \App\Models\Storage::with('items')->orderBy('name')->get();
-    }
-
-    public function removeItemConfirmed(): void
-    {
-        if ($this->confirmingItemId !== null) {
-            \App\Models\StorageItem::where('id', $this->confirmingItemId)->delete();
-            $this->confirmingItemId = null;
-            $this->storage = \App\Models\Storage::with('items')->orderBy('name')->get();
-        }
-        $this->dispatch('hide-confirm-modal');
     }
 
     /**
