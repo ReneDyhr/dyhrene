@@ -87,8 +87,10 @@
             }
         }
 
-        initReceiptSortable();
-        document.addEventListener('livewire:update', initReceiptSortable);
+        $(function () {
+            initReceiptSortable();
+        });
+        Livewire.hook('morphed', () => initReceiptSortable());
     })();
 </script>
 @endscript
