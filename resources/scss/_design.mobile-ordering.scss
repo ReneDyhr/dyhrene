@@ -1,0 +1,49 @@
+/* Desktop keeps drag sorting; compact move controls are mobile-only. */
+.ordering-controls { display: none; }
+
+@media (max-width: 900px) {
+    .shopping-list > li { gap: 6px; }
+    .shopping-list .handle { display: none; }
+
+    .ordering-controls {
+        display: inline-flex;
+        gap: 2px;
+        align-items: center;
+        margin-left: 0;
+        flex: 0 0 auto;
+    }
+
+    .shopping-list .ordering-controls button {
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        min-width: 28px;
+        max-width: 28px;
+        height: 30px;
+        min-height: 30px;
+        max-height: 30px;
+        flex: 0 0 28px;
+        padding: 0;
+        border: 1px solid currentColor;
+        border-radius: 0.35rem;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .shopping-list .close { padding-right: 5px; padding-left: 5px; }
+
+    .shopping-list .ordering-controls button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    .shopping-list .ordering-controls button:focus-visible {
+        outline: 3px solid currentColor;
+        outline-offset: 2px;
+    }
+}

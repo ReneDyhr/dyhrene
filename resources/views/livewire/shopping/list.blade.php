@@ -22,7 +22,11 @@
                 @else
                     <span class="check" aria-hidden="true"></span>
                     <span class="name">{{ $item->name }}</span>
-                    <span class="handle" title="Træk for at sortere"><i class="fa fa-arrows-v"></i></span>
+                    <span class="handle" title="Træk for at sortere" aria-hidden="true"><i class="fa fa-arrows-v"></i></span>
+                    <span class="ordering-controls" aria-label="Rækkefølge">
+                        <button type="button" wire:click.stop="moveItemUp({{ $item->id }})" aria-label="Flyt op" @if ($loop->first || $sortedItems->get($loop->index - 1)?->isSectionHeader()) disabled @endif>↑</button>
+                        <button type="button" wire:click.stop="moveItemDown({{ $item->id }})" aria-label="Flyt ned" @if ($loop->last || $sortedItems->get($loop->index + 1)?->isSectionHeader()) disabled @endif>↓</button>
+                    </span>
                 @endif
                 <span wire:confirm="Er du sikker?" wire:click.stop="delete({{ $item->id }})" class="close" title="Slet">×</span>
             </li>

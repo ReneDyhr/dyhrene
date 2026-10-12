@@ -56,6 +56,24 @@ use Livewire\Livewire;
     \expect($inventoryItem->receiptItem)->not->toBeNull();
 });
 
+\test('receipt show renders item table with mobile layout hooks', function (): void {
+    $receipt = Receipt::factory()->create(['user_id' => $this->user->id]);
+    ReceiptItem::factory()->create([
+        'receipt_id' => $receipt->id,
+        'category_id' => $this->receiptCategory->id,
+        'name' => 'Mobile item',
+        'inventory_item_id' => null,
+    ]);
+
+    Livewire::actingAs($this->user)
+        ->test(ReceiptShow::class, ['receipt' => $receipt])
+        ->assertSee('class="receipt-items-table-wrap"', false)
+        ->assertSee('class="table receipt-items-table"', false)
+        ->assertSee('data-label="Kategori"', false)
+        ->assertSee('data-label="Inventar"', false)
+        ->assertSee('Mobile item');
+});
+
 \test('can link receipt item to inventory item from receipt show', function (): void {
     $inventoryItem = InventoryItem::factory()->create(['user_id' => $this->user->id]);
     $receipt = Receipt::factory()->create(['user_id' => $this->user->id]);

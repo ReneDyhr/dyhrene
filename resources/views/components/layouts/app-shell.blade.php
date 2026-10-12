@@ -8,7 +8,7 @@
         ? $area
         : $navigation->areaForRoute(\Illuminate\Support\Facades\Route::currentRouteName());
     $items = $navigation->items($currentArea);
-    $userName = \auth()->user()?->name ?? 'Gæst';
+
     $today = \Illuminate\Support\Carbon::now()->locale('da')->isoFormat('dddd D. MMMM');
 @endphp
 
@@ -19,13 +19,7 @@
         <x-navigation.brand-mark :home-href="$navigation->homeHref()" />
         <x-navigation.area-navigation :items="$items" />
 
-        <div class="rail-foot">
-            <span class="eyebrow">Logget ind</span>
-            <div class="who">{{ $userName }}</div>
-            <a href="{{ \route('logout') }}" class="rail-logout" title="Log ud">
-                <i class="fa fa-sign-out" aria-hidden="true"></i> Log ud
-            </a>
-        </div>
+
     </aside>
 
     <div class="sheet">
@@ -36,6 +30,8 @@
                 <span class="date">{{ $today }}</span>
             </div>
             <x-navigation.global-search :area="$currentArea" />
+            <x-navigation.app-install />
+
         </header>
 
         <main id="main-content" class="view" tabindex="-1">

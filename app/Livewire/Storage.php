@@ -101,14 +101,46 @@ class Storage extends Component
     /**
      * Update the order of storage items.
      *
-     * @param array<int, int> $orderedIds
+     * @param array<int, int|string> $orderedIds
      */
     public function updateOrder(int $storageId, array $orderedIds): void
     {
+        $storage = \App\Models\Storage::with('items')->find($storageId);
+
+        if ($storage === null) {
+            return;
+        }
+
+        /** @var list<int> $currentIds */
+        $currentIds = $storage->items->pluck('id')->all();
+        $currentSet = \array_fill_keys($currentIds, true);
+        $validIds = [];
+
+        foreach ($orderedIds as $id) {
+            if (\is_int($id)) {
+                $validIds[] = $id;
+            } elseif (\ctype_digit($id)) {
+                $validIds[] = (int) $id;
+            }
+        }
+
+        $orderedIds = \array_values(\array_filter($validIds, static fn(int $id): bool => isset($currentSet[$id])));
+        $orderedIds = \array_values(\array_unique([...$orderedIds, ...\array_diff($currentIds, $orderedIds)]));
+
         foreach ($orderedIds as $index => $id) {
-            \App\Models\StorageItem::where('id', $id)->update(['sort_order' => $index]);
+            \App\Models\StorageItem::query()->where('storage_id', $storageId)->where('id', $id)->update(['sort_order' => $index]);
         }
         $this->storage = \App\Models\Storage::with('items')->orderBy('name')->get();
+    }
+
+    public function moveItemUp(int $storageId, int $itemId): void
+    {
+        $this->moveItem($storageId, $itemId, -1);
+    }
+
+    public function moveItemDown(int $storageId, int $itemId): void
+    {
+        $this->moveItem($storageId, $itemId, 1);
     }
 
     public function editItem(int $itemId): void
@@ -135,5 +167,27 @@ class Storage extends Component
         $this->editItemName = null;
         $this->editItemQuantity = null;
         $this->storage = \App\Models\Storage::with('items')->orderBy('name')->get();
+    }
+
+    private function moveItem(int $storageId, int $itemId, int $direction): void
+    {
+        $storage = \App\Models\Storage::with('items')->find($storageId);
+        $items = $storage?->items->values();
+
+        if ($items === null) {
+            return;
+        }
+
+        $index = $items->search(static fn(\App\Models\StorageItem $item): bool => $item->id === $itemId);
+
+        if (!\is_int($index) || $index + $direction < 0 || $index + $direction >= $items->count()) {
+            return;
+        }
+
+        /** @var list<int> $ids */
+        $ids = $items->pluck('id')->all();
+        $target = $index + $direction;
+        [$ids[$index], $ids[$target]] = [$ids[$target], $ids[$index]];
+        $this->updateOrder($storageId, $ids);
     }
 }

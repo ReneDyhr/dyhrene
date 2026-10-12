@@ -46,7 +46,7 @@ use Livewire\Livewire;
 \it('renders the shell safely without an authenticated user', function (): void {
     $html = Illuminate\Support\Facades\Blade::render('<x-layouts.app-shell><p>Indhold</p></x-layouts.app-shell>');
 
-    \expect($html)->toContain('>Gæst</div>')
+    \expect($html)->not->toContain('Gæst')
         ->toContain('href="#main-content"')
         ->toContain('<main id="main-content"');
 });
@@ -57,7 +57,7 @@ use Livewire\Livewire;
     $response = $this->actingAs($user)->get(\route('nature.dashboard'));
 
     $response->assertOk();
-    $response->assertSee($user->name);
+    $response->assertDontSee($user->name);
     $response->assertSee('data-area="nature"', false);
     $response->assertSee('aria-label="Områder"', false);
     $response->assertSee('aria-label="Søg i opskrifter"', false);

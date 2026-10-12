@@ -1,9 +1,14 @@
 .login-page, .register-page {
     background: #d2d6de;
-    height: 100vh;
-    top: 0;
-    position: absolute;
-    width: 100vw;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    position: relative;
+    width: 100%;
+    padding-top: max(0px, env(safe-area-inset-top, 0px));
+    padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(0px, env(safe-area-inset-left, 0px));
+    padding-right: max(0px, env(safe-area-inset-right, 0px));
 
     .login-logo,
     .register-logo {

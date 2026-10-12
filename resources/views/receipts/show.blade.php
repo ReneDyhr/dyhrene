@@ -21,7 +21,8 @@
             @endif
         </div>
 
-        <table class="table">
+        <div class="receipt-items-table-wrap">
+        <table class="table receipt-items-table">
             <thead>
                 <tr>
                     <th>Vare</th>
@@ -35,12 +36,12 @@
             <tbody>
                 @foreach ($receipt->items as $item)
                     <tr>
-                        <td>{{ $item->name }}</td>
-                        <td>{{ $item->quantity }}</td>
-                        <td>{{ \App\Support\Format::number((float) $item->amount) }}</td>
-                        <td>{{ \App\Support\Format::number($item->total) }} {{ $receipt->currency }}</td>
-                        <td>{{ $item->category?->name }}</td>
-                        <td>
+                        <td data-label="Vare">{{ $item->name }}</td>
+                        <td data-label="Antal">{{ $item->quantity }}</td>
+                        <td data-label="Pris">{{ \App\Support\Format::number((float) $item->amount) }}</td>
+                        <td data-label="Total">{{ \App\Support\Format::number($item->total) }} {{ $receipt->currency }}</td>
+                        <td data-label="Kategori">{{ $item->category?->name }}</td>
+                        <td data-label="Inventar">
                             @if ($item->inventoryItem)
                                 <a href="{{ route('inventory.show', $item->inventoryItem) }}">{{ $item->inventoryItem->name }}</a>
                                 <button wire:click="unlinkFromInventory({{ $item->id }})"
@@ -66,6 +67,7 @@
                 </tr>
             </tfoot>
         </table>
+        </div>
 
         <div style="display: flex; gap: 10px; margin-top: 16px;">
             <a href="{{ route('receipts.edit', $receipt) }}" class="btn btn-primary" wire:navigate>Redigér</a>

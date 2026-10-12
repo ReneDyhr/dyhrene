@@ -1,0 +1,9 @@
+@media (max-width: 900px), (any-pointer: coarse) {
+    input:not([type='hidden']):not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='button']):not([type='submit']):not([type='reset']):not(:disabled):not([readonly]),
+    textarea:not(:disabled):not([readonly]),
+    textarea.form-control:not(:disabled):not([readonly]),
+    select:not(:disabled),
+    select.form-control:not(:disabled) {
+        font-size: max(16px, 1rem);
+    }
+}

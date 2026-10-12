@@ -1,0 +1,18 @@
+/* Mobile shell uses the dynamic viewport while retaining the legacy fallback. */
+.binder {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.rail {
+    height: 100vh;
+    height: 100dvh;
+}
+
+@media (max-width: 900px) {
+    .cta,
+    .login-page button[type='submit'],
+    .register-page button[type='submit'] {
+        min-height: 44px;
+    }
+}

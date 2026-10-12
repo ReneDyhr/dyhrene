@@ -25,7 +25,11 @@
                                     {{ $item->quantity }} {{ $item->name }}
                                 @endif
                             </span>
-                            <span class="handle" wire:click.stop title="Træk for at sortere"><i class="fa fa-arrows-v"></i></span>
+                            <span class="handle" wire:click.stop title="Træk for at sortere" aria-hidden="true"><i class="fa fa-arrows-v"></i></span>
+                            <span class="ordering-controls" aria-label="Rækkefølge">
+                                <button type="button" wire:click.stop="moveItemUp({{ $storageUnit->id }}, {{ $item->id }})" aria-label="Flyt op" @if ($loop->first) disabled @endif>↑</button>
+                                <button type="button" wire:click.stop="moveItemDown({{ $storageUnit->id }}, {{ $item->id }})" aria-label="Flyt ned" @if ($loop->last) disabled @endif>↓</button>
+                            </span>
                             <span wire:confirm="Er du sikker?" wire:click.stop="removeItem({{ $item->id }})" class="close" title="Slet">×</span>
                         </li>
                     @endforeach
@@ -53,12 +57,12 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Antal</label>
-                            <input type="number" wire:model.defer="editItemQuantity" class="form-control" min="1">
+                            <label for="edit-item-quantity">Antal</label>
+                            <input id="edit-item-quantity" type="number" wire:model.defer="editItemQuantity" class="form-control" min="1">
                         </div>
                         <div class="form-group">
-                            <label>Navn</label>
-                            <input type="text" wire:model.defer="editItemName" class="form-control">
+                            <label for="edit-item-name">Navn</label>
+                            <input id="edit-item-name" type="text" wire:model.defer="editItemName" class="form-control">
                         </div>
                     </div>
                     <div class="modal-footer">

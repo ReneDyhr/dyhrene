@@ -1,0 +1,60 @@
+.app-install-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ink-soft);
+    font-size: 12px;
+}
+
+.app-install-button {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 13px;
+    color: var(--theme);
+    font-weight: 600;
+}
+
+.app-install-button:hover,
+.app-install-button:focus-visible {
+    border-color: var(--theme);
+}
+
+.app-install-help summary {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.app-install-help-copy {
+    position: absolute;
+    z-index: 10;
+    max-width: 320px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 20%);
+}
+
+.app-install-help-copy p { margin: 0 0 8px; }
+.app-install-help-copy p:last-child { margin-bottom: 0; }
+
+.family-account { display: flex; align-items: center; gap: 10px; margin: 0 0 20px; font-size: 13px; }
+.family-account-name { color: var(--ink-soft); }
+.family-account-logout { min-height: 40px; display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 0 12px; text-decoration: none; }
+
+@media (max-width: 900px) {
+    .app-install-controls {
+        order: 4;
+        width: 100%;
+        justify-content: flex-end;
+        padding-bottom: 4px;
+    }
+
+
+}
+
+.app-install-controls[hidden],
+.app-install-button[hidden],
+.app-install-help[hidden] { display: none !important; }
