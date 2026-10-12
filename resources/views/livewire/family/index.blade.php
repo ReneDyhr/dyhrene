@@ -1,4 +1,6 @@
 <x-layouts.app-shell :area="\App\Enums\AppArea::Family">
+    <x-navigation.account-menu />
+
     <div class="view-head">
         <h1>Familien</h1>
         <p>Profiler, post og adgang. Det tekniske ligger her, så det ikke fylder i resten af huset.</p>

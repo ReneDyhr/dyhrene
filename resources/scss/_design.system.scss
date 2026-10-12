@@ -417,9 +417,10 @@ a.row:hover { text-decoration: none; }
 /* ---------- Mobil ---------- */
 @media (max-width: 900px) {
     .rail { display: none; }
-    .sheet { padding-bottom: 74px; }
-    .topbar { padding: 16px 18px 0; }
-    .view { padding: 12px 18px 40px; }
+    :root { --mobile-nav-reserved-height: calc(59px + env(safe-area-inset-bottom, 0px)); }
+    .sheet { padding-bottom: var(--mobile-nav-reserved-height); }
+    .topbar { padding: max(16px, calc(16px + env(safe-area-inset-top, 0px))) max(18px, calc(18px + env(safe-area-inset-right, 0px))) 0 max(18px, calc(18px + env(safe-area-inset-left, 0px))); }
+    .view { padding: 12px max(18px, calc(18px + env(safe-area-inset-right, 0px))) 40px max(18px, calc(18px + env(safe-area-inset-left, 0px))); }
     .search { margin-left: 0; order: 3; width: 100%; min-width: 0; }
     .today { grid-template-columns: 1fr; }
     .register { grid-template-columns: 1fr; gap: 10px; }
@@ -440,7 +441,7 @@ a.row:hover { text-decoration: none; }
         z-index: 20;
         background: var(--card);
         border-top: 1px solid var(--line);
-        padding: 7px 4px calc(7px + env(safe-area-inset-bottom));
+        padding: 7px max(4px, calc(4px + env(safe-area-inset-right, 0px))) calc(7px + env(safe-area-inset-bottom, 0px)) max(4px, calc(4px + env(safe-area-inset-left, 0px)));
     }
     .mobilenav a {
         flex: 1;

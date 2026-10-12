@@ -1,0 +1,69 @@
+@media (max-width: 700px) {
+    .receipt-items-table-wrap {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+    }
+
+    .receipt-items-table,
+    .receipt-items-table tbody,
+    .receipt-items-table tfoot {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .receipt-items-table thead { display: none; }
+
+    .receipt-items-table tbody tr {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 12px;
+        padding: 12px;
+        margin-bottom: 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--r);
+        background: var(--paper);
+    }
+
+    .receipt-items-table tbody td {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .receipt-items-table tbody td::before {
+        content: attr(data-label);
+        margin-bottom: 3px;
+        color: var(--ink-soft);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .receipt-items-table tbody td:first-child { grid-column: 1 / -1; }
+
+    .receipt-items-table select.form-control {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0 !important;
+        box-sizing: border-box;
+    }
+
+    .receipt-items-table tfoot tr {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 12px;
+        border-top: 1px solid var(--line);
+        font-weight: 600;
+    }
+
+    .receipt-items-table tfoot td { padding: 0; border: 0; }
+    .receipt-items-table tfoot td:nth-child(n + 3) { display: none; }
+}

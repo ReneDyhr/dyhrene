@@ -42,10 +42,20 @@ class ShoppingList extends Component
         $this->sortedCheckedItems = $checkedItems;
     }
 
+    public function moveItemUp(int $id): void
+    {
+        $this->moveItem($id, -1);
+    }
+
+    public function moveItemDown(int $id): void
+    {
+        $this->moveItem($id, 1);
+    }
+
     /**
      * Update the order of the items in the shopping list.
      *
-     * @param \App\Models\ShoppingList[] $items
+     * @param array<int, int|string> $items
      */
     public function updateOrder(array $items): void
     {
@@ -54,14 +64,11 @@ class ShoppingList extends Component
         foreach ($items as $item) {
             $shoppingListItem = \App\Models\ShoppingList::forAuthUser()->find($item);
 
-            // @phpstan-ignore-next-line
             if ($shoppingListItem === null) {
                 continue;
             }
 
-            // @phpstan-ignore-next-line
             $shoppingListItem->order = $order;
-            // @phpstan-ignore-next-line
             $shoppingListItem->save();
             $order++;
         }
@@ -168,5 +175,32 @@ class ShoppingList extends Component
         /** @var \App\Models\User */
         $user = Auth::user();
         \broadcast(new \App\Events\ShoppingList($user, 'update', []));
+    }
+
+    private function moveItem(int $id, int $direction): void
+    {
+        $items = $this->sortedItems->values();
+        $index = $items->search(static fn(\App\Models\ShoppingList $item): bool => $item->id === $id);
+
+        if (!\is_int($index)) {
+            return;
+        }
+
+        $target = $index + $direction;
+
+        if ($target < 0 || $target >= $items->count()) {
+            return;
+        }
+
+        $targetItem = $items->get($target);
+
+        if ($targetItem === null || $targetItem->isSectionHeader()) {
+            return;
+        }
+
+        /** @var list<int> $ids */
+        $ids = $items->pluck('id')->all();
+        [$ids[$index], $ids[$target]] = [$ids[$target], $ids[$index]];
+        $this->updateOrder($ids);
     }
 }
